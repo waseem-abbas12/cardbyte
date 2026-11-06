@@ -22,7 +22,7 @@ export default function RatesPage() {
         <span className="text-xs font-bold text-brand-primary uppercase tracking-widest px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/25">
           LIVE PRICING CATALOG
         </span>
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight mt-3">
+        <h1 className="text-3xl sm:text-5xl font-extrabold text-brand-text tracking-tight mt-3">
           Exchange Rates & Limits
         </h1>
         <p className="text-sm sm:text-base text-brand-muted mt-2">
@@ -37,16 +37,16 @@ export default function RatesPage() {
             placeholder="Search by brand (e.g. Apple, Steam) or country..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-brand-surface border border-brand-border text-white text-sm rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-brand-primary"
+            className="w-full bg-brand-surface border border-brand-border text-brand-text text-sm rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-brand-primary placeholder:text-brand-muted/50"
           />
         </div>
       </div>
 
       {/* Rates Table Card */}
-      <div className="rounded-3xl glass-panel border border-brand-border overflow-hidden shadow-2xl">
+      <div className="rounded-3xl glass-panel border border-brand-border overflow-hidden shadow-card">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-[#060c1d] border-b border-brand-border text-xs uppercase text-brand-muted tracking-wider">
+            <thead className="bg-brand-surface border-b border-brand-border text-xs uppercase text-brand-muted tracking-wider">
               <tr>
                 <th className="py-4 px-6">Gift Card Brand</th>
                 <th className="py-4 px-6">Region / Currency</th>
@@ -56,17 +56,17 @@ export default function RatesPage() {
                 <th className="py-4 px-6 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-brand-border/40 text-white">
+            <tbody className="divide-y divide-brand-border/40 text-brand-text">
               {filteredBrands.map((b) => (
                 <React.Fragment key={b.id}>
                   {b.countries.map((c, idx) => (
-                    <tr key={`${b.id}-${c.code}`} className="hover:bg-brand-card/40 transition-colors">
+                    <tr key={`${b.id}-${c.code}`} className="hover:bg-brand-surface/70 transition-colors">
                       {idx === 0 ? (
                         <td className="py-4 px-6 align-top" rowSpan={b.countries.length}>
                           <div className="flex items-center gap-3">
                             <span className="text-2xl p-2 rounded-xl bg-brand-surface border border-brand-border">{b.icon}</span>
                             <div>
-                              <span className="font-bold text-white block">{b.name}</span>
+                              <span className="font-bold text-brand-text block">{b.name}</span>
                               <span className="text-xs text-brand-muted">{b.category}</span>
                             </div>
                           </div>
@@ -91,7 +91,7 @@ export default function RatesPage() {
                       </td>
 
                       <td className="py-4 px-6 whitespace-nowrap text-xs text-brand-muted">
-                        <span className="flex items-center gap-1.5 font-medium text-white/90">
+                        <span className="flex items-center gap-1.5 font-medium text-brand-text/90">
                           <Clock className="w-3.5 h-3.5 text-brand-primary" />
                           {b.verificationTime}
                         </span>
@@ -100,7 +100,7 @@ export default function RatesPage() {
                       <td className="py-4 px-6 text-right whitespace-nowrap">
                         <Link
                           href={`/sell?brand=${b.id}&country=${c.code}`}
-                          className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-lg bg-brand-primary/20 hover:bg-brand-primary text-brand-primary hover:text-white border border-brand-primary/30 text-xs font-bold transition-all"
+                          className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-lg bg-brand-primary/10 hover:bg-brand-primary text-brand-primary hover:text-white border border-brand-primary/20 text-xs font-bold transition-all"
                         >
                           <span>Trade</span>
                           <ArrowRight className="w-3.5 h-3.5" />

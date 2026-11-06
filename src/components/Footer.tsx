@@ -4,11 +4,11 @@ import { ShieldCheck, Lock, Coins, Send, Mail } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#050b18] border-t border-brand-border/60 text-brand-muted text-sm pt-16 pb-12">
+    <footer className="bg-brand-surface border-t border-brand-border text-brand-muted text-sm pt-16 pb-12 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Main Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-10 pb-12 border-b border-brand-border/50">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-10 pb-12 border-b border-brand-border">
           
           {/* Brand Info (2 cols) */}
           <div className="md:col-span-2 space-y-4">
@@ -16,7 +16,7 @@ export default function Footer() {
               <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-blue-400 flex items-center justify-center text-white shadow-md shadow-brand-primary/20">
                 <Coins className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-extrabold tracking-tight text-white">
+              <span className="text-xl font-extrabold tracking-tight text-brand-text">
                 Cardbyte <span className="text-[10px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-brand-primary/15 text-brand-primary border border-brand-primary/30">Pro</span>
               </span>
             </Link>
@@ -26,11 +26,11 @@ export default function Footer() {
             </p>
 
             <div className="flex items-center gap-3 pt-2 text-xs">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-brand-card border border-brand-border/80 text-white font-medium">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-brand-card border border-brand-border text-brand-text font-medium shadow-sm">
                 <ShieldCheck className="w-3.5 h-3.5 text-brand-success" />
                 PCI-DSS Compliant
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-brand-card border border-brand-border/80 text-white font-medium">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-brand-card border border-brand-border text-brand-text font-medium shadow-sm">
                 <Lock className="w-3.5 h-3.5 text-brand-primary" />
                 256-Bit SSL
               </span>
@@ -39,43 +39,43 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Exchange</h4>
+            <h4 className="text-xs font-bold text-brand-text uppercase tracking-wider mb-4">Exchange</h4>
             <ul className="space-y-2.5 text-xs">
               <li>
-                <Link href="/sell" className="hover:text-white transition-colors">Sell Gift Cards</Link>
+                <Link href="/sell" className="hover:text-brand-primary transition-colors">Sell Gift Cards</Link>
               </li>
               <li>
-                <Link href="/rates" className="hover:text-white transition-colors">Rates & Limits</Link>
+                <Link href="/rates" className="hover:text-brand-primary transition-colors">Rates & Limits</Link>
               </li>
               <li>
-                <Link href="/track" className="hover:text-white transition-colors">Track Transaction</Link>
+                <Link href="/track" className="hover:text-brand-primary transition-colors">Track Transaction</Link>
               </li>
               <li>
-                <Link href="/#calculator" className="hover:text-white transition-colors">Valuation Calculator</Link>
+                <Link href="/#calculator" className="hover:text-brand-primary transition-colors">Valuation Calculator</Link>
               </li>
               <li>
-                <Link href="/admin" className="text-brand-primary hover:underline">Client Admin Panel</Link>
+                <Link href="/admin" className="text-brand-primary hover:underline font-semibold">Client Admin Panel</Link>
               </li>
             </ul>
           </div>
 
           {/* Supported Payouts */}
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Payout Rails</h4>
+            <h4 className="text-xs font-bold text-brand-text uppercase tracking-wider mb-4">Payout Rails</h4>
             <ul className="space-y-2.5 text-xs">
-              <li className="flex items-center gap-1.5 text-white/80">
+              <li className="flex items-center gap-1.5 text-brand-text/80">
                 <span>USDT (TRC20 & BEP20)</span>
               </li>
-              <li className="flex items-center gap-1.5 text-white/80">
+              <li className="flex items-center gap-1.5 text-brand-text/80">
                 <span>Bitcoin (BTC)</span>
               </li>
-              <li className="flex items-center gap-1.5 text-white/80">
+              <li className="flex items-center gap-1.5 text-brand-text/80">
                 <span>Solana (SOL)</span>
               </li>
-              <li className="flex items-center gap-1.5 text-white/80">
+              <li className="flex items-center gap-1.5 text-brand-text/80">
                 <span>USD / EUR Bank Wire</span>
               </li>
-              <li className="flex items-center gap-1.5 text-white/80">
+              <li className="flex items-center gap-1.5 text-brand-text/80">
                 <span>NGN Bank & GHS MoMo</span>
               </li>
             </ul>
@@ -83,19 +83,19 @@ export default function Footer() {
 
           {/* Legal & Support */}
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Security & Help</h4>
+            <h4 className="text-xs font-bold text-brand-text uppercase tracking-wider mb-4">Security & Help</h4>
             <ul className="space-y-2.5 text-xs">
               <li>
-                <span className="text-brand-muted hover:text-white transition-colors cursor-pointer">AML & KYC Policy</span>
+                <span className="text-brand-muted hover:text-brand-primary transition-colors cursor-pointer">AML & KYC Policy</span>
               </li>
               <li>
-                <span className="text-brand-muted hover:text-white transition-colors cursor-pointer">Terms of Service</span>
+                <span className="text-brand-muted hover:text-brand-primary transition-colors cursor-pointer">Terms of Service</span>
               </li>
               <li>
-                <span className="text-brand-muted hover:text-white transition-colors cursor-pointer">Privacy Policy</span>
+                <span className="text-brand-muted hover:text-brand-primary transition-colors cursor-pointer">Privacy Policy</span>
               </li>
               <li>
-                <span className="text-brand-muted hover:text-white transition-colors cursor-pointer">Anti-Fraud FAQ</span>
+                <span className="text-brand-muted hover:text-brand-primary transition-colors cursor-pointer">Anti-Fraud FAQ</span>
               </li>
               <li className="pt-2">
                 <a

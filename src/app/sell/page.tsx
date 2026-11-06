@@ -106,7 +106,7 @@ function SellPageContent() {
             <span className="text-xs font-bold text-brand-success uppercase tracking-widest px-3 py-1 rounded-full bg-brand-success/15 border border-brand-success/30">
               Order Placed Successfully
             </span>
-            <h1 className="text-3xl font-extrabold text-white mt-3">
+            <h1 className="text-3xl font-extrabold text-brand-text mt-3">
               Order Received #{confirmedOrder.trackingCode}
             </h1>
             <p className="text-sm text-brand-muted mt-2">
@@ -121,7 +121,7 @@ function SellPageContent() {
             </div>
             <div className="flex justify-between border-b border-brand-border/60 pb-2.5">
               <span className="text-brand-muted">Asset:</span>
-              <span className="font-bold text-white">{confirmedOrder.brandName} ({confirmedOrder.quantity}x ${confirmedOrder.nominal})</span>
+              <span className="font-bold text-brand-text">{confirmedOrder.brandName} ({confirmedOrder.quantity}x ${confirmedOrder.nominal})</span>
             </div>
             <div className="flex justify-between border-b border-brand-border/60 pb-2.5">
               <span className="text-brand-muted">Guaranteed Payout:</span>
@@ -131,11 +131,11 @@ function SellPageContent() {
             </div>
             <div className="flex justify-between border-b border-brand-border/60 pb-2.5">
               <span className="text-brand-muted">Destination:</span>
-              <span className="font-mono text-white/90 truncate max-w-[200px]">{confirmedOrder.payoutAddress}</span>
+              <span className="font-mono text-brand-text/90 truncate max-w-[200px]">{confirmedOrder.payoutAddress}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-brand-muted">Current Status:</span>
-              <span className="font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">
+              <span className="font-bold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
                 {confirmedOrder.status}
               </span>
             </div>
@@ -153,7 +153,7 @@ function SellPageContent() {
                 setConfirmedOrder(null);
                 setStep(1);
               }}
-              className="flex-1 py-3.5 rounded-xl bg-brand-card hover:bg-brand-cardHover border border-brand-border text-white font-bold text-sm transition-all"
+              className="flex-1 py-3.5 rounded-xl bg-brand-surface hover:bg-brand-cardHover border border-brand-border text-brand-text font-bold text-sm transition-all"
             >
               Sell Another Card
             </button>
@@ -170,17 +170,17 @@ function SellPageContent() {
       <div className="mb-10">
         <div className="flex items-center justify-between max-w-md mx-auto text-xs font-bold text-brand-muted">
           <div className={`flex items-center gap-1.5 ${step >= 1 ? 'text-brand-primary' : ''}`}>
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step >= 1 ? 'bg-brand-primary text-white' : 'bg-brand-card'}`}>1</span>
+            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step >= 1 ? 'bg-brand-primary text-white' : 'bg-brand-surface border border-brand-border text-brand-muted'}`}>1</span>
             <span>Quote</span>
           </div>
           <div className="w-12 h-0.5 bg-brand-border"></div>
           <div className={`flex items-center gap-1.5 ${step >= 2 ? 'text-brand-primary' : ''}`}>
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step >= 2 ? 'bg-brand-primary text-white' : 'bg-brand-card'}`}>2</span>
+            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step >= 2 ? 'bg-brand-primary text-white' : 'bg-brand-surface border border-brand-border text-brand-muted'}`}>2</span>
             <span>Card Code</span>
           </div>
           <div className="w-12 h-0.5 bg-brand-border"></div>
           <div className={`flex items-center gap-1.5 ${step >= 3 ? 'text-brand-primary' : ''}`}>
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step >= 3 ? 'bg-brand-primary text-white' : 'bg-brand-card'}`}>3</span>
+            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step >= 3 ? 'bg-brand-primary text-white' : 'bg-brand-surface border border-brand-border text-brand-muted'}`}>3</span>
             <span>Payout</span>
           </div>
         </div>
@@ -190,7 +190,7 @@ function SellPageContent() {
       {step === 1 && (
         <div className="space-y-6">
           <div className="text-center max-w-xl mx-auto">
-            <h1 className="text-3xl font-extrabold text-white tracking-tight">Sell Your Gift Card</h1>
+            <h1 className="text-3xl font-extrabold text-brand-text tracking-tight">Sell Your Gift Card</h1>
             <p className="text-sm text-brand-muted mt-2">
               Select your card brand, format, and amount to lock in your live valuation quote.
             </p>
@@ -205,12 +205,12 @@ function SellPageContent() {
           <div className="flex items-center justify-between pb-4 border-b border-brand-border/60">
             <div>
               <span className="text-xs font-bold text-brand-primary uppercase tracking-wider">Step 2 of 3</span>
-              <h2 className="text-2xl font-extrabold text-white">Enter Gift Card Credentials</h2>
+              <h2 className="text-2xl font-extrabold text-brand-text">Enter Gift Card Credentials</h2>
             </div>
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="text-xs font-semibold text-brand-muted hover:text-white flex items-center gap-1"
+              className="text-xs font-semibold text-brand-muted hover:text-brand-primary flex items-center gap-1"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back
             </button>
@@ -220,7 +220,7 @@ function SellPageContent() {
           <div className="p-4 rounded-xl bg-brand-surface border border-brand-border flex items-center justify-between text-xs sm:text-sm">
             <div>
               <span className="text-brand-muted block">Selected Asset</span>
-              <span className="font-bold text-white">{tradeData.brandName} ({tradeData.quantity}x ${tradeData.nominal})</span>
+              <span className="font-bold text-brand-text">{tradeData.brandName} ({tradeData.quantity}x ${tradeData.nominal})</span>
             </div>
             <div className="text-right">
               <span className="text-brand-muted block">Locked Payout</span>
@@ -241,7 +241,7 @@ function SellPageContent() {
               placeholder={`Enter your ${tradeData.brandName} code here.\nIf you have multiple cards, enter one code per line.`}
               value={cardCodes}
               onChange={(e) => setCardCodes(e.target.value)}
-              className="w-full bg-brand-surface border border-brand-border text-white text-sm rounded-xl p-4 font-mono focus:outline-none focus:border-brand-primary resize-none placeholder:text-brand-muted/40"
+              className="w-full bg-brand-surface border border-brand-border text-brand-text text-sm rounded-xl p-4 font-mono focus:outline-none focus:border-brand-primary resize-none placeholder:text-brand-muted/40"
             />
             <p className="text-[11px] text-brand-muted mt-1.5">
               Exact code string without extra spaces. For digital e-codes, paste directly from your email.
@@ -258,7 +258,7 @@ function SellPageContent() {
               placeholder="e.g. 4-digit or 6-digit security PIN"
               value={cardPin}
               onChange={(e) => setCardPin(e.target.value)}
-              className="w-full bg-brand-surface border border-brand-border text-white text-sm rounded-xl px-4 py-3 font-mono focus:outline-none focus:border-brand-primary placeholder:text-brand-muted/40"
+              className="w-full bg-brand-surface border border-brand-border text-brand-text text-sm rounded-xl px-4 py-3 font-mono focus:outline-none focus:border-brand-primary placeholder:text-brand-muted/40"
             />
           </div>
 
@@ -267,7 +267,7 @@ function SellPageContent() {
             <label className="block text-xs font-bold text-brand-muted uppercase tracking-wider mb-2">
               Upload Card Photo or Purchase Receipt (Optional)
             </label>
-            <div className="border-2 border-dashed border-brand-border/80 hover:border-brand-primary/60 rounded-2xl p-6 text-center bg-brand-surface/40 transition-colors cursor-pointer relative">
+            <div className="border-2 border-dashed border-brand-border hover:border-brand-primary/60 rounded-2xl p-6 text-center bg-brand-surface transition-colors cursor-pointer relative">
               <input
                 type="file"
                 accept="image/*,.pdf"
@@ -279,7 +279,7 @@ function SellPageContent() {
                 className="absolute inset-0 opacity-0 cursor-pointer"
               />
               <Upload className="w-8 h-8 text-brand-muted mx-auto mb-2" />
-              <p className="text-xs font-bold text-white">
+              <p className="text-xs font-bold text-brand-text">
                 {receiptFileName ? `Selected: ${receiptFileName}` : 'Click to upload card back photo or receipt'}
               </p>
               <p className="text-[11px] text-brand-muted mt-1">PNG, JPG, WEBP up to 10MB</p>
@@ -288,7 +288,7 @@ function SellPageContent() {
 
           <button
             type="submit"
-            className="w-full py-4 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white font-extrabold text-base shadow-lg shadow-brand-primary/25 transition-all flex items-center justify-center gap-2"
+            className="w-full py-4 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white font-extrabold text-base shadow-lg shadow-brand-primary/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>Proceed to Payout Details</span>
             <ArrowRight className="w-4 h-4" />
@@ -302,19 +302,19 @@ function SellPageContent() {
           <div className="flex items-center justify-between pb-4 border-b border-brand-border/60">
             <div>
               <span className="text-xs font-bold text-brand-primary uppercase tracking-wider">Step 3 of 3</span>
-              <h2 className="text-2xl font-extrabold text-white">Where Should We Send Your Funds?</h2>
+              <h2 className="text-2xl font-extrabold text-brand-text">Where Should We Send Your Funds?</h2>
             </div>
             <button
               type="button"
               onClick={() => setStep(2)}
-              className="text-xs font-semibold text-brand-muted hover:text-white flex items-center gap-1"
+              className="text-xs font-semibold text-brand-muted hover:text-brand-primary flex items-center gap-1"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back
             </button>
           </div>
 
           {submitError && (
-            <div className="p-4 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
+            <div className="p-4 rounded-xl bg-red-500/15 border border-red-500/30 text-red-500 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{submitError}</span>
             </div>
@@ -331,7 +331,7 @@ function SellPageContent() {
               placeholder={`Enter your ${tradeData.payoutName} destination address`}
               value={payoutAddress}
               onChange={(e) => setPayoutAddress(e.target.value)}
-              className="w-full bg-brand-surface border border-brand-border text-white text-sm rounded-xl px-4 py-3.5 font-mono focus:outline-none focus:border-brand-primary placeholder:text-brand-muted/40"
+              className="w-full bg-brand-surface border border-brand-border text-brand-text text-sm rounded-xl px-4 py-3.5 font-mono focus:outline-none focus:border-brand-primary placeholder:text-brand-muted/40"
             />
             <p className="text-[11px] text-brand-muted mt-1.5">
               Please double check your wallet address or account details. Transfers are irreversible once broadcasted.
@@ -348,22 +348,22 @@ function SellPageContent() {
               placeholder="name@example.com (To receive confirmation receipt)"
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
-              className="w-full bg-brand-surface border border-brand-border text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary placeholder:text-brand-muted/40"
+              className="w-full bg-brand-surface border border-brand-border text-brand-text text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary placeholder:text-brand-muted/40"
             />
           </div>
 
           {/* Final Summary Card */}
-          <div className="p-5 rounded-2xl bg-[#060f24] border border-brand-primary/30 space-y-2.5 text-xs sm:text-sm">
+          <div className="p-5 rounded-2xl bg-brand-surface border border-brand-primary/30 space-y-2.5 text-xs sm:text-sm">
             <div className="flex justify-between">
               <span className="text-brand-muted">Trade Value:</span>
-              <span className="text-white font-bold">{tradeData.quantity}x {tradeData.brandName} (${tradeData.totalFaceValue} Face Value)</span>
+              <span className="text-brand-text font-bold">{tradeData.quantity}x {tradeData.brandName} (${tradeData.totalFaceValue} Face Value)</span>
             </div>
             <div className="flex justify-between">
               <span className="text-brand-muted">Applied Rate:</span>
-              <span className="text-white font-bold">{tradeData.ratePercent}%</span>
+              <span className="text-brand-text font-bold">{tradeData.ratePercent}%</span>
             </div>
             <div className="flex justify-between border-t border-brand-border/60 pt-2 text-base">
-              <span className="text-white font-bold">Total Payout:</span>
+              <span className="text-brand-text font-bold">Total Payout:</span>
               <span className="font-mono font-extrabold text-brand-success">${tradeData.totalPayoutUsd.toFixed(2)} USD</span>
             </div>
           </div>

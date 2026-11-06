@@ -107,33 +107,33 @@ export default function AdminPage() {
             <Settings className="w-3.5 h-3.5" />
             Client Management Console
           </div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">Exchange Operations Desk</h1>
+          <h1 className="text-3xl font-extrabold text-brand-text tracking-tight">Exchange Operations Desk</h1>
           <p className="text-sm text-brand-muted mt-1">Manage live buy-back rates, inspect card codes, and release payouts.</p>
         </div>
 
         <button
           onClick={fetchData}
-          className="self-start md:self-auto px-4 py-2 rounded-xl bg-brand-card hover:bg-brand-cardHover border border-brand-border text-white text-xs font-bold flex items-center gap-2"
+          className="self-start md:self-auto px-4 py-2 rounded-xl bg-brand-surface hover:bg-brand-cardHover border border-brand-border text-brand-text text-xs font-bold flex items-center gap-2 transition-colors"
         >
-          <RefreshCw className="w-3.5 h-3.5" /> Refresh Data
+          <RefreshCw className="w-3.5 h-3.5 text-brand-primary" /> Refresh Data
         </button>
       </div>
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <div className="p-6 rounded-2xl glass-panel border border-brand-border">
+        <div className="p-6 rounded-2xl glass-panel border border-brand-border shadow-card">
           <span className="text-xs text-brand-muted block font-semibold">Total Orders Processed</span>
-          <span className="text-3xl font-mono font-black text-white mt-1 block">{data.orders.length}</span>
+          <span className="text-3xl font-mono font-black text-brand-text mt-1 block">{data.orders.length}</span>
           <span className="text-xs text-brand-success mt-1 block font-medium">Face Volume: ${totalVolume.toFixed(2)}</span>
         </div>
 
-        <div className="p-6 rounded-2xl glass-panel border border-amber-500/30 bg-amber-500/5">
-          <span className="text-xs text-amber-400 block font-semibold">Pending Verification</span>
-          <span className="text-3xl font-mono font-black text-amber-400 mt-1 block">{pendingCount}</span>
+        <div className="p-6 rounded-2xl glass-panel border border-amber-500/30 bg-amber-500/5 shadow-card">
+          <span className="text-xs text-amber-500 block font-semibold">Pending Verification</span>
+          <span className="text-3xl font-mono font-black text-amber-500 mt-1 block">{pendingCount}</span>
           <span className="text-xs text-brand-muted mt-1 block">Awaiting card clearance</span>
         </div>
 
-        <div className="p-6 rounded-2xl glass-panel border border-brand-success/30 bg-brand-success/5">
+        <div className="p-6 rounded-2xl glass-panel border border-brand-success/30 bg-brand-success/5 shadow-card">
           <span className="text-xs text-brand-success block font-semibold">Completed Trades</span>
           <span className="text-3xl font-mono font-black text-brand-success mt-1 block">{completedCount}</span>
           <span className="text-xs text-brand-muted mt-1 block">Settled payouts</span>
@@ -141,13 +141,13 @@ export default function AdminPage() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-brand-border/60 mb-6">
+      <div className="flex border-b border-brand-border mb-6">
         <button
           onClick={() => setActiveTab('orders')}
           className={`py-3 px-6 text-sm font-bold border-b-2 transition-all cursor-pointer ${
             activeTab === 'orders'
               ? 'border-brand-primary text-brand-primary'
-              : 'border-transparent text-brand-muted hover:text-white'
+              : 'border-transparent text-brand-muted hover:text-brand-text'
           }`}
         >
           Incoming Orders ({data.orders.length})
@@ -157,7 +157,7 @@ export default function AdminPage() {
           className={`py-3 px-6 text-sm font-bold border-b-2 transition-all cursor-pointer ${
             activeTab === 'rates'
               ? 'border-brand-primary text-brand-primary'
-              : 'border-transparent text-brand-muted hover:text-white'
+              : 'border-transparent text-brand-muted hover:text-brand-text'
           }`}
         >
           Rates & Margins Manager ({data.brands.length} Brands)
@@ -166,10 +166,10 @@ export default function AdminPage() {
 
       {/* Tab 1: Orders Table */}
       {activeTab === 'orders' && (
-        <div className="rounded-3xl glass-panel border border-brand-border overflow-hidden">
+        <div className="rounded-3xl glass-panel border border-brand-border overflow-hidden shadow-card">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-[#060c1d] border-b border-brand-border text-xs uppercase text-brand-muted tracking-wider">
+              <thead className="bg-brand-surface border-b border-brand-border text-xs uppercase text-brand-muted tracking-wider">
                 <tr>
                   <th className="py-4 px-5">Tracking Code</th>
                   <th className="py-4 px-5">Card & Nominal</th>
@@ -180,17 +180,17 @@ export default function AdminPage() {
                   <th className="py-4 px-5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-brand-border/40 text-white">
+              <tbody className="divide-y divide-brand-border/40 text-brand-text">
                 {data.orders.map((o) => {
                   const isRevealed = showCodes[o.id] || false;
                   return (
-                    <tr key={o.id} className="hover:bg-brand-card/40 transition-colors">
+                    <tr key={o.id} className="hover:bg-brand-surface/70 transition-colors">
                       <td className="py-4 px-5 whitespace-nowrap font-mono font-bold text-brand-primary">
                         {o.trackingCode}
                       </td>
 
                       <td className="py-4 px-5 whitespace-nowrap">
-                        <span className="font-bold text-white block">{o.brandName}</span>
+                        <span className="font-bold text-brand-text block">{o.brandName}</span>
                         <span className="text-xs text-brand-muted">
                           {o.quantity}x ${o.nominal} ({o.ratePercent}%)
                         </span>
@@ -198,14 +198,14 @@ export default function AdminPage() {
 
                       <td className="py-4 px-5">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs bg-brand-surface px-2.5 py-1 rounded border border-brand-border">
+                          <span className="font-mono text-xs bg-brand-surface px-2.5 py-1 rounded border border-brand-border text-brand-text">
                             {isRevealed ? o.cardCodes.join(', ') : '•••• •••• ••••'}
                             {o.cardPin ? ` (PIN: ${isRevealed ? o.cardPin : '•••'})` : ''}
                           </span>
                           <button
                             type="button"
                             onClick={() => setShowCodes(prev => ({ ...prev, [o.id]: !isRevealed }))}
-                            className="text-brand-muted hover:text-white p-1"
+                            className="text-brand-muted hover:text-brand-primary p-1 cursor-pointer"
                             title="Toggle reveal"
                           >
                             {isRevealed ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -226,8 +226,8 @@ export default function AdminPage() {
                           o.status === 'COMPLETED'
                             ? 'bg-brand-successGlow text-brand-success border border-brand-success/40'
                             : o.status === 'REJECTED'
-                            ? 'bg-red-500/15 text-red-400 border border-red-500/30'
-                            : 'bg-amber-400/15 text-amber-400 border border-amber-400/30'
+                            ? 'bg-red-500/15 text-red-500 border border-red-500/30'
+                            : 'bg-amber-500/15 text-amber-500 border border-amber-500/30'
                         }`}>
                           {o.status}
                         </span>
@@ -237,7 +237,7 @@ export default function AdminPage() {
                         {o.status !== 'COMPLETED' && (
                           <button
                             onClick={() => handleUpdateStatus(o.id, 'COMPLETED')}
-                            className="px-2.5 py-1 rounded-lg bg-brand-success/20 hover:bg-brand-success text-brand-success hover:text-white text-xs font-bold transition-all"
+                            className="px-2.5 py-1 rounded-lg bg-brand-success/15 hover:bg-brand-success text-brand-success hover:text-white text-xs font-bold transition-all cursor-pointer"
                             title="Mark as paid"
                           >
                             Approve & Pay
@@ -246,7 +246,7 @@ export default function AdminPage() {
                         {o.status === 'PENDING' && (
                           <button
                             onClick={() => handleUpdateStatus(o.id, 'VERIFYING')}
-                            className="px-2.5 py-1 rounded-lg bg-brand-primary/20 hover:bg-brand-primary text-brand-primary hover:text-white text-xs font-bold transition-all"
+                            className="px-2.5 py-1 rounded-lg bg-brand-primary/15 hover:bg-brand-primary text-brand-primary hover:text-white text-xs font-bold transition-all cursor-pointer"
                           >
                             Verify
                           </button>
@@ -257,7 +257,7 @@ export default function AdminPage() {
                               const reason = prompt('Enter rejection reason (e.g. Card already redeemed):', 'Card is invalid or already redeemed');
                               if (reason) handleUpdateStatus(o.id, 'REJECTED', reason);
                             }}
-                            className="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500 text-red-400 hover:text-white text-xs font-bold transition-all"
+                            className="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500 text-red-500 hover:text-white text-xs font-bold transition-all cursor-pointer"
                           >
                             Reject
                           </button>
@@ -282,21 +282,21 @@ export default function AdminPage() {
             </div>
           )}
 
-          <div className="rounded-3xl glass-panel border border-brand-border overflow-hidden">
-            <div className="p-6 bg-[#060c1d] border-b border-brand-border">
-              <h3 className="text-base font-bold text-white">Live Card Buy Rates</h3>
-              <p className="text-xs text-brand-muted">
+          <div className="rounded-3xl glass-panel border border-brand-border overflow-hidden shadow-card">
+            <div className="p-6 bg-brand-surface border-b border-brand-border">
+              <h3 className="text-base font-bold text-brand-text">Live Card Buy Rates</h3>
+              <p className="text-xs text-brand-muted mt-0.5">
                 Change your buy-back rate percentage. Changing this directly updates what customers receive in the calculator.
               </p>
             </div>
 
             <div className="divide-y divide-brand-border/40">
               {data.brands.map((b) => (
-                <div key={b.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-brand-card/30">
+                <div key={b.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-brand-surface/50 transition-colors">
                   <div className="flex items-center gap-3">
                     <span className="text-3xl p-2 rounded-xl bg-brand-surface border border-brand-border">{b.icon}</span>
                     <div>
-                      <h4 className="text-base font-bold text-white">{b.name}</h4>
+                      <h4 className="text-base font-bold text-brand-text">{b.name}</h4>
                       <span className="text-xs text-brand-muted">{b.category} • {b.verificationTime}</span>
                     </div>
                   </div>
@@ -307,7 +307,7 @@ export default function AdminPage() {
                       return (
                         <div key={c.code} className="flex items-center gap-2 bg-brand-surface px-3 py-1.5 rounded-xl border border-brand-border text-xs">
                           <span className="text-sm">{c.flag}</span>
-                          <span className="font-semibold text-white/80">{c.code}:</span>
+                          <span className="font-semibold text-brand-text/80">{c.code}:</span>
                           {isEditing ? (
                             <div className="flex items-center gap-1">
                               <input
@@ -315,18 +315,18 @@ export default function AdminPage() {
                                 step="0.5"
                                 value={newRateInput}
                                 onChange={(e) => setNewRateInput(e.target.value)}
-                                className="w-16 bg-[#060c1d] text-brand-success font-bold px-1.5 py-0.5 rounded border border-brand-primary text-xs focus:outline-none"
+                                className="w-16 bg-brand-surface text-brand-success font-bold px-1.5 py-0.5 rounded border border-brand-primary text-xs focus:outline-none"
                               />
                               <button
                                 onClick={() => handleSaveRate(b.id, c.code, parseFloat(newRateInput))}
-                                className="p-1 rounded bg-brand-success text-white"
+                                className="p-1 rounded bg-brand-success text-white cursor-pointer"
                                 title="Save"
                               >
                                 ✓
                               </button>
                               <button
                                 onClick={() => setEditingBrandId('')}
-                                className="p-1 rounded bg-brand-card text-brand-muted"
+                                className="p-1 rounded bg-brand-card hover:bg-brand-cardHover text-brand-muted cursor-pointer"
                                 title="Cancel"
                               >
                                 ✕
@@ -341,7 +341,7 @@ export default function AdminPage() {
                                   setEditingCountryCode(c.code);
                                   setNewRateInput(c.ratePercent.toString());
                                 }}
-                                className="text-[10px] text-brand-primary hover:underline font-bold"
+                                className="text-[10px] text-brand-primary hover:underline font-bold cursor-pointer"
                               >
                                 Edit
                               </button>

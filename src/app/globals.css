@@ -3,15 +3,41 @@
 @tailwind utilities;
 
 :root {
-  --background: #000921;
-  --foreground: #ffffff;
+  /* Default Crisp Light Fintech Theme (Matching Cardbyt & TrustGiftCard) */
+  --brand-bg: #ffffff;
+  --brand-surface: #f8fafc;
+  --brand-card: #ffffff;
+  --brand-card-hover: #f1f5f9;
+  --brand-border: #e2e8f0;
+  --brand-text: #0f172a;
+  --brand-muted: #64748b;
+  --brand-subtle: #94a3b8;
+  --brand-primary-glow: rgba(22, 119, 255, 0.12);
+  --brand-success-glow: rgba(22, 163, 74, 0.1);
+  color-scheme: light;
+}
+
+.dark {
+  /* High-End Dark Obsidian Theme */
+  --brand-bg: #000921;
+  --brand-surface: #0B1120;
+  --brand-card: #0D1527;
+  --brand-card-hover: #111C35;
+  --brand-border: #1E293B;
+  --brand-text: #ffffff;
+  --brand-muted: #94A3B8;
+  --brand-subtle: #64748B;
+  --brand-primary-glow: rgba(22, 119, 255, 0.22);
+  --brand-success-glow: rgba(34, 197, 94, 0.16);
+  color-scheme: dark;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: var(--brand-text);
+  background: var(--brand-bg);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Custom Scrollbar */
@@ -21,34 +47,41 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #000921;
+  background: var(--brand-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: var(--brand-border);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: var(--brand-muted);
 }
 
-/* Glassmorphism Card Utilities */
+/* Card Styling Utilities */
 .glass-panel {
-  background: rgba(13, 21, 39, 0.75);
+  background: var(--brand-card);
+  border: 1px solid var(--brand-border);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+}
+
+.dark .glass-panel {
+  background: rgba(13, 21, 39, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: none;
 }
 
 .glass-panel:hover {
-  border-color: rgba(22, 119, 255, 0.35);
+  border-color: rgba(22, 119, 255, 0.4);
 }
 
 .glow-blue {
-  box-shadow: 0 0 40px -10px rgba(22, 119, 255, 0.3);
+  box-shadow: 0 10px 30px -10px rgba(22, 119, 255, 0.18);
 }
 
 .glow-green {
-  box-shadow: 0 0 35px -10px rgba(34, 197, 94, 0.25);
+  box-shadow: 0 10px 30px -10px rgba(22, 163, 74, 0.15);
 }

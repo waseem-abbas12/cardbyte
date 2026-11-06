@@ -47,11 +47,11 @@ function TrackPageContent() {
         <span className="text-xs font-bold text-brand-primary uppercase tracking-widest px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/25">
           ORDER VERIFICATION PORTAL
         </span>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mt-3">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-brand-text tracking-tight mt-3">
           Track Your Transaction
         </h1>
         <p className="text-sm text-brand-muted mt-2">
-          Enter your 7-character Cardbyte tracking code (e.g. <code>CB-94821</code>) to monitor live status.
+          Enter your 7-character Cardbyte tracking code (e.g. <code className="text-brand-primary font-bold">CB-94821</code>) to monitor live status.
         </p>
 
         {/* Input Box */}
@@ -68,7 +68,7 @@ function TrackPageContent() {
             placeholder="e.g. CB-94821"
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            className="flex-1 bg-brand-surface border border-brand-border text-white text-sm font-mono rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary placeholder:text-brand-muted/40 uppercase"
+            className="flex-1 bg-brand-surface border border-brand-border text-brand-text text-sm font-mono rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary placeholder:text-brand-muted/40 uppercase"
           />
           <button
             type="submit"
@@ -89,20 +89,20 @@ function TrackPageContent() {
       )}
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-sm flex items-center gap-2 max-w-md mx-auto">
+        <div className="p-4 rounded-xl bg-red-500/15 border border-red-500/30 text-red-500 text-sm flex items-center gap-2 max-w-md mx-auto">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       {order && (
-        <div className="rounded-3xl glass-panel p-6 sm:p-8 border border-brand-border space-y-6 shadow-2xl">
+        <div className="rounded-3xl glass-panel p-6 sm:p-8 border border-brand-border space-y-6 shadow-card">
           
           {/* Status Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-brand-border/60 gap-4">
             <div>
               <span className="text-xs text-brand-muted block">Transaction ID:</span>
-              <span className="text-2xl font-mono font-black text-white">{order.trackingCode}</span>
+              <span className="text-2xl font-mono font-black text-brand-text">{order.trackingCode}</span>
               <div className="text-xs text-brand-muted mt-0.5">
                 Submitted on {new Date(order.createdAt).toLocaleString()}
               </div>
@@ -113,8 +113,8 @@ function TrackPageContent() {
                 order.status === 'COMPLETED'
                   ? 'bg-brand-successGlow text-brand-success border border-brand-success/40'
                   : order.status === 'REJECTED'
-                  ? 'bg-red-500/15 text-red-400 border border-red-500/30'
-                  : 'bg-amber-400/15 text-amber-400 border border-amber-400/30'
+                  ? 'bg-red-500/15 text-red-500 border border-red-500/30'
+                  : 'bg-amber-500/15 text-amber-500 border border-amber-500/30'
               }`}>
                 {order.status === 'COMPLETED' ? <CheckCircle2 className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
                 <span>{order.status}</span>
@@ -126,23 +126,23 @@ function TrackPageContent() {
           <div className="grid grid-cols-3 gap-2 text-center text-xs py-2">
             <div className="space-y-1">
               <div className="w-7 h-7 rounded-full bg-brand-success text-white flex items-center justify-center mx-auto text-xs font-bold">✓</div>
-              <span className="font-bold text-white block">Submitted</span>
+              <span className="font-bold text-brand-text block">Submitted</span>
             </div>
             <div className="space-y-1">
               <div className={`w-7 h-7 rounded-full flex items-center justify-center mx-auto text-xs font-bold ${
                 order.status === 'VERIFYING' || order.status === 'COMPLETED'
                   ? 'bg-brand-primary text-white'
-                  : 'bg-brand-card text-brand-muted'
+                  : 'bg-brand-surface border border-brand-border text-brand-muted'
               }`}>2</div>
-              <span className="font-bold text-white block">Balance Check</span>
+              <span className="font-bold text-brand-text block">Balance Check</span>
             </div>
             <div className="space-y-1">
               <div className={`w-7 h-7 rounded-full flex items-center justify-center mx-auto text-xs font-bold ${
                 order.status === 'COMPLETED'
                   ? 'bg-brand-success text-white'
-                  : 'bg-brand-card text-brand-muted'
+                  : 'bg-brand-surface border border-brand-border text-brand-muted'
               }`}>3</div>
-              <span className="font-bold text-white block">Payout Sent</span>
+              <span className="font-bold text-brand-text block">Payout Sent</span>
             </div>
           </div>
 
@@ -150,11 +150,11 @@ function TrackPageContent() {
           <div className="rounded-2xl bg-brand-surface p-5 border border-brand-border space-y-3 text-sm">
             <div className="flex justify-between border-b border-brand-border/60 pb-2.5">
               <span className="text-brand-muted">Asset Redeemed:</span>
-              <span className="font-bold text-white">{order.brandName} ({order.quantity}x ${order.nominal})</span>
+              <span className="font-bold text-brand-text">{order.brandName} ({order.quantity}x ${order.nominal})</span>
             </div>
             <div className="flex justify-between border-b border-brand-border/60 pb-2.5">
               <span className="text-brand-muted">Total Face Value:</span>
-              <span className="font-bold text-white font-mono">${order.totalCardValue.toFixed(2)}</span>
+              <span className="font-bold text-brand-text font-mono">${order.totalCardValue.toFixed(2)}</span>
             </div>
             <div className="flex justify-between border-b border-brand-border/60 pb-2.5">
               <span className="text-brand-muted">Agreed Payout Rate:</span>
@@ -168,12 +168,12 @@ function TrackPageContent() {
             </div>
             <div className="flex justify-between border-b border-brand-border/60 pb-2.5">
               <span className="text-brand-muted">Destination Address:</span>
-              <span className="font-mono text-white/90 text-xs break-all max-w-[280px] sm:max-w-none text-right">
+              <span className="font-mono text-brand-text/90 text-xs break-all max-w-[280px] sm:max-w-none text-right">
                 {order.payoutAddress}
               </span>
             </div>
             {order.rejectionReason && (
-              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-xs">
                 <b>Rejection Note:</b> {order.rejectionReason}
               </div>
             )}

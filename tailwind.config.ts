@@ -11,25 +11,29 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          bg: "#000921",
-          surface: "#0B1120",
-          card: "#0D1527",
-          cardHover: "#111C35",
-          border: "#1E293B",
+          bg: "var(--brand-bg)",
+          surface: "var(--brand-surface)",
+          card: "var(--brand-card)",
+          cardHover: "var(--brand-card-hover)",
+          border: "var(--brand-border)",
           primary: "#1677FF",
-          primaryHover: "#4096FF",
-          primaryGlow: "rgba(22, 119, 255, 0.18)",
-          success: "#22C55E",
-          successGlow: "rgba(34, 197, 94, 0.16)",
-          warning: "#F59E0B",
-          muted: "#94A3B8",
-          subtle: "#64748B",
-          text: "#FFFFFF"
+          primaryHover: "#0958d9",
+          primaryGlow: "var(--brand-primary-glow)",
+          success: "#16a34a",
+          successGlow: "var(--brand-success-glow)",
+          warning: "#d97706",
+          muted: "var(--brand-muted)",
+          subtle: "var(--brand-subtle)",
+          text: "var(--brand-text)"
         }
       },
       fontFamily: {
         sans: ["var(--font-inter)", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
         mono: ["var(--font-mono)", "JetBrains Mono", "monospace"]
+      },
+      boxShadow: {
+        card: "0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.02)",
+        cardHover: "0 10px 25px -3px rgba(0, 0, 0, 0.08), 0 4px 10px -2px rgba(0, 0, 0, 0.03)"
       },
       animation: {
         "ticker": "ticker 35s linear infinite",

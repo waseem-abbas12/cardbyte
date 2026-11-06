@@ -4,7 +4,7 @@ import LiveTicker from '@/components/LiveTicker';
 import RatesCalculator from '@/components/RatesCalculator';
 import CardGrid from '@/components/CardGrid';
 import TrustSection from '@/components/TrustSection';
-import { ShieldCheck, Zap, ArrowRight, CheckCircle2, ChevronDown, HelpCircle } from 'lucide-react';
+import { ShieldCheck, Zap, ArrowRight, CheckCircle2, HelpCircle } from 'lucide-react';
 
 export default function HomePage() {
   const faqs = [
@@ -33,8 +33,8 @@ export default function HomePage() {
 
       {/* 2. Hero Section */}
       <section className="relative pt-12 pb-20 md:py-24 overflow-hidden">
-        {/* Glow Effects */}
-        <div className="absolute top-1/4 left-1/4 -translate-x-1/2 w-96 h-96 bg-brand-primary/15 blur-[120px] rounded-full pointer-events-none"></div>
+        {/* Subtle Ambient Glows */}
+        <div className="absolute top-1/4 left-1/4 -translate-x-1/2 w-96 h-96 bg-brand-primary/10 blur-[120px] rounded-full pointer-events-none"></div>
         <div className="absolute bottom-10 right-10 w-80 h-80 bg-brand-successGlow blur-[140px] rounded-full pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -43,25 +43,25 @@ export default function HomePage() {
             {/* Left Hero Content (7 Cols) */}
             <div className="lg:col-span-7 space-y-6">
               
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-primary/10 border border-brand-primary/25 text-brand-primary text-xs font-bold">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-xs font-bold">
                 <ShieldCheck className="w-4 h-4 text-brand-primary" />
                 <span>#1 Trusted Digital Gift Card Exchange</span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.12]">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-brand-text tracking-tight leading-[1.12]">
                 Sell Gift Cards at the{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary via-blue-400 to-brand-success">
+                <span className="text-brand-primary">
                   Best Rates
                 </span>
                 : Fast, Easy, Reliable.
               </h1>
 
               <p className="text-base sm:text-lg text-brand-muted max-w-xl leading-relaxed">
-                Turn your unwanted gift cards into <strong className="text-white font-semibold">USDT, Bitcoin, or instant local cash</strong>. Get live algorithmic valuations, zero surprise deductions, and direct settlement to your wallet.
+                Turn your unwanted gift cards into <strong className="text-brand-text font-semibold">USDT, Bitcoin, or instant local cash</strong>. Get live algorithmic valuations, zero surprise deductions, and direct settlement to your wallet.
               </p>
 
               {/* Bullet Points */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-sm text-white/90">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-sm text-brand-text">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-brand-success shrink-0" />
                   <span>Competitive OTC Market Spreads</span>
@@ -84,23 +84,23 @@ export default function HomePage() {
               <div className="flex flex-wrap items-center gap-4 pt-4">
                 <Link
                   href="/sell"
-                  className="px-7 py-3.5 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-base font-extrabold shadow-xl shadow-brand-primary/25 hover:shadow-brand-primary/45 transition-all flex items-center gap-2"
+                  className="px-7 py-3.5 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-base font-extrabold shadow-lg shadow-brand-primary/25 transition-all flex items-center gap-2 hover:-translate-y-0.5"
                 >
                   <span>Start Selling Now</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
                   href="/rates"
-                  className="px-6 py-3.5 rounded-xl bg-brand-card hover:bg-brand-cardHover border border-brand-border text-white text-base font-bold transition-all"
+                  className="px-6 py-3.5 rounded-xl bg-brand-surface hover:bg-brand-cardHover border border-brand-border text-brand-text text-base font-bold transition-all shadow-sm"
                 >
                   View All Rates
                 </Link>
               </div>
 
               {/* Verified Trust Stats */}
-              <div className="pt-6 border-t border-brand-border/60 flex items-center gap-8 text-xs text-brand-muted">
+              <div className="pt-6 border-t border-brand-border flex items-center gap-8 text-xs text-brand-muted">
                 <div>
-                  <span className="font-extrabold text-white text-sm block">18,500+</span>
+                  <span className="font-extrabold text-brand-text text-sm block">18,500+</span>
                   Active Traders
                 </div>
                 <div className="border-l border-brand-border pl-8">
@@ -108,7 +108,7 @@ export default function HomePage() {
                   Volume Exchanged
                 </div>
                 <div className="border-l border-brand-border pl-8">
-                  <span className="font-extrabold text-white text-sm block">100%</span>
+                  <span className="font-extrabold text-brand-text text-sm block">100%</span>
                   Verified Payouts
                 </div>
               </div>
@@ -131,13 +131,13 @@ export default function HomePage() {
       <TrustSection />
 
       {/* 5. Frequently Asked Questions */}
-      <section className="py-20 bg-brand-surface/30 border-t border-brand-border/60">
+      <section className="py-20 bg-brand-surface/60 border-t border-brand-border">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="text-xs font-bold text-brand-primary tracking-widest uppercase px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20">
               FREQUENTLY ASKED QUESTIONS
             </span>
-            <h2 className="text-3xl font-extrabold text-white tracking-tight mt-3">
+            <h2 className="text-3xl font-extrabold text-brand-text tracking-tight mt-3">
               Clear Answers to Your Questions
             </h2>
           </div>
@@ -145,7 +145,7 @@ export default function HomePage() {
           <div className="space-y-4">
             {faqs.map((faq, idx) => (
               <div key={idx} className="p-6 rounded-2xl glass-panel border border-brand-border space-y-2">
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <h3 className="text-base font-bold text-brand-text flex items-center gap-2">
                   <HelpCircle className="w-4 h-4 text-brand-primary shrink-0" />
                   {faq.q}
                 </h3>
@@ -158,10 +158,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 6. High-Converting Bottom Banner */}
-      <section className="py-16 bg-gradient-to-b from-[#081229] to-brand-bg border-t border-brand-border/60">
+      {/* 6. Bottom Banner */}
+      <section className="py-16 bg-brand-surface border-t border-brand-border">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-brand-text tracking-tight">
             Ready to Convert Your Gift Cards into Crypto or Cash?
           </h2>
           <p className="text-sm sm:text-base text-brand-muted max-w-xl mx-auto">
@@ -170,7 +170,7 @@ export default function HomePage() {
           <div className="pt-2">
             <Link
               href="/sell"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white font-extrabold text-base shadow-2xl shadow-brand-primary/30 transition-all hover:scale-105"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white font-extrabold text-base shadow-xl shadow-brand-primary/25 transition-all hover:scale-105"
             >
               <span>Exchange Gift Card Now</span>
               <ArrowRight className="w-5 h-5" />

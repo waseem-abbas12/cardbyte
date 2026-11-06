@@ -63,7 +63,7 @@ export default function TrustSection() {
         {/* Live Performance Stats Banner */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 sm:p-8 rounded-3xl glass-panel border border-brand-border mb-20">
           <div className="text-center p-3">
-            <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono">18,500+</div>
+            <div className="text-3xl sm:text-4xl font-extrabold text-brand-text font-mono">18,500+</div>
             <div className="text-xs sm:text-sm text-brand-muted mt-1 font-medium">Active Traders</div>
           </div>
           <div className="text-center p-3 border-l border-brand-border/60">
@@ -75,7 +75,7 @@ export default function TrustSection() {
             <div className="text-xs sm:text-sm text-brand-muted mt-1 font-medium">Avg Payout Time</div>
           </div>
           <div className="text-center p-3 border-l border-brand-border/60">
-            <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono">99.8%</div>
+            <div className="text-3xl sm:text-4xl font-extrabold text-brand-text font-mono">99.8%</div>
             <div className="text-xs sm:text-sm text-brand-muted mt-1 font-medium">Customer Satisfaction</div>
           </div>
         </div>
@@ -85,7 +85,7 @@ export default function TrustSection() {
           <span className="text-xs font-bold text-brand-primary tracking-widest uppercase px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20">
             SIMPLE 4-STEP WORKFLOW
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mt-3">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-brand-text tracking-tight mt-3">
             How Cardbyte Works
           </h2>
           <p className="text-brand-muted text-sm sm:text-base max-w-xl mx-auto mt-2">
@@ -104,7 +104,7 @@ export default function TrustSection() {
                       {s.icon}
                     </div>
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-2">{s.title}</h3>
+                  <h3 className="text-lg font-bold text-brand-text mb-2">{s.title}</h3>
                   <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">{s.desc}</p>
                 </div>
               </div>
@@ -116,11 +116,11 @@ export default function TrustSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
           {features.map((f, idx) => (
             <div key={idx} className="p-7 rounded-2xl glass-panel border border-brand-border flex items-start gap-5 hover:border-brand-primary/40 transition-all">
-              <div className="p-3.5 rounded-2xl bg-brand-surface border border-brand-border shrink-0 shadow-lg">
+              <div className="p-3.5 rounded-2xl bg-brand-surface border border-brand-border shrink-0 shadow-sm">
                 {f.icon}
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white mb-1.5">{f.title}</h3>
+                <h3 className="text-lg font-bold text-brand-text mb-1.5">{f.title}</h3>
                 <p className="text-sm text-brand-muted leading-relaxed">{f.desc}</p>
               </div>
             </div>
