@@ -1,12 +1,29 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { INITIAL_BRANDS } from '@/lib/ratesData';
-import { ArrowUpRight, Clock, ShieldCheck } from 'lucide-react';
+import { GiftCardBrand, INITIAL_BRANDS } from '@/lib/ratesData';
+import { ArrowUpRight, Clock, ShieldCheck, Zap } from 'lucide-react';
 
 export default function CardGrid() {
-  const brands = INITIAL_BRANDS;
+  const [brands, setBrands] = useState<GiftCardBrand[]>(INITIAL_BRANDS);
+
+  useEffect(() => {
+    fetch('/api/rates')
+      .then(res => res.json())
+      .then(json => {
+        if (json?.data?.brands && Array.isArray(json.data.brands)) {
+          // Keep active brands first
+          const sorted = [...json.data.brands].sort((a, b) => {
+            if (a.enabled === false && b.enabled !== false) return 1;
+            if (a.enabled !== false && b.enabled === false) return -1;
+            return 0;
+          });
+          setBrands(sorted);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <section className="py-16 bg-brand-surface/60 border-y border-brand-border">
@@ -23,7 +40,7 @@ export default function CardGrid() {
               Popular Gift Cards We Buy Daily
             </h2>
             <p className="text-sm sm:text-base text-brand-muted mt-2 max-w-2xl">
-              Competitive rates updated continuously based on global wholesale OTC market liquidity. Sell in singles or bulk.
+              Competitive rates updated continuously based on global wholesale OTC market liquidity. Choose between digital E-Codes and Physical cards.
             </p>
           </div>
 
@@ -40,18 +57,29 @@ export default function CardGrid() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {brands.map((b) => {
             const primaryCountry = b.countries[0];
+            const isPaused = b.enabled === false;
+            const topRate = primaryCountry.ratePhysical || (primaryCountry.rateEcode ? primaryCountry.rateEcode + 4.5 : primaryCountry.ratePercent);
+
             return (
               <Link
                 key={b.id}
-                href={`/sell?brand=${b.id}`}
-                className="group p-5 rounded-3xl glass-panel hover:bg-brand-cardHover transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-primary/10 flex flex-col justify-between"
+                href={isPaused ? '#' : `/sell?brand=${b.id}`}
+                className={`group p-5 rounded-3xl glass-panel hover:bg-brand-cardHover transition-all flex flex-col justify-between ${
+                  isPaused 
+                    ? 'opacity-60 cursor-not-allowed hover:translate-y-0' 
+                    : 'hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-primary/10'
+                }`}
               >
                 <div>
                   <div className="flex items-start justify-between mb-4">
                     <div className="w-12 h-12 rounded-2xl bg-brand-surface border border-brand-border flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-sm">
                       {b.icon}
                     </div>
-                    {b.badge && (
+                    {isPaused ? (
+                      <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-red-500/15 text-red-500 border border-red-500/30">
+                        Paused
+                      </span>
+                    ) : b.badge ? (
                       <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full ${
                         b.badge === 'Hot' || b.badge === 'High Rate'
                           ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
@@ -61,14 +89,14 @@ export default function CardGrid() {
                       }`}>
                         {b.badge}
                       </span>
-                    )}
+                    ) : null}
                   </div>
 
                   <h3 className="text-base font-bold text-brand-text group-hover:text-brand-primary transition-colors">
                     {b.name}
                   </h3>
                   <div className="text-xs text-brand-muted mt-0.5">
-                    {b.countries.length} regions supported ({b.countries.map(c => c.code).join(', ')})
+                    {b.countries.length} regions ({b.countries.map(c => c.code).join(', ')})
                   </div>
                 </div>
 
@@ -76,7 +104,7 @@ export default function CardGrid() {
                   <div>
                     <span className="text-[11px] text-brand-muted block">Buy Rate</span>
                     <span className="text-lg font-mono font-extrabold text-brand-success">
-                      Up to {primaryCountry.ratePercent}%
+                      Up to {topRate}%
                     </span>
                   </div>
 
@@ -84,7 +112,7 @@ export default function CardGrid() {
                     <span className="text-[11px] text-brand-muted block">Settlement</span>
                     <span className="text-xs font-semibold text-brand-text flex items-center gap-1 justify-end">
                       <Clock className="w-3 h-3 text-brand-muted" />
-                      {b.verificationTime}
+                      {b.verificationTime || '5-15 mins'}
                     </span>
                   </div>
                 </div>

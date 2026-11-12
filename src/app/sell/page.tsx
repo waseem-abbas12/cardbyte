@@ -1,9 +1,22 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import RatesCalculator from '@/components/RatesCalculator';
-import { ShieldCheck, CheckCircle2, ArrowRight, ArrowLeft, Upload, Lock, FileText, AlertCircle } from 'lucide-react';
+import { 
+  ShieldCheck, 
+  CheckCircle2, 
+  ArrowRight, 
+  ArrowLeft, 
+  Upload, 
+  Lock, 
+  FileText, 
+  AlertCircle,
+  Wallet,
+  ExternalLink
+} from 'lucide-react';
+import { UserWalletConfig } from '@/lib/ratesData';
 
 function SellPageContent() {
   const router = useRouter();
@@ -12,6 +25,9 @@ function SellPageContent() {
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [tradeData, setTradeData] = useState<any>(null);
+
+  // User wallet state
+  const [savedWallet, setSavedWallet] = useState<UserWalletConfig | null>(null);
 
   // Step 2 Form State
   const [cardCodes, setCardCodes] = useState<string>('');
@@ -25,6 +41,25 @@ function SellPageContent() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string>('');
   const [confirmedOrder, setConfirmedOrder] = useState<any>(null);
+
+  // Load user wallet from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('cardbyte_user_wallet');
+      if (stored) {
+        const parsed: UserWalletConfig = JSON.parse(stored);
+        setSavedWallet(parsed);
+        const active = localStorage.getItem('cardbyte_active_payout_address');
+        if (active) {
+          setPayoutAddress(active);
+        } else if (parsed.usdtTrc20) {
+          setPayoutAddress(parsed.usdtTrc20);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
 
   const handleProceedFromCalc = (data: any) => {
     setTradeData(data);
@@ -45,7 +80,7 @@ function SellPageContent() {
   const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!payoutAddress.trim()) {
-      setSubmitError('Please enter a valid payout address or bank account.');
+      setSubmitError('Mandatory requirement: Please enter or configure your payout destination wallet address.');
       return;
     }
 
@@ -62,6 +97,7 @@ function SellPageContent() {
         brandId: tradeData.brandId,
         brandName: tradeData.brandName,
         countryCode: tradeData.countryCode,
+        cardType: tradeData.cardType,
         nominal: tradeData.nominal,
         quantity: tradeData.quantity,
         ratePercent: tradeData.ratePercent,
@@ -97,8 +133,8 @@ function SellPageContent() {
   if (confirmedOrder) {
     return (
       <div className="py-16 max-w-2xl mx-auto px-4 sm:px-6">
-        <div className="rounded-3xl glass-panel p-8 border border-brand-success/40 text-center space-y-6 glow-green">
-          <div className="w-16 h-16 rounded-full bg-brand-successGlow border border-brand-success/40 text-brand-success flex items-center justify-center mx-auto text-3xl">
+        <div className="rounded-3xl glass-panel p-8 border border-brand-success/40 text-center space-y-6 shadow-card">
+          <div className="w-16 h-16 rounded-full bg-brand-successGlow border border-brand-success/40 text-brand-success flex items-center justify-center mx-auto text-3xl font-bold">
             ✓
           </div>
 
@@ -110,7 +146,7 @@ function SellPageContent() {
               Order Received #{confirmedOrder.trackingCode}
             </h1>
             <p className="text-sm text-brand-muted mt-2">
-              Our automated desk is verifying your card balance. You will receive your funds at the provided address shortly.
+              Our automated desk is verifying your card balance. Your payout of ${confirmedOrder.payoutAmount.toFixed(2)} will be dispatched to your destination shortly.
             </p>
           </div>
 
@@ -120,17 +156,19 @@ function SellPageContent() {
               <span className="font-mono font-bold text-brand-primary">{confirmedOrder.trackingCode}</span>
             </div>
             <div className="flex justify-between border-b border-brand-border/60 pb-2.5">
-              <span className="text-brand-muted">Asset:</span>
-              <span className="font-bold text-brand-text">{confirmedOrder.brandName} ({confirmedOrder.quantity}x ${confirmedOrder.nominal})</span>
+              <span className="text-brand-muted">Asset Redeemed:</span>
+              <span className="font-bold text-brand-text">
+                {confirmedOrder.brandName} ({confirmedOrder.quantity}x ${confirmedOrder.nominal}) • {confirmedOrder.cardType === 'PCARD' ? 'Physical Card' : 'E-Code'}
+              </span>
             </div>
             <div className="flex justify-between border-b border-brand-border/60 pb-2.5">
-              <span className="text-brand-muted">Guaranteed Payout:</span>
+              <span className="text-brand-muted">Locked Payout:</span>
               <span className="font-mono font-bold text-brand-success text-base">
                 ${confirmedOrder.payoutAmount.toFixed(2)} USD
               </span>
             </div>
             <div className="flex justify-between border-b border-brand-border/60 pb-2.5">
-              <span className="text-brand-muted">Destination:</span>
+              <span className="text-brand-muted">Destination Address:</span>
               <span className="font-mono text-brand-text/90 truncate max-w-[200px]">{confirmedOrder.payoutAddress}</span>
             </div>
             <div className="flex justify-between">
@@ -144,7 +182,7 @@ function SellPageContent() {
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               onClick={() => router.push(`/track?code=${confirmedOrder.trackingCode}`)}
-              className="flex-1 py-3.5 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white font-bold text-sm transition-all"
+              className="flex-1 py-3.5 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white font-bold text-sm transition-all cursor-pointer"
             >
               Track Live Status
             </button>
@@ -153,7 +191,7 @@ function SellPageContent() {
                 setConfirmedOrder(null);
                 setStep(1);
               }}
-              className="flex-1 py-3.5 rounded-xl bg-brand-surface hover:bg-brand-cardHover border border-brand-border text-brand-text font-bold text-sm transition-all"
+              className="flex-1 py-3.5 rounded-xl bg-brand-surface hover:bg-brand-cardHover border border-brand-border text-brand-text font-bold text-sm transition-all cursor-pointer"
             >
               Sell Another Card
             </button>
@@ -192,7 +230,7 @@ function SellPageContent() {
           <div className="text-center max-w-xl mx-auto">
             <h1 className="text-3xl font-extrabold text-brand-text tracking-tight">Sell Your Gift Card</h1>
             <p className="text-sm text-brand-muted mt-2">
-              Select your card brand, format, and amount to lock in your live valuation quote.
+              Select your card brand, format (Physical vs E-Code), and amount to lock in your live valuation quote.
             </p>
           </div>
           <RatesCalculator initialBrandId={initialBrand} onProceed={handleProceedFromCalc} />
@@ -201,7 +239,7 @@ function SellPageContent() {
 
       {/* Step 2: Card Code & Upload */}
       {step === 2 && tradeData && (
-        <form onSubmit={handleProceedToPayout} className="rounded-3xl glass-panel p-7 sm:p-9 border border-brand-border space-y-6">
+        <form onSubmit={handleProceedToPayout} className="rounded-3xl glass-panel p-7 sm:p-9 border border-brand-border space-y-6 shadow-card">
           <div className="flex items-center justify-between pb-4 border-b border-brand-border/60">
             <div>
               <span className="text-xs font-bold text-brand-primary uppercase tracking-wider">Step 2 of 3</span>
@@ -210,7 +248,7 @@ function SellPageContent() {
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="text-xs font-semibold text-brand-muted hover:text-brand-primary flex items-center gap-1"
+              className="text-xs font-semibold text-brand-muted hover:text-brand-primary flex items-center gap-1 cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back
             </button>
@@ -220,10 +258,12 @@ function SellPageContent() {
           <div className="p-4 rounded-xl bg-brand-surface border border-brand-border flex items-center justify-between text-xs sm:text-sm">
             <div>
               <span className="text-brand-muted block">Selected Asset</span>
-              <span className="font-bold text-brand-text">{tradeData.brandName} ({tradeData.quantity}x ${tradeData.nominal})</span>
+              <span className="font-bold text-brand-text">
+                {tradeData.brandName} ({tradeData.quantity}x ${tradeData.nominal}) • {tradeData.cardType === 'PCARD' ? 'Physical Card' : 'E-Code'}
+              </span>
             </div>
             <div className="text-right">
-              <span className="text-brand-muted block">Locked Payout</span>
+              <span className="text-brand-muted block">Guaranteed Payout</span>
               <span className="font-mono font-extrabold text-brand-success text-base">
                 ${tradeData.totalPayoutUsd.toFixed(2)} USD
               </span>
@@ -265,7 +305,7 @@ function SellPageContent() {
           {/* Receipt Upload Field */}
           <div>
             <label className="block text-xs font-bold text-brand-muted uppercase tracking-wider mb-2">
-              Upload Card Photo or Purchase Receipt (Optional)
+              Upload Card Photo or Purchase Receipt ({tradeData.cardType === 'PCARD' ? 'Required for Physical' : 'Optional'})
             </label>
             <div className="border-2 border-dashed border-brand-border hover:border-brand-primary/60 rounded-2xl p-6 text-center bg-brand-surface transition-colors cursor-pointer relative">
               <input
@@ -298,7 +338,7 @@ function SellPageContent() {
 
       {/* Step 3: Destination Payout Address */}
       {step === 3 && tradeData && (
-        <form onSubmit={handleFinalSubmit} className="rounded-3xl glass-panel p-7 sm:p-9 border border-brand-border space-y-6">
+        <form onSubmit={handleFinalSubmit} className="rounded-3xl glass-panel p-7 sm:p-9 border border-brand-border space-y-6 shadow-card">
           <div className="flex items-center justify-between pb-4 border-b border-brand-border/60">
             <div>
               <span className="text-xs font-bold text-brand-primary uppercase tracking-wider">Step 3 of 3</span>
@@ -307,11 +347,40 @@ function SellPageContent() {
             <button
               type="button"
               onClick={() => setStep(2)}
-              className="text-xs font-semibold text-brand-muted hover:text-brand-primary flex items-center gap-1"
+              className="text-xs font-semibold text-brand-muted hover:text-brand-primary flex items-center gap-1 cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back
             </button>
           </div>
+
+          {/* Wallet Verification Alert Prompt */}
+          {!savedWallet?.isConfigured ? (
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-start gap-2.5">
+                <Wallet className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+                <div>
+                  <span className="font-bold block">Payout Destination Not Saved</span>
+                  Save your payout wallet once to enjoy 1-click settlements and escrow protection across all trades.
+                </div>
+              </div>
+              <Link
+                href="/wallet?redirect=sell"
+                className="px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs whitespace-nowrap shadow-sm"
+              >
+                Configure Wallet
+              </Link>
+            </div>
+          ) : (
+            <div className="p-3.5 rounded-xl bg-brand-successGlow border border-brand-success/30 text-brand-success text-xs flex items-center justify-between">
+              <span className="flex items-center gap-2 font-medium">
+                <CheckCircle2 className="w-4 h-4" />
+                Preloaded verified destination from your wallet profile.
+              </span>
+              <Link href="/wallet" className="font-bold underline text-xs">
+                Edit Wallet
+              </Link>
+            </div>
+          )}
 
           {submitError && (
             <div className="p-4 rounded-xl bg-red-500/15 border border-red-500/30 text-red-500 text-xs flex items-center gap-2">
@@ -356,14 +425,24 @@ function SellPageContent() {
           <div className="p-5 rounded-2xl bg-brand-surface border border-brand-primary/30 space-y-2.5 text-xs sm:text-sm">
             <div className="flex justify-between">
               <span className="text-brand-muted">Trade Value:</span>
-              <span className="text-brand-text font-bold">{tradeData.quantity}x {tradeData.brandName} (${tradeData.totalFaceValue} Face Value)</span>
+              <span className="text-brand-text font-bold">
+                {tradeData.quantity}x {tradeData.brandName} (${tradeData.totalFaceValue} Face Value)
+              </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-brand-muted">Applied Rate:</span>
-              <span className="text-brand-text font-bold">{tradeData.ratePercent}%</span>
+              <span className="text-brand-muted">Card Format & Rate:</span>
+              <span className="text-brand-text font-bold">
+                {tradeData.cardType === 'PCARD' ? 'Physical Card' : 'E-Code'} ({tradeData.ratePercent}%)
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-brand-muted">Estimated Settlement Speed:</span>
+              <span className="text-brand-primary font-bold">
+                {tradeData.verificationTime || '5-15 mins'}
+              </span>
             </div>
             <div className="flex justify-between border-t border-brand-border/60 pt-2 text-base">
-              <span className="text-brand-text font-bold">Total Payout:</span>
+              <span className="text-brand-text font-bold">Total Guaranteed Payout:</span>
               <span className="font-mono font-extrabold text-brand-success">${tradeData.totalPayoutUsd.toFixed(2)} USD</span>
             </div>
           </div>

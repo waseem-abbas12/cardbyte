@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { GiftCardBrand, PayoutMethod, INITIAL_BRANDS, SUPPORTED_PAYOUTS } from '@/lib/ratesData';
-import { ArrowRight, Calculator, Clock, Zap, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Calculator, Clock, Zap, CheckCircle2, ShieldCheck, AlertCircle } from 'lucide-react';
 
 interface RatesCalculatorProps {
   initialBrandId?: string;
@@ -12,19 +12,35 @@ interface RatesCalculatorProps {
 
 export default function RatesCalculator({ initialBrandId = 'apple', onProceed }: RatesCalculatorProps) {
   const router = useRouter();
-  const brands = INITIAL_BRANDS;
+  const [brands, setBrands] = useState<GiftCardBrand[]>(INITIAL_BRANDS);
   const payouts = SUPPORTED_PAYOUTS;
 
-  const [selectedBrandId, setSelectedBrandId] = useState<string>(initialBrandId);
-  const selectedBrand = useMemo(() => brands.find(b => b.id === selectedBrandId) || brands[0], [brands, selectedBrandId]);
+  // Fetch live store brands (with enabled status and updated rates/speeds)
+  useEffect(() => {
+    fetch('/api/rates')
+      .then(res => res.json())
+      .then(json => {
+        if (json?.data?.brands && Array.isArray(json.data.brands)) {
+          // Filter to only active enabled brands for users
+          const active = json.data.brands.filter((b: GiftCardBrand) => b.enabled !== false);
+          if (active.length > 0) setBrands(active);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
-  const [selectedCountryCode, setSelectedCountryCode] = useState<string>(selectedBrand.countries[0]?.code || 'US');
+  const [selectedBrandId, setSelectedBrandId] = useState<string>(initialBrandId);
+  const selectedBrand = useMemo(() => {
+    return brands.find(b => b.id === selectedBrandId) || brands[0] || INITIAL_BRANDS[0];
+  }, [brands, selectedBrandId]);
+
+  const [selectedCountryCode, setSelectedCountryCode] = useState<string>(selectedBrand?.countries[0]?.code || 'US');
   
   const currentCountry = useMemo(() => {
-    return selectedBrand.countries.find(c => c.code === selectedCountryCode) || selectedBrand.countries[0];
+    return selectedBrand?.countries?.find(c => c.code === selectedCountryCode) || selectedBrand?.countries[0];
   }, [selectedBrand, selectedCountryCode]);
 
-  const [nominal, setNominal] = useState<number>(currentCountry.nominals[0] || 100);
+  const [nominal, setNominal] = useState<number>(currentCountry?.nominals[0] || 100);
   const [customNominal, setCustomNominal] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [cardType, setCardType] = useState<'ECODE' | 'PCARD'>('ECODE');
@@ -34,11 +50,18 @@ export default function RatesCalculator({ initialBrandId = 'apple', onProceed }:
     return payouts.find(p => p.id === selectedPayoutId) || payouts[0];
   }, [payouts, selectedPayoutId]);
 
-  // Calculations
+  // Dynamic Rate Calculation based on Physical vs. E-Code
+  const activeRatePercent = useMemo(() => {
+    if (!currentCountry) return 70;
+    if (cardType === 'PCARD') {
+      return currentCountry.ratePhysical || (currentCountry.rateEcode ? currentCountry.rateEcode + 4.5 : currentCountry.ratePercent);
+    }
+    return currentCountry.rateEcode || currentCountry.ratePercent || 70;
+  }, [currentCountry, cardType]);
+
   const activeNominal = customNominal ? parseFloat(customNominal) || 0 : nominal;
   const totalFaceValue = activeNominal * quantity;
-  const ratePercent = currentCountry.ratePercent;
-  const totalPayoutUsd = (totalFaceValue * ratePercent) / 100;
+  const totalPayoutUsd = (totalFaceValue * activeRatePercent) / 100;
 
   const handleBrandChange = (id: string) => {
     setSelectedBrandId(id);
@@ -68,9 +91,10 @@ export default function RatesCalculator({ initialBrandId = 'apple', onProceed }:
       nominal: activeNominal,
       quantity,
       cardType,
-      ratePercent,
+      ratePercent: activeRatePercent,
       totalFaceValue,
       totalPayoutUsd,
+      verificationTime: selectedBrand.verificationTime || '5-15 mins',
       payoutId: selectedPayout.id,
       payoutName: `${selectedPayout.name} (${selectedPayout.network || selectedPayout.symbol})`
     };
@@ -91,7 +115,7 @@ export default function RatesCalculator({ initialBrandId = 'apple', onProceed }:
   };
 
   return (
-    <div className="w-full rounded-3xl glass-panel p-6 sm:p-7 relative overflow-hidden transition-all">
+    <div className="w-full rounded-3xl glass-panel p-6 sm:p-7 relative overflow-hidden transition-all shadow-card">
       {/* Top Banner */}
       <div className="flex items-center justify-between pb-5 mb-5 border-b border-brand-border">
         <div className="flex items-center gap-2">
@@ -105,7 +129,7 @@ export default function RatesCalculator({ initialBrandId = 'apple', onProceed }:
         </div>
         <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-successGlow text-brand-success text-xs font-semibold">
           <Zap className="w-3.5 h-3.5" />
-          <span>Auto Quoting</span>
+          <span>Live Quotation Engine</span>
         </div>
       </div>
 
@@ -136,7 +160,7 @@ export default function RatesCalculator({ initialBrandId = 'apple', onProceed }:
           {/* Country Selection */}
           <div>
             <label className="block text-xs font-bold text-brand-muted uppercase tracking-wider mb-1.5">
-              Country / Currency
+              Card Region / Currency
             </label>
             <div className="relative">
               <select
@@ -155,78 +179,88 @@ export default function RatesCalculator({ initialBrandId = 'apple', onProceed }:
           </div>
         </div>
 
-        {/* Row 2: Card Type & Quantity */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          {/* Card Type toggle */}
-          <div>
-            <label className="block text-xs font-bold text-brand-muted uppercase tracking-wider mb-1.5">
-              Card Format
+        {/* Row 2: Card Format (Physical vs E-Code) with Dynamic Rates */}
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">
+              Card Format & Dynamic Rate
             </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setCardType('ECODE')}
-                className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
-                  cardType === 'ECODE'
-                    ? 'bg-brand-primary text-white border-brand-primary shadow-sm'
-                    : 'bg-brand-surface border-brand-border text-brand-muted hover:text-brand-text'
-                }`}
-              >
-                E-Code / Digital
-              </button>
-              <button
-                type="button"
-                onClick={() => setCardType('PCARD')}
-                className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
-                  cardType === 'PCARD'
-                    ? 'bg-brand-primary text-white border-brand-primary shadow-sm'
-                    : 'bg-brand-surface border-brand-border text-brand-muted hover:text-brand-text'
-                }`}
-              >
-                Physical Card
-              </button>
-            </div>
+            <span className="text-[11px] font-semibold text-brand-primary">
+              {cardType === 'PCARD' ? 'Physical Card with receipt (+Spread)' : 'Instant Digital E-Code'}
+            </span>
           </div>
 
-          {/* Quantity */}
-          <div>
-            <label className="block text-xs font-bold text-brand-muted uppercase tracking-wider mb-1.5">
-              Quantity of Cards
-            </label>
-            <div className="flex items-center rounded-xl bg-brand-surface border border-brand-border overflow-hidden">
-              <button
-                type="button"
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="px-4 py-2.5 text-brand-muted hover:text-brand-text font-bold transition-colors"
-              >
-                -
-              </button>
-              <input
-                type="number"
-                min="1"
-                max="50"
-                value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-full bg-transparent text-center text-brand-text font-bold text-sm focus:outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => setQuantity(quantity + 1)}
-                className="px-4 py-2.5 text-brand-muted hover:text-brand-text font-bold transition-colors"
-              >
-                +
-              </button>
-            </div>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setCardType('ECODE')}
+              className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                cardType === 'ECODE'
+                  ? 'border-brand-primary bg-brand-primary/10 shadow-sm'
+                  : 'border-brand-border bg-brand-surface hover:bg-brand-cardHover'
+              }`}
+            >
+              <div className="flex items-center justify-between w-full">
+                <span className="font-bold text-xs text-brand-text">Electronic Code (E-Code)</span>
+                <span className="font-mono text-xs font-extrabold text-brand-primary">
+                  {currentCountry?.rateEcode || currentCountry?.ratePercent}%
+                </span>
+              </div>
+              <span className="text-[11px] text-brand-muted mt-1">Digital string or email copy</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setCardType('PCARD')}
+              className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                cardType === 'PCARD'
+                  ? 'border-brand-primary bg-brand-primary/10 shadow-sm'
+                  : 'border-brand-border bg-brand-surface hover:bg-brand-cardHover'
+              }`}
+            >
+              <div className="flex items-center justify-between w-full">
+                <span className="font-bold text-xs text-brand-text">Physical Card (PCARD)</span>
+                <span className="font-mono text-xs font-extrabold text-brand-success">
+                  {currentCountry?.ratePhysical || ((currentCountry?.rateEcode || 70) + 4.5)}%
+                </span>
+              </div>
+              <span className="text-[11px] text-brand-muted mt-1">Clear photo with cash receipt</span>
+            </button>
           </div>
         </div>
 
-        {/* Row 3: Nominal Value Buttons */}
+        {/* Row 3: Nominal Value & Quantity */}
         <div>
-          <label className="block text-xs font-bold text-brand-muted uppercase tracking-wider mb-1.5">
-            Card Value ({currentCountry.currency})
-          </label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">
+              Nominal Value ({currentCountry?.currency})
+            </label>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-brand-muted">Qty:</span>
+              <div className="flex items-center border border-brand-border rounded-lg bg-brand-surface overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="px-2.5 py-0.5 text-brand-muted hover:text-brand-text font-bold text-xs hover:bg-brand-cardHover"
+                >
+                  -
+                </button>
+                <span className="px-2.5 py-0.5 text-xs font-mono font-bold text-brand-text">
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="px-2.5 py-0.5 text-brand-muted hover:text-brand-text font-bold text-xs hover:bg-brand-cardHover"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-            {currentCountry.nominals.map((val) => (
+            {currentCountry?.nominals.map((val) => (
               <button
                 key={val}
                 type="button"
@@ -234,9 +268,9 @@ export default function RatesCalculator({ initialBrandId = 'apple', onProceed }:
                   setNominal(val);
                   setCustomNominal('');
                 }}
-                className={`py-2 rounded-xl text-xs font-bold border transition-all ${
-                  !customNominal && nominal === val
-                    ? 'bg-brand-primary text-white border-brand-primary shadow-md shadow-brand-primary/20'
+                className={`py-2 rounded-xl text-xs font-bold transition-all border ${
+                  nominal === val && !customNominal
+                    ? 'bg-brand-primary text-white border-brand-primary shadow-sm'
                     : 'bg-brand-surface text-brand-muted border-brand-border hover:text-brand-text hover:border-brand-border'
                 }`}
               >
@@ -257,10 +291,10 @@ export default function RatesCalculator({ initialBrandId = 'apple', onProceed }:
           </div>
         </div>
 
-        {/* Row 4: Payout Currency */}
+        {/* Row 4: Payout Destination */}
         <div>
           <label className="block text-xs font-bold text-brand-muted uppercase tracking-wider mb-1.5">
-            Payout Destination
+            Payout Destination Rail
           </label>
           <div className="relative">
             <select
@@ -270,7 +304,7 @@ export default function RatesCalculator({ initialBrandId = 'apple', onProceed }:
             >
               {payouts.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.icon} {p.name} {p.network ? `(${p.network})` : ''} — Fee: {p.fee}
+                  {p.icon} {p.name} {p.network ? `(${p.network})` : ''} — Fee: {p.fee} (Min: ${p.minPayout})
                 </option>
               ))}
             </select>
@@ -281,9 +315,9 @@ export default function RatesCalculator({ initialBrandId = 'apple', onProceed }:
         {/* Valuation Result Box */}
         <div className="rounded-2xl bg-brand-surface p-5 border border-brand-border mt-5 transition-colors">
           <div className="flex items-center justify-between text-xs text-brand-muted mb-1.5">
-            <span>Trading Valuation</span>
+            <span>Trading Valuation ({cardType === 'PCARD' ? 'Physical Card' : 'E-Code'})</span>
             <span className="font-bold text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded border border-brand-primary/20">
-              {ratePercent}% Payout
+              {activeRatePercent}% Guaranteed Payout
             </span>
           </div>
 
@@ -301,10 +335,10 @@ export default function RatesCalculator({ initialBrandId = 'apple', onProceed }:
             </div>
 
             <div className="text-right">
-              <span className="text-xs text-brand-muted block">Estimated Speed:</span>
+              <span className="text-xs text-brand-muted block">Live Processing Speed:</span>
               <span className="text-xs font-bold text-brand-text flex items-center gap-1 justify-end mt-0.5">
                 <Clock className="w-3.5 h-3.5 text-brand-primary" />
-                {selectedBrand.verificationTime}
+                {selectedBrand.verificationTime || '5-15 mins'}
               </span>
             </div>
           </div>
@@ -324,15 +358,15 @@ export default function RatesCalculator({ initialBrandId = 'apple', onProceed }:
         <div className="flex items-center justify-around pt-2 text-[11px] text-brand-muted">
           <span className="flex items-center gap-1">
             <CheckCircle2 className="w-3.5 h-3.5 text-brand-success" />
-            No hidden fees
+            No hidden deductions
           </span>
           <span className="flex items-center gap-1">
             <CheckCircle2 className="w-3.5 h-3.5 text-brand-success" />
-            256-bit encryption
+            Escrow-backed payout
           </span>
           <span className="flex items-center gap-1">
             <CheckCircle2 className="w-3.5 h-3.5 text-brand-success" />
-            Fast settlement
+            Rapid settlement
           </span>
         </div>
       </div>

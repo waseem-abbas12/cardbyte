@@ -5,12 +5,15 @@ export interface GiftCardBrand {
   icon: string;
   badge?: string;
   verificationTime: string;
+  enabled: boolean; // Catalog active/inactive visibility toggle
   countries: {
     code: string;
     name: string;
     flag: string;
     currency: string;
-    ratePercent: number; // e.g. 74 means 74% payout
+    ratePercent: number; // fallback / e-code rate
+    rateEcode: number;   // E-Code / Digital rate
+    ratePhysical: number; // Physical Card with receipt rate
     nominals: number[];
   }[];
 }
@@ -24,6 +27,35 @@ export interface PayoutMethod {
   type: 'crypto' | 'fiat';
   fee: string;
   minPayout: number;
+}
+
+export interface UserWalletConfig {
+  defaultRail: string;
+  usdtTrc20?: string;
+  usdtBep20?: string;
+  btcAddress?: string;
+  solAddress?: string;
+  bankDetails?: {
+    accountName: string;
+    bankName: string;
+    accountNumber: string;
+    routingOrIban?: string;
+  };
+  momoDetails?: {
+    provider: string;
+    phone: string;
+  };
+  isConfigured: boolean;
+  updatedAt?: string;
+}
+
+export interface PlatformNotification {
+  id: string;
+  type: 'RATE' | 'ORDER' | 'SYSTEM' | 'WALLET';
+  title: string;
+  message: string;
+  timestamp: string;
+  read?: boolean;
 }
 
 export const SUPPORTED_PAYOUTS: PayoutMethod[] = [
@@ -46,11 +78,12 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     icon: '🍎',
     badge: 'Popular',
     verificationTime: '5-15 mins',
+    enabled: true,
     countries: [
-      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 73.0, nominals: [25, 50, 100, 200, 500] },
-      { code: 'UK', name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP', ratePercent: 70.0, nominals: [25, 50, 100] },
-      { code: 'EU', name: 'Europe', flag: '🇪🇺', currency: 'EUR', ratePercent: 71.0, nominals: [25, 50, 100, 200] },
-      { code: 'CA', name: 'Canada', flag: '🇨🇦', currency: 'CAD', ratePercent: 68.0, nominals: [50, 100] }
+      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 73.0, rateEcode: 73.0, ratePhysical: 77.5, nominals: [25, 50, 100, 200, 500] },
+      { code: 'UK', name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP', ratePercent: 70.0, rateEcode: 70.0, ratePhysical: 74.0, nominals: [25, 50, 100] },
+      { code: 'EU', name: 'Europe', flag: '🇪🇺', currency: 'EUR', ratePercent: 71.0, rateEcode: 71.0, ratePhysical: 75.0, nominals: [25, 50, 100, 200] },
+      { code: 'CA', name: 'Canada', flag: '🇨🇦', currency: 'CAD', ratePercent: 68.0, rateEcode: 68.0, ratePhysical: 72.0, nominals: [50, 100] }
     ]
   },
   {
@@ -60,11 +93,12 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     icon: '🎮',
     badge: 'Instant',
     verificationTime: '2-5 mins',
+    enabled: true,
     countries: [
-      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 75.0, nominals: [20, 50, 100] },
-      { code: 'HK', name: 'Hong Kong', flag: '🇭🇰', currency: 'HKD', ratePercent: 72.0, nominals: [100, 200, 500] },
-      { code: 'EU', name: 'Europe', flag: '🇪🇺', currency: 'EUR', ratePercent: 73.5, nominals: [20, 50, 100] },
-      { code: 'UK', name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP', ratePercent: 74.0, nominals: [25, 50, 100] }
+      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 75.0, rateEcode: 75.0, ratePhysical: 80.0, nominals: [20, 50, 100] },
+      { code: 'HK', name: 'Hong Kong', flag: '🇭🇰', currency: 'HKD', ratePercent: 72.0, rateEcode: 72.0, ratePhysical: 76.0, nominals: [100, 200, 500] },
+      { code: 'EU', name: 'Europe', flag: '🇪🇺', currency: 'EUR', ratePercent: 73.5, rateEcode: 73.5, ratePhysical: 78.0, nominals: [20, 50, 100] },
+      { code: 'UK', name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP', ratePercent: 74.0, rateEcode: 74.0, ratePhysical: 79.0, nominals: [25, 50, 100] }
     ]
   },
   {
@@ -74,10 +108,11 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     icon: '⚡',
     badge: 'High Rate',
     verificationTime: '5-10 mins',
+    enabled: true,
     countries: [
-      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 78.5, nominals: [10, 20, 50, 100] },
-      { code: 'UK', name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP', ratePercent: 76.0, nominals: [25, 50, 100] },
-      { code: 'GL', name: 'Global', flag: '🌐', currency: 'USD', ratePercent: 77.0, nominals: [50, 100] }
+      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 78.5, rateEcode: 78.5, ratePhysical: 83.0, nominals: [10, 20, 50, 100] },
+      { code: 'UK', name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP', ratePercent: 76.0, rateEcode: 76.0, ratePhysical: 80.5, nominals: [25, 50, 100] },
+      { code: 'GL', name: 'Global', flag: '🌐', currency: 'USD', ratePercent: 77.0, rateEcode: 77.0, ratePhysical: 81.5, nominals: [50, 100] }
     ]
   },
   {
@@ -87,10 +122,11 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     icon: '📦',
     badge: 'Hot',
     verificationTime: 'Up to 24h',
+    enabled: true,
     countries: [
-      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 72.0, nominals: [25, 50, 100, 250, 500] },
-      { code: 'UK', name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP', ratePercent: 71.0, nominals: [25, 50, 100] },
-      { code: 'DE', name: 'Germany', flag: '🇩🇪', currency: 'EUR', ratePercent: 70.0, nominals: [50, 100] }
+      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 72.0, rateEcode: 72.0, ratePhysical: 76.5, nominals: [25, 50, 100, 250, 500] },
+      { code: 'UK', name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP', ratePercent: 71.0, rateEcode: 71.0, ratePhysical: 75.0, nominals: [25, 50, 100] },
+      { code: 'DE', name: 'Germany', flag: '🇩🇪', currency: 'EUR', ratePercent: 70.0, rateEcode: 70.0, ratePhysical: 74.0, nominals: [50, 100] }
     ]
   },
   {
@@ -100,10 +136,11 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     icon: '🎯',
     badge: 'Fast',
     verificationTime: '5-15 mins',
+    enabled: true,
     countries: [
-      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 71.0, nominals: [25, 50, 75, 100] },
-      { code: 'EU', name: 'Europe', flag: '🇪🇺', currency: 'EUR', ratePercent: 70.0, nominals: [30, 50, 80, 100] },
-      { code: 'UK', name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP', ratePercent: 69.5, nominals: [25, 45, 90] }
+      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 71.0, rateEcode: 71.0, ratePhysical: 75.5, nominals: [25, 50, 75, 100] },
+      { code: 'EU', name: 'Europe', flag: '🇪🇺', currency: 'EUR', ratePercent: 70.0, rateEcode: 70.0, ratePhysical: 74.5, nominals: [30, 50, 80, 100] },
+      { code: 'UK', name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP', ratePercent: 69.5, rateEcode: 69.5, ratePhysical: 73.5, nominals: [25, 45, 90] }
     ]
   },
   {
@@ -113,9 +150,10 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     icon: '🟢',
     badge: 'Fast',
     verificationTime: '5-15 mins',
+    enabled: true,
     countries: [
-      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 69.0, nominals: [25, 50, 100] },
-      { code: 'MX', name: 'Mexico', flag: '🇲🇽', currency: 'MXN', ratePercent: 65.0, nominals: [300, 600, 1000] }
+      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 69.0, rateEcode: 69.0, ratePhysical: 73.0, nominals: [25, 50, 100] },
+      { code: 'MX', name: 'Mexico', flag: '🇲🇽', currency: 'MXN', ratePercent: 65.0, rateEcode: 65.0, ratePhysical: 69.0, nominals: [300, 600, 1000] }
     ]
   },
   {
@@ -125,9 +163,10 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     icon: '▶️',
     badge: 'Up to 72h',
     verificationTime: 'Up to 72h',
+    enabled: true,
     countries: [
-      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 62.0, nominals: [25, 50, 100] },
-      { code: 'EU', name: 'Europe', flag: '🇪🇺', currency: 'EUR', ratePercent: 58.0, nominals: [15, 25, 50, 100] }
+      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 62.0, rateEcode: 62.0, ratePhysical: 66.0, nominals: [25, 50, 100] },
+      { code: 'EU', name: 'Europe', flag: '🇪🇺', currency: 'EUR', ratePercent: 58.0, rateEcode: 58.0, ratePhysical: 62.5, nominals: [15, 25, 50, 100] }
     ]
   },
   {
@@ -137,8 +176,9 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     icon: '🛒',
     badge: 'Physical',
     verificationTime: '15-45 mins',
+    enabled: true,
     countries: [
-      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 65.0, nominals: [50, 100, 200, 500] }
+      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 65.0, rateEcode: 65.0, ratePhysical: 70.0, nominals: [50, 100, 200, 500] }
     ]
   },
   {
@@ -148,9 +188,10 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     icon: '🎬',
     badge: 'Instant',
     verificationTime: '5 mins',
+    enabled: true,
     countries: [
-      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 66.0, nominals: [30, 60, 100] },
-      { code: 'EU', name: 'Europe', flag: '🇪🇺', currency: 'EUR', ratePercent: 64.0, nominals: [25, 50] }
+      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 66.0, rateEcode: 66.0, ratePhysical: 70.0, nominals: [30, 60, 100] },
+      { code: 'EU', name: 'Europe', flag: '🇪🇺', currency: 'EUR', ratePercent: 64.0, rateEcode: 64.0, ratePhysical: 68.0, nominals: [25, 50] }
     ]
   },
   {
@@ -160,19 +201,20 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     icon: '🟥',
     badge: 'Fast',
     verificationTime: '5 mins',
+    enabled: true,
     countries: [
-      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 70.0, nominals: [10, 25, 50] }
+      { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 70.0, rateEcode: 70.0, ratePhysical: 74.0, nominals: [10, 25, 50] }
     ]
   }
 ];
 
 export const LIVE_TICKER_ITEMS = [
-  { brand: 'Steam 100 USD', price: '75.00 USDT', country: '🇺🇸', change: '+2.1%' },
-  { brand: 'Apple iTunes 500 USD', price: '365.00 USDT', country: '🇺🇸', change: '+1.4%' },
-  { brand: 'Razer Gold 100 GBP', price: '76.00 GBP', country: '🇬🇧', change: '+3.5%' },
-  { brand: 'PlayStation 100 EUR', price: '70.00 EUR', country: '🇪🇺', change: '+0.8%' },
-  { brand: 'Amazon 100 USD', price: '72.00 USDT', country: '🇺🇸', change: '+1.9%' },
-  { brand: 'Walmart 200 USD', price: '130.00 USDT', country: '🇺🇸', change: '+0.5%' },
+  { brand: 'Steam 100 USD (Physical)', price: '80.00 USDT', country: '🇺🇸', change: '+2.1%' },
+  { brand: 'Apple iTunes 500 USD (E-Code)', price: '365.00 USDT', country: '🇺🇸', change: '+1.4%' },
+  { brand: 'Razer Gold 100 GBP (Physical)', price: '80.50 GBP', country: '🇬🇧', change: '+3.5%' },
+  { brand: 'PlayStation 100 EUR', price: '74.50 EUR', country: '🇪🇺', change: '+0.8%' },
+  { brand: 'Amazon 100 USD', price: '76.50 USDT', country: '🇺🇸', change: '+1.9%' },
+  { brand: 'Walmart 200 USD (Physical)', price: '140.00 USDT', country: '🇺🇸', change: '+0.5%' },
   { brand: 'Xbox Game Pass 3M', price: '24.50 USDT', country: '🌐', change: '+2.0%' },
-  { brand: 'Steam 500 HKD', price: '46.00 USD', country: '🇭🇰', change: '+1.2%' }
+  { brand: 'Steam 500 HKD', price: '48.00 USD', country: '🇭🇰', change: '+1.2%' }
 ];
