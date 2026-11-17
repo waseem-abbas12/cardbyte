@@ -12,6 +12,7 @@ import {
   CountryRate
 } from './types';
 import { INITIAL_BRANDS, SUPPORTED_PAYOUTS } from './ratesData';
+import { generateSecureTrackingCode, sanitizeString } from './security';
 
 export interface DatabaseSchema {
   brands: GiftCardBrand[];
@@ -412,12 +413,11 @@ export function updateSiteSettings(settings: Partial<SiteSettings>): SiteSetting
 
 export function createOrderInDb(params: Omit<OrderItem, 'id' | 'trackingCode' | 'status' | 'messages' | 'createdAt' | 'updatedAt'>): OrderItem {
   const db = getDatabase();
-  const randNum = Math.floor(10000 + Math.random() * 90000);
-  const trackingCode = `CB-${randNum}`;
+  const trackingCode = generateSecureTrackingCode();
   
   const order: OrderItem = {
     ...params,
-    id: `ord_${Date.now()}_${randNum}`,
+    id: `ord_${Date.now()}_${trackingCode.replace('CB-', '')}`,
     trackingCode,
     status: 'PENDING',
     messages: [
@@ -496,7 +496,7 @@ export function addOrderMessageInDb(orderId: string, sender: 'USER' | 'ADMIN', m
   const msg: OrderMessage = {
     id: `msg_${Date.now()}`,
     sender,
-    message: message.trim(),
+    message: sanitizeString(message.trim()),
     timestamp: new Date().toISOString()
   };
 

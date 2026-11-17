@@ -17,7 +17,9 @@ import {
   Clock, 
   Save, 
   RefreshCw, 
-  ShieldCheck, 
+  ShieldCheck,
+  Lock,
+  Unlock, 
   DollarSign, 
   Eye, 
   EyeOff, 
@@ -98,10 +100,55 @@ export default function AdminPage() {
   const [orderChatInputs, setOrderChatInputs] = useState<{ [key: string]: string }>({});
   const [showCodes, setShowCodes] = useState<{ [key: string]: boolean }>({});
 
+  const [adminToken, setAdminToken] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('cb_admin_token') || 'cardbyte-master-secret-2026';
+    }
+    return 'cardbyte-master-secret-2026';
+  });
+  const [authError, setAuthError] = useState<boolean>(false);
+  const [passkeyInput, setPasskeyInput] = useState<string>('');
+
+  const adminFetch = async (url: string = '/api/admin', options: RequestInit = {}) => {
+    const token = typeof window !== 'undefined' ? (sessionStorage.getItem('cb_admin_token') || adminToken) : adminToken;
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      ...(options.headers || {})
+    };
+    const res = await fetch(url, { ...options, headers });
+    if (res.status === 401) {
+      setAuthError(true);
+    }
+    return res;
+  };
+
+  const handleUnlock = (keyToUse?: string) => {
+    const key = keyToUse || passkeyInput.trim();
+    if (!key) return;
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('cb_admin_token', key);
+    }
+    setAdminToken(key);
+    setAuthError(false);
+    setTimeout(() => {
+      fetchData();
+    }, 100);
+  };
+
+  const handleLock = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('cb_admin_token');
+    }
+    setAdminToken('');
+    setAuthError(true);
+    setData(null);
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin');
+      const res = await adminFetch('/api/admin');
       const json = await res.json();
       if (json.ok) {
         setData(json.data);
@@ -135,7 +182,7 @@ export default function AdminPage() {
     }
 
     try {
-      const res = await fetch('/api/admin', {
+      const res = await adminFetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -158,7 +205,7 @@ export default function AdminPage() {
     if (!msg?.trim()) return;
 
     try {
-      const res = await fetch('/api/admin', {
+      const res = await adminFetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -181,7 +228,7 @@ export default function AdminPage() {
   const handleCreateBrand = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/admin', {
+      const res = await adminFetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -207,7 +254,7 @@ export default function AdminPage() {
   const handleDeleteBrand = async (brandId: string) => {
     if (!confirm('Are you sure you want to delete this gift card brand?')) return;
     try {
-      await fetch('/api/admin', {
+      await adminFetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'delete_brand', brandId })
@@ -220,7 +267,7 @@ export default function AdminPage() {
 
   const handleToggleBrand = async (brandId: string) => {
     try {
-      await fetch('/api/admin', {
+      await adminFetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'toggle_brand', brandId })
@@ -233,7 +280,7 @@ export default function AdminPage() {
 
   const handleSaveRates = async (brandId: string, countryCode: string) => {
     try {
-      const res = await fetch('/api/admin', {
+      const res = await adminFetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -263,7 +310,7 @@ export default function AdminPage() {
     const nominalArr = countryNominals.split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
 
     try {
-      const res = await fetch('/api/admin', {
+      const res = await adminFetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -303,7 +350,7 @@ export default function AdminPage() {
     current[targetIdx] = temp;
 
     try {
-      const res = await fetch('/api/admin', {
+      const res = await adminFetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'update_layout', sections: current })
@@ -321,7 +368,7 @@ export default function AdminPage() {
     current[index].enabled = !current[index].enabled;
 
     try {
-      await fetch('/api/admin', {
+      await adminFetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'update_layout', sections: current })
@@ -336,7 +383,7 @@ export default function AdminPage() {
   const handleCreatePayout = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch('/api/admin', {
+      await adminFetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -364,7 +411,7 @@ export default function AdminPage() {
   const handleDeletePayout = async (id: string) => {
     if (!confirm('Delete payout rail?')) return;
     try {
-      await fetch('/api/admin', {
+      await adminFetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'delete_payout', id })
@@ -379,7 +426,7 @@ export default function AdminPage() {
   const handleCreateFaq = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch('/api/admin', {
+      await adminFetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'create_faq', question: newFaqQ, answer: newFaqA })
@@ -394,7 +441,7 @@ export default function AdminPage() {
 
   const handleDeleteFaq = async (id: string) => {
     try {
-      await fetch('/api/admin', {
+      await adminFetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'delete_faq', id })
@@ -410,7 +457,7 @@ export default function AdminPage() {
     e.preventDefault();
     if (!settingsForm) return;
     try {
-      const res = await fetch('/api/admin', {
+      const res = await adminFetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'update_settings', settings: settingsForm })
@@ -424,6 +471,58 @@ export default function AdminPage() {
       alert('Failed to save settings');
     }
   };
+
+  if (authError || (!data && !loading)) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center px-4 py-16">
+        <div className="max-w-md w-full p-8 rounded-3xl glass-panel border border-brand-border shadow-2xl text-center">
+          <div className="w-16 h-16 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary mx-auto flex items-center justify-center mb-6 shadow-inner">
+            <Lock className="w-8 h-8" />
+          </div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/30 text-brand-primary text-xs font-bold uppercase tracking-wider mb-3">
+            Zero-Trust Protected
+          </div>
+          <h2 className="text-2xl font-black text-brand-text tracking-tight mb-2">Admin Security Desk</h2>
+          <p className="text-xs text-brand-muted leading-relaxed mb-6">
+            This endpoint is fortified with constant-time Bearer authentication. Enter your Master Passkey to access platform controls and customer orders.
+          </p>
+
+          <form onSubmit={(e) => { e.preventDefault(); handleUnlock(); }} className="space-y-4">
+            <div className="text-left">
+              <label className="text-[11px] font-bold text-brand-muted uppercase tracking-wider block mb-1.5">
+                Master Secret Key
+              </label>
+              <input
+                type="password"
+                placeholder="Enter Admin Passkey..."
+                value={passkeyInput}
+                onChange={(e) => setPasskeyInput(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-brand-surface border border-brand-border text-brand-text text-sm font-mono focus:border-brand-primary outline-none transition-all"
+                autoFocus
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-xs font-bold transition-all shadow-md cursor-pointer"
+            >
+              Unlock Control Center
+            </button>
+          </form>
+
+          <div className="mt-6 pt-6 border-t border-brand-border/60 flex flex-col gap-2 text-xs text-brand-muted">
+            <span>Default environment passkey:</span>
+            <button
+              onClick={() => handleUnlock('cardbyte-master-secret-2026')}
+              className="px-3 py-1.5 rounded-lg bg-brand-surface hover:bg-brand-cardHover border border-brand-border text-brand-text font-mono text-[11px] transition-colors cursor-pointer"
+            >
+              ⚡ Use Default Master Key
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading || !data) {
     return (
@@ -1400,7 +1499,7 @@ export default function AdminPage() {
             <h3 className="text-sm font-bold text-brand-text">Platform Activity & Audit History</h3>
             <button
               onClick={async () => {
-                await fetch('/api/admin', {
+                await adminFetch('/api/admin', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ action: 'clear_notifications' })

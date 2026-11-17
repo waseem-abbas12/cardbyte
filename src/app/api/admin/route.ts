@@ -18,9 +18,20 @@ import {
   addOrderMessageInDb,
   addAuditNotification
 } from '@/lib/db';
+import { verifyAdminAuthorization, checkRateLimit } from '@/lib/security';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || '127.0.0.1';
+    const rate = checkRateLimit(`admin_get_${ip}`, 120, 60000);
+    if (!rate.allowed) {
+      return NextResponse.json({ ok: 0, error: 'Rate limit exceeded on admin API' }, { status: 429 });
+    }
+
+    if (!verifyAdminAuthorization(req)) {
+      return NextResponse.json({ ok: 0, error: 'Unauthorized: Valid Admin Authorization Token required.' }, { status: 401 });
+    }
+
     const db = getDatabase();
     return NextResponse.json({
       ok: 1,
@@ -41,6 +52,16 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || '127.0.0.1';
+    const rate = checkRateLimit(`admin_post_${ip}`, 120, 60000);
+    if (!rate.allowed) {
+      return NextResponse.json({ ok: 0, error: 'Rate limit exceeded on admin API' }, { status: 429 });
+    }
+
+    if (!verifyAdminAuthorization(req)) {
+      return NextResponse.json({ ok: 0, error: 'Unauthorized: Valid Admin Authorization Token required.' }, { status: 401 });
+    }
+
     const body = await req.json();
     const { action } = body;
     const db = getDatabase();
