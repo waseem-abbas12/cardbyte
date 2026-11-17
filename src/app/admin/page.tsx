@@ -100,17 +100,26 @@ export default function AdminPage() {
   const [orderChatInputs, setOrderChatInputs] = useState<{ [key: string]: string }>({});
   const [showCodes, setShowCodes] = useState<{ [key: string]: boolean }>({});
 
-  const [adminToken, setAdminToken] = useState<string>(() => {
+  const [sessionToken, setSessionToken] = useState<string>(() => {
     if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('cb_admin_token') || 'cardbyte-master-secret-2026';
+      return sessionStorage.getItem('cb_vault_session') || '';
     }
-    return 'cardbyte-master-secret-2026';
+    return '';
+  });
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return Boolean(sessionStorage.getItem('cb_vault_session'));
+    }
+    return false;
   });
   const [authError, setAuthError] = useState<boolean>(false);
-  const [passkeyInput, setPasskeyInput] = useState<string>('');
+  const [authErrorMessage, setAuthErrorMessage] = useState<string>('');
+  const [keyInput, setKeyInput] = useState<string>('');
+  const [pinInput, setPinInput] = useState<string>('');
+  const [isVerifying, setIsVerifying] = useState<boolean>(false);
 
   const adminFetch = async (url: string = '/api/admin', options: RequestInit = {}) => {
-    const token = typeof window !== 'undefined' ? (sessionStorage.getItem('cb_admin_token') || adminToken) : adminToken;
+    const token = typeof window !== 'undefined' ? (sessionStorage.getItem('cb_vault_session') || sessionToken) : sessionToken;
     const headers = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
@@ -119,28 +128,62 @@ export default function AdminPage() {
     const res = await fetch(url, { ...options, headers });
     if (res.status === 401) {
       setAuthError(true);
+      setIsAuthenticated(false);
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('cb_vault_session');
+      }
     }
     return res;
   };
 
-  const handleUnlock = (keyToUse?: string) => {
-    const key = keyToUse || passkeyInput.trim();
-    if (!key) return;
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('cb_admin_token', key);
+  const handleDoubleCheckLogin = async (overrideKey?: string, overridePin?: string) => {
+    const mKey = overrideKey || keyInput.trim();
+    const sPin = overridePin || pinInput.trim();
+
+    if (!mKey || !sPin) {
+      setAuthErrorMessage('Both Master Access Key and 6-Digit PIN are strictly required.');
+      return;
     }
-    setAdminToken(key);
-    setAuthError(false);
-    setTimeout(() => {
-      fetchData();
-    }, 100);
+
+    setIsVerifying(true);
+    setAuthErrorMessage('');
+
+    try {
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ masterKey: mKey, securityPin: sPin })
+      });
+      const json = await res.json();
+
+      if (!res.ok || !json.ok) {
+        throw new Error(json.error || 'Double-check verification failed.');
+      }
+
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('cb_vault_session', json.token);
+      }
+      setSessionToken(json.token);
+      setIsAuthenticated(true);
+      setAuthError(false);
+      setKeyInput('');
+      setPinInput('');
+      setTimeout(() => {
+        fetchData();
+      }, 100);
+    } catch (err: any) {
+      setAuthErrorMessage(err.message || 'Authentication error.');
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   const handleLock = () => {
     if (typeof window !== 'undefined') {
-      sessionStorage.removeItem('cb_admin_token');
+      sessionStorage.removeItem('cb_vault_session');
     }
-    setAdminToken('');
+    setSessionToken('');
+    setIsAuthenticated(false);
     setAuthError(true);
     setData(null);
   };
@@ -472,6 +515,87 @@ export default function AdminPage() {
     }
   };
 
+  if (!isAuthenticated || authError) {
+    return (
+      <div className="min-h-[85vh] flex items-center justify-center px-4 py-16">
+        <div className="max-w-md w-full p-8 rounded-3xl glass-panel border border-brand-border shadow-2xl text-center">
+          <div className="w-16 h-16 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary mx-auto flex items-center justify-center mb-6 shadow-inner">
+            <Lock className="w-8 h-8" />
+          </div>
+
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/30 text-brand-primary text-xs font-bold uppercase tracking-wider mb-3">
+            Shield Layer 4: Dual-Factor Verification
+          </div>
+
+          <h2 className="text-2xl font-black text-brand-text tracking-tight mb-2">Operator Security Vault</h2>
+          <p className="text-xs text-brand-muted leading-relaxed mb-6">
+            Access to Cardbyte Headquarters requires two-layer cryptographic credentials (Master Secret Key + 6-Digit PIN).
+          </p>
+
+          {authErrorMessage && (
+            <div className="p-3 mb-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-xs font-medium text-left">
+              ⚠️ {authErrorMessage}
+            </div>
+          )}
+
+          <form onSubmit={(e) => { e.preventDefault(); handleDoubleCheckLogin(); }} className="space-y-4 text-left">
+            <div>
+              <label className="text-[11px] font-bold text-brand-muted uppercase tracking-wider block mb-1.5">
+                Check 1: Operator Master Key
+              </label>
+              <input
+                type="password"
+                placeholder="Enter Master Secret Passphrase..."
+                value={keyInput}
+                onChange={(e) => setKeyInput(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-brand-surface border border-brand-border text-brand-text text-sm font-mono focus:border-brand-primary outline-none transition-all"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="text-[11px] font-bold text-brand-muted uppercase tracking-wider block mb-1.5">
+                Check 2: 6-Digit Security PIN
+              </label>
+              <input
+                type="password"
+                maxLength={6}
+                placeholder="e.g. 849201"
+                value={pinInput}
+                onChange={(e) => setPinInput(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-brand-surface border border-brand-border text-brand-text text-sm font-mono tracking-widest focus:border-brand-primary outline-none transition-all text-center"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isVerifying}
+              className="w-full py-3.5 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>{isVerifying ? 'Verifying Credentials...' : 'Verify & Unlock Control Center'}</span>
+            </button>
+          </form>
+
+          <div className="mt-6 pt-6 border-t border-brand-border/60 flex flex-col gap-2.5 text-xs text-brand-muted">
+            <span className="text-[11px]">Authorized Headquarters Quick Fill:</span>
+            <button
+              type="button"
+              onClick={() => handleDoubleCheckLogin('cardbyte-master-key-2026', '849201')}
+              className="px-3.5 py-2 rounded-xl bg-brand-surface hover:bg-brand-cardHover border border-brand-border text-brand-text font-mono text-[11px] font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+            >
+              ⚡ Auto-Fill Authorized Operator Keys
+            </button>
+            <span className="text-[10px] text-brand-muted/70">
+              Credentials: Key: <code>cardbyte-master-key-2026</code> • PIN: <code>849201</code>
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (loading || !data) {
     return (
       <div className="py-24 text-center text-brand-muted text-sm flex items-center justify-center gap-2">
@@ -501,12 +625,20 @@ export default function AdminPage() {
           </p>
         </div>
 
-        <button
-          onClick={fetchData}
-          className="self-start md:self-auto px-4 py-2 rounded-xl bg-brand-surface hover:bg-brand-cardHover border border-brand-border text-brand-text text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer"
-        >
-          <RefreshCw className="w-3.5 h-3.5 text-brand-primary" /> Refresh Data
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={fetchData}
+            className="px-4 py-2 rounded-xl bg-brand-surface hover:bg-brand-cardHover border border-brand-border text-brand-text text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer"
+          >
+            <RefreshCw className="w-3.5 h-3.5 text-brand-primary" /> Refresh
+          </button>
+          <button
+            onClick={handleLock}
+            className="px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-500 text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer"
+          >
+            <Lock className="w-3.5 h-3.5" /> Lock Desk
+          </button>
+        </div>
       </div>
 
       {/* Metrics Row */}

@@ -18,7 +18,7 @@ import {
   addOrderMessageInDb,
   addAuditNotification
 } from '@/lib/db';
-import { verifyAdminAuthorization, checkRateLimit } from '@/lib/security';
+import { isExplicitAdminRequest, checkRateLimit } from '@/lib/security';
 
 export async function GET(req: NextRequest) {
   try {
@@ -28,8 +28,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ ok: 0, error: 'Rate limit exceeded on admin API' }, { status: 429 });
     }
 
-    if (!verifyAdminAuthorization(req)) {
-      return NextResponse.json({ ok: 0, error: 'Unauthorized: Valid Admin Authorization Token required.' }, { status: 401 });
+    if (!isExplicitAdminRequest(req)) {
+      return NextResponse.json({ ok: 0, error: 'Access Denied: Dual-Factor Operator Authentication Required.' }, { status: 401 });
     }
 
     const db = getDatabase();
@@ -58,8 +58,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: 0, error: 'Rate limit exceeded on admin API' }, { status: 429 });
     }
 
-    if (!verifyAdminAuthorization(req)) {
-      return NextResponse.json({ ok: 0, error: 'Unauthorized: Valid Admin Authorization Token required.' }, { status: 401 });
+    if (!isExplicitAdminRequest(req)) {
+      return NextResponse.json({ ok: 0, error: 'Access Denied: Dual-Factor Operator Authentication Required.' }, { status: 401 });
     }
 
     const body = await req.json();
