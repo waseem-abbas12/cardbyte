@@ -1,9 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createOrder, getStore } from '@/lib/store';
+import { createOrderInDb, getDatabase, addOrderMessageInDb } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+
+    // Check if sending a message on an existing order
+    if (body.action === 'send_message') {
+      const { trackingCode, message } = body;
+      if (!trackingCode || !message?.trim()) {
+        return NextResponse.json({ ok: 0, error: 'Tracking code and message required' }, { status: 400 });
+      }
+      const msg = addOrderMessageInDb(trackingCode, 'USER', message);
+      if (!msg) {
+        return NextResponse.json({ ok: 0, error: 'Order not found' }, { status: 404 });
+      }
+      return NextResponse.json({ ok: 1, data: { message: msg } });
+    }
 
     const {
       brandId,
@@ -26,11 +39,11 @@ export async function POST(req: NextRequest) {
     if (!brandId || !nominal || !quantity || !payoutAddress || !cardCodes || cardCodes.length === 0) {
       return NextResponse.json({
         ok: 0,
-        error: 'Missing required trading details. Please provide card codes, value, and payout destination.'
+        error: 'Missing required trading details. Please provide card codes, nominal value, and payout destination.'
       }, { status: 400 });
     }
 
-    const order = createOrder({
+    const order = createOrderInDb({
       brandId,
       brandName: brandName || brandId,
       countryCode: countryCode || 'US',
@@ -52,7 +65,7 @@ export async function POST(req: NextRequest) {
       ok: 1,
       data: {
         order,
-        message: 'Order created successfully. Your payout will be processed upon verification.'
+        message: 'Order created successfully. Payout will be processed upon operator balance verification.'
       }
     });
 
@@ -70,8 +83,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ ok: 0, error: 'Tracking code is required' }, { status: 400 });
     }
 
-    const store = getStore();
-    const order = store.orders.find(
+    const db = getDatabase();
+    const order = db.orders.find(
       o => o.trackingCode.toLowerCase() === trackingCode.toLowerCase().trim() ||
            o.id.toLowerCase() === trackingCode.toLowerCase().trim()
     );

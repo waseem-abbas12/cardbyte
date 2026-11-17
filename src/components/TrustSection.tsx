@@ -1,7 +1,12 @@
 import React from 'react';
 import { ShieldCheck, Zap, Headphones, Globe2, CheckCircle, Lock, Cpu, DollarSign } from 'lucide-react';
+import { SiteSettings } from '@/lib/types';
 
-export default function TrustSection() {
+interface TrustSectionProps {
+  settings?: SiteSettings;
+}
+
+export default function TrustSection({ settings }: TrustSectionProps) {
   const steps = [
     {
       num: '01',
@@ -52,6 +57,11 @@ export default function TrustSection() {
     }
   ];
 
+  const activeTraders = settings?.activeTradersCount || '18,500+';
+  const volumeTraded = settings?.volumeTraded || '$14.2M+';
+  const avgPayoutTime = settings?.avgPayoutTime || '5 - 15m';
+  const customerSatisfaction = settings?.customerSatisfaction || '99.8%';
+
   return (
     <section className="py-20 bg-brand-bg relative overflow-hidden">
       
@@ -61,21 +71,21 @@ export default function TrustSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         {/* Live Performance Stats Banner */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 sm:p-8 rounded-3xl glass-panel border border-brand-border mb-20">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 sm:p-8 rounded-3xl glass-panel border border-brand-border mb-20 shadow-card">
           <div className="text-center p-3">
-            <div className="text-3xl sm:text-4xl font-extrabold text-brand-text font-mono">18,500+</div>
+            <div className="text-3xl sm:text-4xl font-extrabold text-brand-text font-mono">{activeTraders}</div>
             <div className="text-xs sm:text-sm text-brand-muted mt-1 font-medium">Active Traders</div>
           </div>
           <div className="text-center p-3 border-l border-brand-border/60">
-            <div className="text-3xl sm:text-4xl font-extrabold text-brand-success font-mono">$14.2M+</div>
+            <div className="text-3xl sm:text-4xl font-extrabold text-brand-success font-mono">{volumeTraded}</div>
             <div className="text-xs sm:text-sm text-brand-muted mt-1 font-medium">Total Volume Traded</div>
           </div>
           <div className="text-center p-3 border-l border-brand-border/60">
-            <div className="text-3xl sm:text-4xl font-extrabold text-brand-primary font-mono">5 - 15m</div>
+            <div className="text-3xl sm:text-4xl font-extrabold text-brand-primary font-mono">{avgPayoutTime}</div>
             <div className="text-xs sm:text-sm text-brand-muted mt-1 font-medium">Avg Payout Time</div>
           </div>
           <div className="text-center p-3 border-l border-brand-border/60">
-            <div className="text-3xl sm:text-4xl font-extrabold text-brand-text font-mono">99.8%</div>
+            <div className="text-3xl sm:text-4xl font-extrabold text-brand-text font-mono">{customerSatisfaction}</div>
             <div className="text-xs sm:text-sm text-brand-muted mt-1 font-medium">Customer Satisfaction</div>
           </div>
         </div>
@@ -94,7 +104,7 @@ export default function TrustSection() {
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-12 text-left">
             {steps.map((s, idx) => (
-              <div key={idx} className="relative p-6 rounded-2xl glass-panel border border-brand-border flex flex-col justify-between group hover:border-brand-primary/40 transition-colors">
+              <div key={idx} className="relative p-6 rounded-2xl glass-panel border border-brand-border flex flex-col justify-between group hover:border-brand-primary/40 transition-colors shadow-sm">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-3xl font-extrabold font-mono text-brand-muted/40 group-hover:text-brand-primary transition-colors">
@@ -115,7 +125,7 @@ export default function TrustSection() {
         {/* Feature Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
           {features.map((f, idx) => (
-            <div key={idx} className="p-7 rounded-2xl glass-panel border border-brand-border flex items-start gap-5 hover:border-brand-primary/40 transition-all">
+            <div key={idx} className="p-7 rounded-2xl glass-panel border border-brand-border flex items-start gap-5 hover:border-brand-primary/40 transition-all shadow-sm">
               <div className="p-3.5 rounded-2xl bg-brand-surface border border-brand-border shrink-0 shadow-sm">
                 {f.icon}
               </div>

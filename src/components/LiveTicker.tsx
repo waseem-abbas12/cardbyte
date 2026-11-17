@@ -1,7 +1,11 @@
 import React from 'react';
 import { LIVE_TICKER_ITEMS } from '@/lib/ratesData';
 
-export default function LiveTicker() {
+interface LiveTickerProps {
+  announcement?: string;
+}
+
+export default function LiveTicker({ announcement }: LiveTickerProps) {
   const tickerItems = [...LIVE_TICKER_ITEMS, ...LIVE_TICKER_ITEMS];
 
   return (
@@ -18,6 +22,11 @@ export default function LiveTicker() {
 
         {/* Scrolling Ticker Track */}
         <div className="flex whitespace-nowrap animate-ticker overflow-hidden">
+          {announcement && (
+            <div className="inline-flex items-center gap-2 mx-6 text-xs font-bold text-brand-primary shrink-0">
+              <span>📢 {announcement}</span>
+            </div>
+          )}
           {tickerItems.map((item, index) => (
             <div
               key={index}

@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
-import { getStore } from '@/lib/store';
+import { getDatabase } from '@/lib/db';
 
 export async function GET() {
   try {
-    const store = getStore();
+    const db = getDatabase();
     return NextResponse.json({
       ok: 1,
       data: {
-        brands: store.brands,
+        brands: db.brands,
+        payoutRails: db.payoutRails,
         timestamp: Math.floor(Date.now() / 1000)
       }
     });

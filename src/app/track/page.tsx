@@ -2,16 +2,34 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Search, Clock, CheckCircle2, XCircle, AlertCircle, Coins, ShieldCheck, ArrowRight } from 'lucide-react';
+import { 
+  Search, 
+  Clock, 
+  CheckCircle2, 
+  XCircle, 
+  AlertCircle, 
+  Coins, 
+  ShieldCheck, 
+  ArrowRight, 
+  Send, 
+  MessageSquare, 
+  ExternalLink,
+  CheckCheck
+} from 'lucide-react';
+import { OrderItem } from '@/lib/types';
 
 function TrackPageContent() {
   const searchParams = useSearchParams();
   const initialCode = searchParams.get('code') || '';
 
   const [code, setCode] = useState(initialCode);
-  const [order, setOrder] = useState<any>(null);
+  const [order, setOrder] = useState<OrderItem | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Chat message state
+  const [chatInput, setChatInput] = useState('');
+  const [sendingMsg, setSendingMsg] = useState(false);
 
   const lookupOrder = async (queryCode: string) => {
     if (!queryCode.trim()) return;
@@ -39,19 +57,49 @@ function TrackPageContent() {
     }
   }, [initialCode]);
 
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim() || !order) return;
+
+    setSendingMsg(true);
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'send_message',
+          trackingCode: order.trackingCode,
+          message: chatInput.trim()
+        })
+      });
+      const json = await res.json();
+      if (json.ok && json.data?.message) {
+        setOrder(prev => prev ? {
+          ...prev,
+          messages: [...(prev.messages || []), json.data.message]
+        } : null);
+        setChatInput('');
+      }
+    } catch (err) {
+      alert('Failed to send message');
+    } finally {
+      setSendingMsg(false);
+    }
+  };
+
   return (
     <div className="py-14 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
       
       {/* Title */}
       <div className="text-center mb-10">
         <span className="text-xs font-bold text-brand-primary uppercase tracking-widest px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/25">
-          ORDER VERIFICATION PORTAL
+          ORDER VERIFICATION & SETTLEMENT PORTAL
         </span>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-brand-text tracking-tight mt-3">
           Track Your Transaction
         </h1>
         <p className="text-sm text-brand-muted mt-2">
-          Enter your 7-character Cardbyte tracking code (e.g. <code className="text-brand-primary font-bold">CB-94821</code>) to monitor live status.
+          Enter your 7-character Cardbyte tracking code (e.g. <code className="text-brand-primary font-bold">CB-94821</code>) to monitor live status and chat with the verification desk.
         </p>
 
         {/* Input Box */}
@@ -84,7 +132,7 @@ function TrackPageContent() {
       {loading && (
         <div className="text-center py-12 text-brand-muted text-sm flex items-center justify-center gap-2">
           <Clock className="w-5 h-5 animate-spin text-brand-primary" />
-          <span>Locating transaction record...</span>
+          <span>Locating transaction record and balance ledger...</span>
         </div>
       )}
 
@@ -108,7 +156,7 @@ function TrackPageContent() {
               </div>
             </div>
 
-            <div>
+            <div className="flex items-center gap-2">
               <span className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${
                 order.status === 'COMPLETED'
                   ? 'bg-brand-successGlow text-brand-success border border-brand-success/40'
@@ -142,7 +190,7 @@ function TrackPageContent() {
                   ? 'bg-brand-success text-white'
                   : 'bg-brand-surface border border-brand-border text-brand-muted'
               }`}>3</div>
-              <span className="font-bold text-brand-text block">Payout Sent</span>
+              <span className="font-bold text-brand-text block">Payout Released</span>
             </div>
           </div>
 
@@ -150,14 +198,16 @@ function TrackPageContent() {
           <div className="rounded-2xl bg-brand-surface p-5 border border-brand-border space-y-3 text-sm">
             <div className="flex justify-between border-b border-brand-border/60 pb-2.5">
               <span className="text-brand-muted">Asset Redeemed:</span>
-              <span className="font-bold text-brand-text">{order.brandName} ({order.quantity}x ${order.nominal})</span>
+              <span className="font-bold text-brand-text">
+                {order.brandName} ({order.quantity}x ${order.nominal}) • {order.cardType === 'PCARD' ? 'Physical Card' : 'E-Code'}
+              </span>
             </div>
             <div className="flex justify-between border-b border-brand-border/60 pb-2.5">
               <span className="text-brand-muted">Total Face Value:</span>
               <span className="font-bold text-brand-text font-mono">${order.totalCardValue.toFixed(2)}</span>
             </div>
             <div className="flex justify-between border-b border-brand-border/60 pb-2.5">
-              <span className="text-brand-muted">Agreed Payout Rate:</span>
+              <span className="text-brand-muted">Guaranteed Payout Rate:</span>
               <span className="font-bold text-brand-success">{order.ratePercent}%</span>
             </div>
             <div className="flex justify-between border-b border-brand-border/60 pb-2.5">
@@ -172,11 +222,86 @@ function TrackPageContent() {
                 {order.payoutAddress}
               </span>
             </div>
-            {order.rejectionReason && (
-              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-xs">
-                <b>Rejection Note:</b> {order.rejectionReason}
+
+            {/* Blockchain TxHash / Payment Proof */}
+            {order.txHash && (
+              <div className="p-3.5 rounded-xl bg-brand-successGlow border border-brand-success/40 text-brand-success text-xs flex flex-col gap-1">
+                <span className="font-bold flex items-center gap-1.5">
+                  <CheckCheck className="w-4 h-4" />
+                  Payout Transaction Broadcast Hash / Reference:
+                </span>
+                <span className="font-mono break-all text-[11px] text-brand-text bg-brand-surface p-2 rounded border border-brand-border">
+                  {order.txHash}
+                </span>
               </div>
             )}
+
+            {order.rejectionReason && (
+              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-xs">
+                <b>Rejection Reason:</b> {order.rejectionReason}
+              </div>
+            )}
+          </div>
+
+          {/* Live Order Support Chat Messenger */}
+          <div className="p-5 rounded-2xl bg-brand-surface border border-brand-border space-y-4">
+            <div className="flex items-center justify-between border-b border-brand-border/60 pb-2.5">
+              <span className="text-xs font-bold text-brand-text flex items-center gap-1.5">
+                <MessageSquare className="w-4 h-4 text-brand-primary" />
+                Live Order Verification Chat
+              </span>
+              <span className="text-[11px] text-brand-muted">Operator Desk Active</span>
+            </div>
+
+            {/* Message History */}
+            <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+              {(!order.messages || order.messages.length === 0) ? (
+                <p className="text-xs text-brand-muted text-center py-3">No messages on this order yet.</p>
+              ) : (
+                order.messages.map((m) => {
+                  const isAdmin = m.sender === 'ADMIN';
+                  return (
+                    <div 
+                      key={m.id} 
+                      className={`flex flex-col text-xs p-3 rounded-xl max-w-[85%] ${
+                        isAdmin 
+                          ? 'bg-brand-primary/10 border border-brand-primary/20 text-brand-text mr-auto' 
+                          : 'bg-brand-success/10 border border-brand-success/20 text-brand-text ml-auto'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-4 mb-1">
+                        <span className="font-bold text-[10px] text-brand-primary">
+                          {isAdmin ? '🛡️ Verification Desk' : '👤 You (Seller)'}
+                        </span>
+                        <span className="text-[10px] text-brand-muted">
+                          {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <p className="text-xs leading-relaxed">{m.message}</p>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Message Input */}
+            <form onSubmit={handleSendMessage} className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Ask operator a question or provide extra card details..."
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                className="flex-1 bg-brand-bg border border-brand-border text-brand-text text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-primary"
+              />
+              <button
+                type="submit"
+                disabled={sendingMsg || !chatInput.trim()}
+                className="px-4 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primaryHover disabled:opacity-50 text-white font-bold text-xs flex items-center gap-1 cursor-pointer"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>Send</span>
+              </button>
+            </form>
           </div>
 
         </div>

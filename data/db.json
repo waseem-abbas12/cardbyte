@@ -1,0 +1,784 @@
+{
+  "brands": [
+    {
+      "id": "apple",
+      "name": "Apple & iTunes",
+      "category": "Shopping",
+      "icon": "🍎",
+      "badge": "Popular",
+      "verificationTime": "5-15 mins",
+      "enabled": true,
+      "countries": [
+        {
+          "code": "US",
+          "name": "United States",
+          "flag": "🇺🇸",
+          "currency": "USD",
+          "ratePercent": 73,
+          "rateEcode": 73,
+          "ratePhysical": 77.5,
+          "nominals": [
+            25,
+            50,
+            100,
+            200,
+            500
+          ]
+        },
+        {
+          "code": "UK",
+          "name": "United Kingdom",
+          "flag": "🇬🇧",
+          "currency": "GBP",
+          "ratePercent": 70,
+          "rateEcode": 70,
+          "ratePhysical": 74,
+          "nominals": [
+            25,
+            50,
+            100
+          ]
+        },
+        {
+          "code": "EU",
+          "name": "Europe",
+          "flag": "🇪🇺",
+          "currency": "EUR",
+          "ratePercent": 71,
+          "rateEcode": 71,
+          "ratePhysical": 75,
+          "nominals": [
+            25,
+            50,
+            100,
+            200
+          ]
+        },
+        {
+          "code": "CA",
+          "name": "Canada",
+          "flag": "🇨🇦",
+          "currency": "CAD",
+          "ratePercent": 68,
+          "rateEcode": 68,
+          "ratePhysical": 72,
+          "nominals": [
+            50,
+            100
+          ]
+        }
+      ],
+      "order": 1
+    },
+    {
+      "id": "steam",
+      "name": "Steam Wallet",
+      "category": "Gaming",
+      "icon": "🎮",
+      "badge": "Instant",
+      "verificationTime": "2-5 mins",
+      "enabled": true,
+      "countries": [
+        {
+          "code": "US",
+          "name": "United States",
+          "flag": "🇺🇸",
+          "currency": "USD",
+          "ratePercent": 75,
+          "rateEcode": 75,
+          "ratePhysical": 80,
+          "nominals": [
+            20,
+            50,
+            100
+          ]
+        },
+        {
+          "code": "HK",
+          "name": "Hong Kong",
+          "flag": "🇭🇰",
+          "currency": "HKD",
+          "ratePercent": 72,
+          "rateEcode": 72,
+          "ratePhysical": 76,
+          "nominals": [
+            100,
+            200,
+            500
+          ]
+        },
+        {
+          "code": "EU",
+          "name": "Europe",
+          "flag": "🇪🇺",
+          "currency": "EUR",
+          "ratePercent": 73.5,
+          "rateEcode": 73.5,
+          "ratePhysical": 78,
+          "nominals": [
+            20,
+            50,
+            100
+          ]
+        },
+        {
+          "code": "UK",
+          "name": "United Kingdom",
+          "flag": "🇬🇧",
+          "currency": "GBP",
+          "ratePercent": 74,
+          "rateEcode": 74,
+          "ratePhysical": 79,
+          "nominals": [
+            25,
+            50,
+            100
+          ]
+        }
+      ],
+      "order": 2
+    },
+    {
+      "id": "razer",
+      "name": "Razer Gold",
+      "category": "Gaming",
+      "icon": "⚡",
+      "badge": "High Rate",
+      "verificationTime": "5-10 mins",
+      "enabled": true,
+      "countries": [
+        {
+          "code": "US",
+          "name": "United States",
+          "flag": "🇺🇸",
+          "currency": "USD",
+          "ratePercent": 78.5,
+          "rateEcode": 78.5,
+          "ratePhysical": 83,
+          "nominals": [
+            10,
+            20,
+            50,
+            100
+          ]
+        },
+        {
+          "code": "UK",
+          "name": "United Kingdom",
+          "flag": "🇬🇧",
+          "currency": "GBP",
+          "ratePercent": 76,
+          "rateEcode": 76,
+          "ratePhysical": 80.5,
+          "nominals": [
+            25,
+            50,
+            100
+          ]
+        },
+        {
+          "code": "GL",
+          "name": "Global",
+          "flag": "🌐",
+          "currency": "USD",
+          "ratePercent": 77,
+          "rateEcode": 77,
+          "ratePhysical": 81.5,
+          "nominals": [
+            50,
+            100
+          ]
+        }
+      ],
+      "order": 3
+    },
+    {
+      "id": "amazon",
+      "name": "Amazon Cash Card",
+      "category": "Shopping",
+      "icon": "📦",
+      "badge": "Hot",
+      "verificationTime": "Up to 24h",
+      "enabled": true,
+      "countries": [
+        {
+          "code": "US",
+          "name": "United States",
+          "flag": "🇺🇸",
+          "currency": "USD",
+          "ratePercent": 72,
+          "rateEcode": 72,
+          "ratePhysical": 76.5,
+          "nominals": [
+            25,
+            50,
+            100,
+            250,
+            500
+          ]
+        },
+        {
+          "code": "UK",
+          "name": "United Kingdom",
+          "flag": "🇬🇧",
+          "currency": "GBP",
+          "ratePercent": 71,
+          "rateEcode": 71,
+          "ratePhysical": 75,
+          "nominals": [
+            25,
+            50,
+            100
+          ]
+        },
+        {
+          "code": "DE",
+          "name": "Germany",
+          "flag": "🇩🇪",
+          "currency": "EUR",
+          "ratePercent": 70,
+          "rateEcode": 70,
+          "ratePhysical": 74,
+          "nominals": [
+            50,
+            100
+          ]
+        }
+      ],
+      "order": 4
+    },
+    {
+      "id": "playstation",
+      "name": "PlayStation Network",
+      "category": "Gaming",
+      "icon": "🎯",
+      "badge": "Fast",
+      "verificationTime": "5-15 mins",
+      "enabled": true,
+      "countries": [
+        {
+          "code": "US",
+          "name": "United States",
+          "flag": "🇺🇸",
+          "currency": "USD",
+          "ratePercent": 71,
+          "rateEcode": 71,
+          "ratePhysical": 75.5,
+          "nominals": [
+            25,
+            50,
+            75,
+            100
+          ]
+        },
+        {
+          "code": "EU",
+          "name": "Europe",
+          "flag": "🇪🇺",
+          "currency": "EUR",
+          "ratePercent": 70,
+          "rateEcode": 70,
+          "ratePhysical": 74.5,
+          "nominals": [
+            30,
+            50,
+            80,
+            100
+          ]
+        },
+        {
+          "code": "UK",
+          "name": "United Kingdom",
+          "flag": "🇬🇧",
+          "currency": "GBP",
+          "ratePercent": 69.5,
+          "rateEcode": 69.5,
+          "ratePhysical": 73.5,
+          "nominals": [
+            25,
+            45,
+            90
+          ]
+        }
+      ],
+      "order": 5
+    },
+    {
+      "id": "xbox",
+      "name": "Xbox & Game Pass",
+      "category": "Gaming",
+      "icon": "🟢",
+      "badge": "Fast",
+      "verificationTime": "5-15 mins",
+      "enabled": true,
+      "countries": [
+        {
+          "code": "US",
+          "name": "United States",
+          "flag": "🇺🇸",
+          "currency": "USD",
+          "ratePercent": 69,
+          "rateEcode": 69,
+          "ratePhysical": 73,
+          "nominals": [
+            25,
+            50,
+            100
+          ]
+        },
+        {
+          "code": "MX",
+          "name": "Mexico",
+          "flag": "🇲🇽",
+          "currency": "MXN",
+          "ratePercent": 65,
+          "rateEcode": 65,
+          "ratePhysical": 69,
+          "nominals": [
+            300,
+            600,
+            1000
+          ]
+        }
+      ],
+      "order": 6
+    },
+    {
+      "id": "googleplay",
+      "name": "Google Play",
+      "category": "Shopping",
+      "icon": "▶️",
+      "badge": "Up to 72h",
+      "verificationTime": "Up to 72h",
+      "enabled": true,
+      "countries": [
+        {
+          "code": "US",
+          "name": "United States",
+          "flag": "🇺🇸",
+          "currency": "USD",
+          "ratePercent": 62,
+          "rateEcode": 62,
+          "ratePhysical": 66,
+          "nominals": [
+            25,
+            50,
+            100
+          ]
+        },
+        {
+          "code": "EU",
+          "name": "Europe",
+          "flag": "🇪🇺",
+          "currency": "EUR",
+          "ratePercent": 58,
+          "rateEcode": 58,
+          "ratePhysical": 62.5,
+          "nominals": [
+            15,
+            25,
+            50,
+            100
+          ]
+        }
+      ],
+      "order": 7
+    },
+    {
+      "id": "walmart",
+      "name": "Walmart Card",
+      "category": "Shopping",
+      "icon": "🛒",
+      "badge": "Physical",
+      "verificationTime": "15-45 mins",
+      "enabled": true,
+      "countries": [
+        {
+          "code": "US",
+          "name": "United States",
+          "flag": "🇺🇸",
+          "currency": "USD",
+          "ratePercent": 65,
+          "rateEcode": 65,
+          "ratePhysical": 70,
+          "nominals": [
+            50,
+            100,
+            200,
+            500
+          ]
+        }
+      ],
+      "order": 8
+    },
+    {
+      "id": "netflix",
+      "name": "Netflix Subscription",
+      "category": "Streaming",
+      "icon": "🎬",
+      "badge": "Instant",
+      "verificationTime": "5 mins",
+      "enabled": true,
+      "countries": [
+        {
+          "code": "US",
+          "name": "United States",
+          "flag": "🇺🇸",
+          "currency": "USD",
+          "ratePercent": 66,
+          "rateEcode": 66,
+          "ratePhysical": 70,
+          "nominals": [
+            30,
+            60,
+            100
+          ]
+        },
+        {
+          "code": "EU",
+          "name": "Europe",
+          "flag": "🇪🇺",
+          "currency": "EUR",
+          "ratePercent": 64,
+          "rateEcode": 64,
+          "ratePhysical": 68,
+          "nominals": [
+            25,
+            50
+          ]
+        }
+      ],
+      "order": 9
+    },
+    {
+      "id": "roblox",
+      "name": "Roblox Points",
+      "category": "Gaming",
+      "icon": "🟥",
+      "badge": "Fast",
+      "verificationTime": "5 mins",
+      "enabled": true,
+      "countries": [
+        {
+          "code": "US",
+          "name": "United States",
+          "flag": "🇺🇸",
+          "currency": "USD",
+          "ratePercent": 70,
+          "rateEcode": 70,
+          "ratePhysical": 74,
+          "nominals": [
+            10,
+            25,
+            50
+          ]
+        }
+      ],
+      "order": 10
+    }
+  ],
+  "payoutRails": [
+    {
+      "id": "usdt_trc20",
+      "name": "USDT",
+      "network": "TRC20",
+      "symbol": "USDT",
+      "icon": "💎",
+      "type": "crypto",
+      "fee": "0.00%",
+      "minPayout": 10,
+      "order": 1,
+      "enabled": true
+    },
+    {
+      "id": "usdt_bep20",
+      "name": "USDT",
+      "network": "BEP20",
+      "symbol": "USDT",
+      "icon": "🟡",
+      "type": "crypto",
+      "fee": "0.00%",
+      "minPayout": 10,
+      "order": 2,
+      "enabled": true
+    },
+    {
+      "id": "btc",
+      "name": "Bitcoin",
+      "network": "BTC",
+      "symbol": "BTC",
+      "icon": "₿",
+      "type": "crypto",
+      "fee": "0.00%",
+      "minPayout": 25,
+      "order": 3,
+      "enabled": true
+    },
+    {
+      "id": "sol",
+      "name": "Solana",
+      "network": "SOL",
+      "symbol": "SOL",
+      "icon": "🟣",
+      "type": "crypto",
+      "fee": "0.00%",
+      "minPayout": 10,
+      "order": 4,
+      "enabled": true
+    },
+    {
+      "id": "usdc_polygon",
+      "name": "USDC",
+      "network": "Polygon",
+      "symbol": "USDC",
+      "icon": "🔷",
+      "type": "crypto",
+      "fee": "0.00%",
+      "minPayout": 10,
+      "order": 5,
+      "enabled": true
+    },
+    {
+      "id": "ngn_bank",
+      "name": "Nigerian Naira (NGN)",
+      "network": "Bank Transfer",
+      "symbol": "₦",
+      "icon": "🇳🇬",
+      "type": "fiat",
+      "fee": "0.00%",
+      "minPayout": 5,
+      "order": 6,
+      "enabled": true
+    },
+    {
+      "id": "ghs_momo",
+      "name": "Ghanaian Cedi (GHS)",
+      "network": "MoMo / Bank",
+      "symbol": "GH₵",
+      "icon": "🇬🇭",
+      "type": "fiat",
+      "fee": "0.00%",
+      "minPayout": 5,
+      "order": 7,
+      "enabled": true
+    },
+    {
+      "id": "usd_wire",
+      "name": "US Dollar (USD)",
+      "network": "Wire / ACH",
+      "symbol": "$",
+      "icon": "🇺🇸",
+      "type": "fiat",
+      "fee": "1.00%",
+      "minPayout": 50,
+      "order": 8,
+      "enabled": true
+    },
+    {
+      "id": "eur_sepa",
+      "name": "Euro (EUR)",
+      "network": "SEPA Instant",
+      "symbol": "€",
+      "icon": "🇪🇺",
+      "type": "fiat",
+      "fee": "0.50%",
+      "minPayout": 20,
+      "order": 9,
+      "enabled": true
+    }
+  ],
+  "faqs": [
+    {
+      "id": "faq-1",
+      "order": 1,
+      "enabled": true,
+      "question": "How fast do I get paid after submitting my gift card?",
+      "answer": "Most digital e-codes (such as Steam, Apple, Razer Gold, and Xbox) are verified within 5 to 15 minutes. Once verified, crypto or bank payouts are dispatched automatically."
+    },
+    {
+      "id": "faq-2",
+      "order": 2,
+      "enabled": true,
+      "question": "Why do physical cards often have higher payout rates than e-codes?",
+      "answer": "Physical cards accompanied by official store purchase cash receipts have verified origin and minimal risk of revocation, allowing our OTC desk to offer higher wholesale buyback margins."
+    },
+    {
+      "id": "faq-3",
+      "order": 3,
+      "enabled": true,
+      "question": "What payout methods do you support?",
+      "answer": "We support instant crypto payouts in USDT (TRC20, BEP20), Bitcoin (BTC), Solana (SOL), and USDC, as well as direct local bank transfers in USD, EUR, Nigerian Naira (NGN), and Ghanaian Cedi (GHS)."
+    },
+    {
+      "id": "faq-4",
+      "order": 4,
+      "enabled": true,
+      "question": "Can I sell physical cards with store receipts?",
+      "answer": "Yes! Select \"Physical Card (PCARD)\" and upload a clear photo showing the scratch-off PIN alongside the original store cash receipt."
+    },
+    {
+      "id": "faq-5",
+      "order": 5,
+      "enabled": true,
+      "question": "How does escrow protection guarantee my trade funds?",
+      "answer": "When you submit your trade, the calculated payout value is locked in our automated matching pool. Upon operator card verification, your funds are automatically released to your destination address."
+    }
+  ],
+  "layoutSections": [
+    {
+      "id": "ticker",
+      "name": "Live Rates Ticker Bar",
+      "description": "Top animated ticker showing real-time market rate movements",
+      "order": 1,
+      "enabled": true
+    },
+    {
+      "id": "hero",
+      "name": "Hero Header & Value Proposition",
+      "description": "Main headline, dynamic CTA buttons, and trust badges",
+      "order": 2,
+      "enabled": true
+    },
+    {
+      "id": "calculator",
+      "name": "Instant Valuation Calculator",
+      "description": "Interactive quoting engine for E-codes and Physical cards",
+      "order": 3,
+      "enabled": true
+    },
+    {
+      "id": "brands",
+      "name": "Supported Brands Grid",
+      "description": "Visual showcase of all active gift cards with buy rates",
+      "order": 4,
+      "enabled": true
+    },
+    {
+      "id": "trust",
+      "name": "4-Step Workflow & Security Section",
+      "description": "How it works explanation and platform liquidity statistics",
+      "order": 5,
+      "enabled": true
+    },
+    {
+      "id": "faqs",
+      "name": "Frequently Asked Questions",
+      "description": "Collapsible accordion answering common seller questions",
+      "order": 6,
+      "enabled": true
+    },
+    {
+      "id": "cta",
+      "name": "Bottom Action Banner",
+      "description": "Final conversion banner leading to sell portal",
+      "order": 7,
+      "enabled": true
+    }
+  ],
+  "siteSettings": {
+    "siteName": "Cardbyte Pro",
+    "tagline": "Leading Global Gift Card & Crypto Exchange",
+    "announcementTicker": "🔥 High demand: Steam US Physical at 80% • Apple iTunes E-Code instant verification • 0% withdrawal fees",
+    "telegramSupport": "https://t.me/cardbyte_support",
+    "whatsappSupport": "+1 (234) 567-8900",
+    "supportEmail": "support@cardbyte.io",
+    "activeTradersCount": "18,500+",
+    "volumeTraded": "$14.2M+",
+    "customerSatisfaction": "99.8%",
+    "avgPayoutTime": "5 - 15m",
+    "autoVerification": false,
+    "heroTitle": "Sell Gift Cards at the Best Rates: Fast, Easy, Reliable.",
+    "heroSubtitle": "Turn your unused gift cards into USDT, Bitcoin, or instant local cash. Live algorithmic valuations, zero surprise deductions, and direct settlement."
+  },
+  "orders": [
+    {
+      "id": "ord-sample-1",
+      "trackingCode": "CB-94821",
+      "brandId": "apple",
+      "brandName": "Apple & iTunes",
+      "countryCode": "US",
+      "cardType": "ECODE",
+      "nominal": 100,
+      "quantity": 2,
+      "ratePercent": 73,
+      "totalCardValue": 200,
+      "payoutAmount": 146,
+      "payoutCurrency": "USDT (TRC20)",
+      "payoutAddress": "TJYe5gWq94k7vY2k4XvYP39z...",
+      "cardCodes": [
+        "XJ92-K827-PL01",
+        "XJ92-K827-PL02"
+      ],
+      "cardPin": "4821",
+      "receiptNote": "Digital email gift receipt",
+      "receiptImages": [],
+      "status": "COMPLETED",
+      "txHash": "0x8f9b23c7a10294e5b6c8d7e4f3a2b1c0987654321fedcba0123456789abcdef0",
+      "messages": [
+        {
+          "id": "m-1",
+          "sender": "ADMIN",
+          "message": "Card balance confirmed ($100 x 2). Payout initiated.",
+          "timestamp": "2026-11-17T14:30:25.137Z"
+        },
+        {
+          "id": "m-2",
+          "sender": "USER",
+          "message": "Received the USDT on TRC20, thank you so much!",
+          "timestamp": "2026-11-17T14:40:25.138Z"
+        }
+      ],
+      "createdAt": "2026-11-17T12:30:25.138Z",
+      "updatedAt": "2026-11-17T14:30:25.138Z"
+    },
+    {
+      "id": "ord-sample-2",
+      "trackingCode": "CB-47219",
+      "brandId": "steam",
+      "brandName": "Steam Wallet",
+      "countryCode": "US",
+      "cardType": "PCARD",
+      "nominal": 50,
+      "quantity": 1,
+      "ratePercent": 80,
+      "totalCardValue": 50,
+      "payoutAmount": 40,
+      "payoutCurrency": "USDT (TRC20)",
+      "payoutAddress": "TY19skA7L9q2k4XvYL28q...",
+      "cardCodes": [
+        "STM-8849-2910-K912"
+      ],
+      "receiptNote": "Purchased with cash at Walmart",
+      "receiptImages": [
+        "walmart_receipt_sample.jpg"
+      ],
+      "status": "VERIFYING",
+      "messages": [
+        {
+          "id": "m-3",
+          "sender": "ADMIN",
+          "message": "Verification in progress: reviewing physical receipt and barcode.",
+          "timestamp": "2026-11-17T15:00:25.138Z"
+        }
+      ],
+      "createdAt": "2026-11-17T15:00:25.138Z",
+      "updatedAt": "2026-11-17T15:00:25.138Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif-1",
+      "type": "SYSTEM",
+      "title": "Database & CMS Engine Online",
+      "message": "Cardbyte Headless Backend Architecture initialized with zero-downtime persistence.",
+      "timestamp": "2026-11-17T15:30:25.138Z"
+    },
+    {
+      "id": "notif-2",
+      "type": "RATE",
+      "title": "Steam Rates Configured",
+      "message": "Physical Steam Cards (US) set to 80.0% buyback yield.",
+      "timestamp": "2026-11-17T15:30:25.138Z"
+    }
+  ]
+}
