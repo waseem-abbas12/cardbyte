@@ -13,11 +13,11 @@ export default function CardGrid() {
       .then(res => res.json())
       .then(json => {
         if (json?.data?.brands && Array.isArray(json.data.brands)) {
-          // Keep active brands first
+          // Sort by custom admin position order first, keeping active brands prioritized
           const sorted = [...json.data.brands].sort((a, b) => {
             if (a.enabled === false && b.enabled !== false) return 1;
             if (a.enabled !== false && b.enabled === false) return -1;
-            return 0;
+            return (a.order || 0) - (b.order || 0);
           });
           setBrands(sorted);
         }

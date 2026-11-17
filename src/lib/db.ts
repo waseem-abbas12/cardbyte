@@ -9,6 +9,8 @@ import {
   OrderItem, 
   OrderMessage, 
   PlatformNotification,
+  CustomPage,
+  StaffMember,
   CountryRate
 } from './types';
 import { INITIAL_BRANDS, SUPPORTED_PAYOUTS } from './ratesData';
@@ -22,6 +24,8 @@ export interface DatabaseSchema {
   siteSettings: SiteSettings;
   orders: OrderItem[];
   notifications: PlatformNotification[];
+  customPages: CustomPage[];
+  staff: StaffMember[];
 }
 
 const IS_SERVERLESS = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
@@ -75,6 +79,123 @@ const DEFAULT_LAYOUT: LayoutSection[] = [
   { id: 'trust', name: '4-Step Workflow & Security Section', description: 'How it works explanation and platform liquidity statistics', order: 5, enabled: true },
   { id: 'faqs', name: 'Frequently Asked Questions', description: 'Collapsible accordion answering common seller questions', order: 6, enabled: true },
   { id: 'cta', name: 'Bottom Action Banner', description: 'Final conversion banner leading to sell portal', order: 7, enabled: true }
+];
+
+
+const DEFAULT_PAGES: CustomPage[] = [
+  {
+    id: 'page-about',
+    slug: 'about-us',
+    title: 'About Cardbyte Pro',
+    summary: 'The world premier digital gift card exchange and OTC liquidity provider.',
+    content: `## Institutional Grade Gift Card Exchange
+
+Founded with a mission to eliminate friction, fraud, and excessive fees from the secondary gift voucher economy, **Cardbyte Pro** provides instant liquidity settlement across global digital vouchers and cryptocurrencies.
+
+### Why Global Sellers Choose Us
+- **Live Algorithmic Valuation**: No surprise fee deductions at checkout.
+- **Direct OTC Settlement**: Receive USDT (TRC20 & BEP20), Bitcoin, Solana, or bank wires in minutes.
+- **Zero-Knowledge Privacy**: Bank-grade end-to-end encryption for all voucher PINs and sensitive financial details.`,
+    published: true,
+    showInHeader: true,
+    showInFooter: true,
+    order: 1,
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'page-aml',
+    slug: 'aml-policy',
+    title: 'Anti-Money Laundering & Compliance Policy',
+    summary: 'Comprehensive compliance, anti-fraud, and KYC protocols protecting all exchange counterparties.',
+    content: `## Compliance & Anti-Fraud Standards
+
+Cardbyte maintains stringent Anti-Money Laundering (AML) and Counter-Terrorist Financing (CTF) protocols compliant with FATF Travel Rule recommendations.
+
+### Core Mitigation Controls
+1. **High-Risk Brand Scrutiny**: Cards exceeding $1,000 equivalent require automated retailer receipt authentication.
+2. **Stolen Voucher Blacklisting**: Real-time integration with retailer invalidation networks.
+3. **Sanctions Screening**: Payout addresses are checked against OFAC, EU, and UN blockchain blacklists.`,
+    published: true,
+    showInHeader: false,
+    showInFooter: true,
+    order: 2,
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'page-how',
+    slug: 'how-it-works',
+    title: 'How It Works: Step-by-Step Selling Guide',
+    summary: 'Clear step-by-step walkthrough to turn unused gift cards into USDT, BTC, or local fiat cash.',
+    content: `## How to Sell Your Gift Card in 4 Simple Steps
+
+Trading unused cards on Cardbyte is effortless, automated, and secure.
+
+1. **Select Card & Country**: Pick your voucher brand (Apple, Steam, Razer Gold, Amazon, etc.) and currency.
+2. **Get Instant Valuation**: Our pricing engine quotes live wholesale buy rates with physical card bonuses.
+3. **Enter Card Codes**: Submit the scratch-off code, PIN, and store receipt.
+4. **Receive Instant Payout**: Choose your payout rail (USDT, BTC, Solana, Bank Transfer) and track verification live on the ledger.`,
+    published: true,
+    showInHeader: true,
+    showInFooter: true,
+    order: 3,
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'page-terms',
+    slug: 'terms',
+    title: 'Terms of Service & Settlement Guarantee',
+    summary: 'Legal terms of trade, escrow protections, and redemption warranty.',
+    content: `## Trading Terms of Service
+
+By creating a trade on Cardbyte, you certify that all vouchers submitted were legally purchased and remain unredeemed.
+
+### Settlement Guarantee
+Upon automated or operator balance clearance, payout will be broadcasted to the provided blockchain address or bank account within the guaranteed verification window.`,
+    published: true,
+    showInHeader: false,
+    showInFooter: true,
+    order: 4,
+    updatedAt: new Date().toISOString()
+  }
+];
+
+const DEFAULT_STAFF: StaffMember[] = [
+  {
+    id: 'staff-1',
+    name: 'Waseem Abbas',
+    email: 'waseem@cardbyte.io',
+    role: 'SUPER_ADMIN',
+    active: true,
+    assignedOrdersCount: 1,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'staff-2',
+    name: 'Alex Johnson',
+    email: 'alex.j@cardbyte.io',
+    role: 'OPERATOR',
+    active: true,
+    assignedOrdersCount: 1,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'staff-3',
+    name: 'Sarah Chen',
+    email: 'sarah.c@cardbyte.io',
+    role: 'FINANCE',
+    active: true,
+    assignedOrdersCount: 0,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'staff-4',
+    name: 'Michael Obi',
+    email: 'michael.o@cardbyte.io',
+    role: 'SUPPORT',
+    active: true,
+    assignedOrdersCount: 0,
+    createdAt: new Date().toISOString()
+  }
 ];
 
 const DEFAULT_SETTINGS: SiteSettings = {
@@ -192,7 +313,9 @@ function initDatabase(): DatabaseSchema {
     layoutSections: DEFAULT_LAYOUT,
     siteSettings: DEFAULT_SETTINGS,
     orders: initialOrders,
-    notifications: initialNotifs
+    notifications: initialNotifs,
+    customPages: DEFAULT_PAGES,
+    staff: DEFAULT_STAFF
   };
 
   try {
@@ -231,6 +354,8 @@ export function getDatabase(): DatabaseSchema {
     if (!parsed.siteSettings) parsed.siteSettings = DEFAULT_SETTINGS;
     if (!parsed.orders) parsed.orders = [];
     if (!parsed.notifications) parsed.notifications = [];
+    if (!parsed.customPages || !parsed.customPages.length) parsed.customPages = DEFAULT_PAGES;
+    if (!parsed.staff || !parsed.staff.length) parsed.staff = DEFAULT_STAFF;
 
     memDb = parsed;
     return memDb as DatabaseSchema;
@@ -525,4 +650,150 @@ export function addOrderMessageInDb(orderId: string, sender: 'USER' | 'ADMIN', m
 
   saveDatabase(db);
   return msg;
+}
+
+
+// ==========================================
+// 8. CARD POSITIONS & REORDERING ENGINE
+// ==========================================
+
+export function reorderBrand(brandId: string, direction: 'UP' | 'DOWN'): GiftCardBrand[] {
+  const db = getDatabase();
+  db.brands.forEach((b, i) => {
+    if (b.order === undefined) b.order = i + 1;
+  });
+  db.brands.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  const index = db.brands.findIndex(b => b.id === brandId);
+  if (index === -1) return db.brands;
+
+  const targetIndex = direction === 'UP' ? index - 1 : index + 1;
+  if (targetIndex >= 0 && targetIndex < db.brands.length) {
+    const currentOrder = db.brands[index].order || (index + 1);
+    const targetOrder = db.brands[targetIndex].order || (targetIndex + 1);
+
+    db.brands[index].order = targetOrder;
+    db.brands[targetIndex].order = currentOrder;
+
+    const temp = db.brands[index];
+    db.brands[index] = db.brands[targetIndex];
+    db.brands[targetIndex] = temp;
+
+    addAuditNotification('BRAND', `Card Position Reordered: ${temp.name}`, `Position shifted ${direction} to slot #${targetOrder}`);
+    saveDatabase(db);
+  }
+  return db.brands;
+}
+
+// ==========================================
+// 9. CUSTOM PAGES BUILDER (WORDPRESS / SHOPIFY CMS)
+// ==========================================
+
+export function createCustomPage(page: Omit<CustomPage, 'id' | 'updatedAt'>): CustomPage {
+  const db = getDatabase();
+  const slug = page.slug ? page.slug.toLowerCase().replace(/[^a-z0-9-]/g, '') : page.title.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+  const newPage: CustomPage = {
+    ...page,
+    id: `page-${Date.now()}`,
+    slug,
+    order: page.order || db.customPages.length + 1,
+    published: page.published !== undefined ? page.published : true,
+    showInHeader: page.showInHeader !== undefined ? page.showInHeader : false,
+    showInFooter: page.showInFooter !== undefined ? page.showInFooter : true,
+    updatedAt: new Date().toISOString()
+  };
+  db.customPages.push(newPage);
+  addAuditNotification('SYSTEM', `Custom Page Created: ${newPage.title}`, `Published at /p/${newPage.slug}`);
+  saveDatabase(db);
+  return newPage;
+}
+
+export function updateCustomPage(id: string, updates: Partial<CustomPage>): CustomPage | null {
+  const db = getDatabase();
+  const index = db.customPages.findIndex(p => p.id === id || p.slug === id);
+  if (index === -1) return null;
+
+  db.customPages[index] = {
+    ...db.customPages[index],
+    ...updates,
+    updatedAt: new Date().toISOString()
+  };
+  addAuditNotification('SYSTEM', `Custom Page Updated: ${db.customPages[index].title}`, `Changes saved for /p/${db.customPages[index].slug}`);
+  saveDatabase(db);
+  return db.customPages[index];
+}
+
+export function deleteCustomPage(id: string): boolean {
+  const db = getDatabase();
+  const page = db.customPages.find(p => p.id === id || p.slug === id);
+  if (!page) return false;
+  db.customPages = db.customPages.filter(p => p.id !== id && p.slug !== id);
+  addAuditNotification('SYSTEM', `Custom Page Deleted: ${page.title}`, `Removed from site navigation`);
+  saveDatabase(db);
+  return true;
+}
+
+// ==========================================
+// 10. SUB-ACCOUNTS & STAFF PERMISSIONS (RBAC)
+// ==========================================
+
+export function createStaffMember(staff: Omit<StaffMember, 'id' | 'createdAt' | 'assignedOrdersCount'>): StaffMember {
+  const db = getDatabase();
+  const newStaff: StaffMember = {
+    ...staff,
+    id: `staff-${Date.now()}`,
+    active: staff.active !== undefined ? staff.active : true,
+    assignedOrdersCount: 0,
+    createdAt: new Date().toISOString()
+  };
+  db.staff.push(newStaff);
+  addAuditNotification('SYSTEM', `Sub-Account Created: ${newStaff.name}`, `Role assigned: ${newStaff.role} (${newStaff.email})`);
+  saveDatabase(db);
+  return newStaff;
+}
+
+export function updateStaffMember(id: string, updates: Partial<StaffMember>): StaffMember | null {
+  const db = getDatabase();
+  const index = db.staff.findIndex(s => s.id === id);
+  if (index === -1) return null;
+
+  db.staff[index] = { ...db.staff[index], ...updates };
+  addAuditNotification('SYSTEM', `Sub-Account Updated: ${db.staff[index].name}`, `Role/Status modified`);
+  saveDatabase(db);
+  return db.staff[index];
+}
+
+export function deleteStaffMember(id: string): boolean {
+  const db = getDatabase();
+  const member = db.staff.find(s => s.id === id);
+  if (!member) return false;
+  db.staff = db.staff.filter(s => s.id !== id);
+  addAuditNotification('SYSTEM', `Sub-Account Deleted: ${member.name}`, `Access revoked`);
+  saveDatabase(db);
+  return true;
+}
+
+export function assignOrderToStaff(orderId: string, staffId: string): OrderItem | null {
+  const db = getDatabase();
+  const order = db.orders.find(o => o.id === orderId || o.trackingCode === orderId);
+  const staff = db.staff.find(s => s.id === staffId);
+  if (!order || !staff) return null;
+
+  order.assignedToStaffId = staff.id;
+  order.assignedToStaffName = staff.name;
+  order.updatedAt = new Date().toISOString();
+
+  // Increment staff assignment count
+  staff.assignedOrdersCount = (staff.assignedOrdersCount || 0) + 1;
+
+  order.messages.push({
+    id: `msg_${Date.now()}`,
+    sender: 'ADMIN',
+    message: `Order assigned to Operator ${staff.name} (${staff.role}). Handling verification.`,
+    timestamp: new Date().toISOString()
+  });
+
+  addAuditNotification('ORDER', `Order #${order.trackingCode} Assigned`, `Assigned to ${staff.name} (${staff.role})`);
+  saveDatabase(db);
+  return order;
 }

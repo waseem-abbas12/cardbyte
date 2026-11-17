@@ -8,7 +8,9 @@ import {
   PayoutMethod, 
   FaqItem, 
   LayoutSection, 
-  SiteSettings 
+  SiteSettings,
+  CustomPage,
+  StaffMember
 } from '@/lib/types';
 import { 
   Settings, 
@@ -18,7 +20,7 @@ import {
   Save, 
   RefreshCw, 
   ShieldCheck,
-  Lock,
+  Lock, 
   Unlock, 
   DollarSign, 
   Eye, 
@@ -28,7 +30,7 @@ import {
   AlertTriangle,
   Zap,
   Sliders,
-  Plus,
+  Plus, 
   Trash2,
   ArrowUp,
   ArrowDown,
@@ -38,7 +40,10 @@ import {
   Layout,
   MessageSquare,
   Send,
-  Edit2
+  Edit2,
+  FileText,
+  Users,
+  ExternalLink
 } from 'lucide-react';
 
 export default function AdminPage() {
@@ -50,10 +55,12 @@ export default function AdminPage() {
     layoutSections: LayoutSection[];
     siteSettings: SiteSettings;
     notifications: PlatformNotification[]; 
+    customPages?: CustomPage[];
+    staff?: StaffMember[];
   } | null>(null);
 
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'orders' | 'brands' | 'layout' | 'payouts' | 'faqs' | 'settings' | 'alerts'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'brands' | 'layout' | 'pages' | 'staff' | 'payouts' | 'faqs' | 'settings' | 'alerts'>('orders');
   
   // Rate edit state
   const [editingBrandId, setEditingBrandId] = useState<string>('');
@@ -99,6 +106,23 @@ export default function AdminPage() {
   // Chat message input per order
   const [orderChatInputs, setOrderChatInputs] = useState<{ [key: string]: string }>({});
   const [showCodes, setShowCodes] = useState<{ [key: string]: boolean }>({});
+
+  // Pages Builder Form State
+  const [showPageModal, setShowPageModal] = useState(false);
+  const [editingPageId, setEditingPageId] = useState<string | null>(null);
+  const [pageTitle, setPageTitle] = useState('');
+  const [pageSlug, setPageSlug] = useState('');
+  const [pageSummary, setPageSummary] = useState('');
+  const [pageContent, setPageContent] = useState('');
+  const [pagePublished, setPagePublished] = useState(true);
+  const [pageShowHeader, setPageShowHeader] = useState(false);
+  const [pageShowFooter, setPageShowFooter] = useState(true);
+
+  // Staff Sub-Accounts State
+  const [showStaffModal, setShowStaffModal] = useState(false);
+  const [staffName, setStaffName] = useState('');
+  const [staffEmail, setStaffEmail] = useState('');
+  const [staffRole, setStaffRole] = useState<'SUPER_ADMIN' | 'OPERATOR' | 'FINANCE' | 'SUPPORT'>('OPERATOR');
 
   const [sessionToken, setSessionToken] = useState<string>(() => {
     if (typeof window !== 'undefined') {
@@ -264,6 +288,193 @@ export default function AdminPage() {
       }
     } catch {
       alert('Failed to send message');
+    }
+  };
+
+  // Reorder Brand (Card Positions)
+  const handleReorderBrand = async (brandId: string, direction: 'UP' | 'DOWN') => {
+    try {
+      const res = await adminFetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reorder_brand', brandId, direction })
+      });
+      const json = await res.json();
+      if (json.ok) fetchData();
+    } catch {
+      alert('Failed to reorder card position');
+    }
+  };
+
+  // Assign Order to Sub-Account / Staff
+  const handleAssignOrder = async (orderId: string, staffId: string) => {
+    try {
+      const res = await adminFetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'assign_order', orderId, staffId })
+      });
+      const json = await res.json();
+      if (json.ok) fetchData();
+    } catch {
+      alert('Failed to assign operator');
+    }
+  };
+
+  // Custom Pages CMS (WordPress/Shopify style)
+  const handleSavePage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const cleanSlug = pageSlug.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+      if (editingPageId) {
+        await adminFetch('/api/admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'update_page',
+            pageId: editingPageId,
+            updates: {
+              title: pageTitle,
+              slug: cleanSlug,
+              summary: pageSummary,
+              content: pageContent,
+              published: pagePublished,
+              showInHeader: pageShowHeader,
+              showInFooter: pageShowFooter
+            }
+          })
+        });
+      } else {
+        await adminFetch('/api/admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'create_page',
+            page: {
+              title: pageTitle,
+              slug: cleanSlug,
+              summary: pageSummary,
+              content: pageContent,
+              published: pagePublished,
+              showInHeader: pageShowHeader,
+              showInFooter: pageShowFooter
+            }
+          })
+        });
+      }
+      setShowPageModal(false);
+      resetPageForm();
+      fetchData();
+    } catch {
+      alert('Failed to save page');
+    }
+  };
+
+  const handleEditPage = (page: CustomPage) => {
+    setEditingPageId(page.id);
+    setPageTitle(page.title);
+    setPageSlug(page.slug);
+    setPageSummary(page.summary || '');
+    setPageContent(page.content);
+    setPagePublished(page.published);
+    setPageShowHeader(page.showInHeader);
+    setPageShowFooter(page.showInFooter);
+    setShowPageModal(true);
+  };
+
+  const resetPageForm = () => {
+    setEditingPageId(null);
+    setPageTitle('');
+    setPageSlug('');
+    setPageSummary('');
+    setPageContent('');
+    setPagePublished(true);
+    setPageShowHeader(false);
+    setPageShowFooter(true);
+  };
+
+  const handleDeletePage = async (pageId: string) => {
+    if (!confirm('Are you sure you want to delete this custom page?')) return;
+    try {
+      await adminFetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete_page', pageId })
+      });
+      fetchData();
+    } catch {
+      alert('Failed to delete page');
+    }
+  };
+
+  const handleTogglePage = async (pageId: string) => {
+    try {
+      await adminFetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggle_page', pageId })
+      });
+      fetchData();
+    } catch {
+      alert('Failed to toggle page status');
+    }
+  };
+
+  // Staff Sub-Account Handlers
+  const handleCreateStaff = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await adminFetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create_staff',
+          staff: {
+            name: staffName,
+            email: staffEmail,
+            role: staffRole,
+            active: true
+          }
+        })
+      });
+      setShowStaffModal(false);
+      setStaffName('');
+      setStaffEmail('');
+      setStaffRole('OPERATOR');
+      fetchData();
+    } catch {
+      alert('Failed to add staff member');
+    }
+  };
+
+  const handleDeleteStaff = async (staffId: string) => {
+    if (!confirm('Are you sure you want to remove this staff sub-account?')) return;
+    try {
+      await adminFetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete_staff', staffId })
+      });
+      fetchData();
+    } catch {
+      alert('Failed to delete staff member');
+    }
+  };
+
+  const handleToggleStaffStatus = async (staffId: string, currentActive: boolean) => {
+    try {
+      await adminFetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_staff',
+          staffId,
+          updates: { active: !currentActive }
+        })
+      });
+      fetchData();
+    } catch {
+      alert('Failed to update staff status');
     }
   };
 
@@ -701,6 +912,26 @@ export default function AdminPage() {
         </button>
 
         <button
+          onClick={() => setActiveTab('pages')}
+          className={`py-3 px-5 border-b-2 whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+            activeTab === 'pages' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-brand-muted hover:text-brand-text'
+          }`}
+        >
+          <FileText className="w-3.5 h-3.5" />
+          <span>Pages Builder CMS ({data.customPages?.length || 0})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('staff')}
+          className={`py-3 px-5 border-b-2 whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+            activeTab === 'staff' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-brand-muted hover:text-brand-text'
+          }`}
+        >
+          <Users className="w-3.5 h-3.5" />
+          <span>Staff Sub-Accounts ({data.staff?.length || 0})</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('payouts')}
           className={`py-3 px-5 border-b-2 whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
             activeTab === 'payouts' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-brand-muted hover:text-brand-text'
@@ -757,6 +988,7 @@ export default function AdminPage() {
                     <th className="py-4 px-5">Payout Amount</th>
                     <th className="py-4 px-5">Destination Address</th>
                     <th className="py-4 px-5">Status</th>
+                    <th className="py-4 px-5">Assigned Operator</th>
                     <th className="py-4 px-5 text-right">Actions</th>
                   </tr>
                 </thead>
@@ -826,6 +1058,26 @@ export default function AdminPage() {
                             </span>
                           </td>
 
+                          <td className="py-4 px-5 whitespace-nowrap">
+                            <select
+                              value={o.assignedToStaffId || ''}
+                              onChange={(e) => handleAssignOrder(o.id, e.target.value)}
+                              className="bg-brand-surface border border-brand-border rounded-xl px-2.5 py-1.5 text-xs text-brand-text font-semibold focus:outline-none focus:border-brand-primary cursor-pointer"
+                            >
+                              <option value="">Unassigned</option>
+                              {(data.staff || []).map(s => (
+                                <option key={s.id} value={s.id}>
+                                  {s.name} ({s.role})
+                                </option>
+                              ))}
+                            </select>
+                            {o.assignedToStaffName && (
+                              <span className="block text-[10px] text-brand-muted mt-0.5 font-mono">
+                                Operator: {o.assignedToStaffName}
+                              </span>
+                            )}
+                          </td>
+
                           <td className="py-4 px-5 text-right whitespace-nowrap space-x-1.5">
                             {o.status !== 'COMPLETED' && (
                               <button
@@ -857,7 +1109,7 @@ export default function AdminPage() {
 
                         {/* Order Inline Chat / Support Row */}
                         <tr className="bg-brand-surface/30">
-                          <td colSpan={7} className="px-5 py-3 border-b border-brand-border/40">
+                          <td colSpan={8} className="px-5 py-3 border-b border-brand-border/40">
                             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
                               <div className="flex items-center gap-2">
                                 <MessageSquare className="w-3.5 h-3.5 text-brand-primary" />
@@ -1106,7 +1358,7 @@ export default function AdminPage() {
 
           {/* Brands List */}
           <div className="rounded-3xl glass-panel border border-brand-border overflow-hidden shadow-card divide-y divide-brand-border/40">
-            {data.brands.map((b) => {
+            {data.brands.map((b, bIdx) => {
               const isBrandEnabled = b.enabled !== false;
               return (
                 <div key={b.id} className={`p-6 flex flex-col gap-4 ${!isBrandEnabled ? 'opacity-60 bg-brand-surface/20' : ''}`}>
@@ -1114,13 +1366,38 @@ export default function AdminPage() {
                   {/* Brand Row Header */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-brand-surface border border-brand-border text-brand-muted">
+                          #{b.order || (bIdx + 1)}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            disabled={bIdx === 0}
+                            onClick={() => handleReorderBrand(b.id, 'UP')}
+                            className="p-1 rounded bg-brand-surface border border-brand-border hover:bg-brand-primary/10 hover:text-brand-primary disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-all"
+                            title="Move Card Up (Show Earlier)"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={bIdx === data.brands.length - 1}
+                            onClick={() => handleReorderBrand(b.id, 'DOWN')}
+                            className="p-1 rounded bg-brand-surface border border-brand-border hover:bg-brand-primary/10 hover:text-brand-primary disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-all"
+                            title="Move Card Down (Show Later)"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
                       <span className="text-3xl p-2 rounded-xl bg-brand-surface border border-brand-border">{b.icon}</span>
                       <div>
                         <div className="flex items-center gap-2">
                           <h4 className="text-base font-bold text-brand-text">{b.name}</h4>
                           <span className="text-xs text-brand-muted">({b.category}) • Speed: {b.verificationTime}</span>
                         </div>
-                        <span className="text-xs text-brand-muted">ID: {b.id} • Regions: {b.countries.length}</span>
+                        <span className="text-xs text-brand-muted">ID: {b.id} • Regions: {b.countries.length} • Position Slot: #{b.order || (bIdx + 1)}</span>
                       </div>
                     </div>
 
@@ -1309,6 +1586,429 @@ export default function AdminPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* TAB: PAGES BUILDER CMS (WordPress & Shopify Style) */}
+      {/* ======================================================== */}
+      {activeTab === 'pages' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-purple-500/10 border border-purple-500/30 text-purple-600 dark:text-purple-400 text-xs font-bold uppercase mb-1">
+                <FileText className="w-3.5 h-3.5" />
+                <span>Headless CMS Pages Engine</span>
+              </div>
+              <h3 className="text-lg font-bold text-brand-text">Custom Pages & Legal Policies</h3>
+              <p className="text-xs text-brand-muted">
+                Create and publish new dynamic pages instantly with markdown formatting and custom URLs (/p/[slug]).
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                resetPageForm();
+                setShowPageModal(true);
+              }}
+              className="px-4 py-2 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Create New Page</span>
+            </button>
+          </div>
+
+          {/* Modal / Create or Edit Form */}
+          {showPageModal && (
+            <div className="p-6 rounded-3xl glass-panel border border-brand-primary/40 shadow-xl space-y-4">
+              <div className="flex items-center justify-between border-b border-brand-border pb-3">
+                <span className="font-bold text-sm text-brand-text">
+                  {editingPageId ? 'Edit Custom Page' : 'Create New Custom Page'}
+                </span>
+                <button
+                  onClick={() => setShowPageModal(false)}
+                  className="text-xs text-brand-muted hover:text-brand-text cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleSavePage} className="space-y-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-brand-muted mb-1 font-semibold">Page Title</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Terms of Service, Career, Affiliate Guide"
+                      value={pageTitle}
+                      onChange={(e) => {
+                        setPageTitle(e.target.value);
+                        if (!editingPageId) {
+                          setPageSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''));
+                        }
+                      }}
+                      className="w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-brand-text text-sm focus:outline-none focus:border-brand-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-brand-muted mb-1 font-semibold">
+                      URL Slug <span className="text-[11px] font-mono text-brand-primary">(Renders at /p/[slug])</span>
+                    </label>
+                    <div className="flex items-center">
+                      <span className="px-3 py-2.5 bg-brand-surface border border-r-0 border-brand-border rounded-l-xl text-brand-muted font-mono text-xs">
+                        /p/
+                      </span>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. about-us, privacy-policy"
+                        value={pageSlug}
+                        onChange={(e) => setPageSlug(e.target.value)}
+                        className="w-full bg-brand-surface border border-brand-border rounded-r-xl px-3.5 py-2.5 text-brand-text font-mono text-sm focus:outline-none focus:border-brand-primary"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-brand-muted mb-1 font-semibold">Short Summary (Sub-Header)</label>
+                  <input
+                    type="text"
+                    placeholder="Brief description or teaser displayed under title"
+                    value={pageSummary}
+                    onChange={(e) => setPageSummary(e.target.value)}
+                    className="w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2 text-brand-text focus:outline-none focus:border-brand-primary"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-brand-muted font-semibold">
+                      Page Content (Supports Markdown: # Heading, ## Subheading, **Bold**, * Bullet lists)
+                    </label>
+                    <span className="text-[11px] text-brand-muted font-mono">Markdown & Plain Text</span>
+                  </div>
+                  <textarea
+                    required
+                    rows={10}
+                    placeholder="Write page content here... Supports standard markdown headings, paragraphs, and list items."
+                    value={pageContent}
+                    onChange={(e) => setPageContent(e.target.value)}
+                    className="w-full bg-brand-surface border border-brand-border rounded-xl p-3.5 text-brand-text font-mono text-xs focus:outline-none focus:border-brand-primary"
+                  />
+                </div>
+
+                <div className="flex flex-wrap items-center gap-6 pt-2">
+                  <label className="flex items-center gap-2 cursor-pointer text-brand-text">
+                    <input
+                      type="checkbox"
+                      checked={pagePublished}
+                      onChange={(e) => setPagePublished(e.target.checked)}
+                      className="rounded text-brand-primary focus:ring-brand-primary"
+                    />
+                    <span className="font-semibold">Publish Immediately (Visible to Public)</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 cursor-pointer text-brand-text">
+                    <input
+                      type="checkbox"
+                      checked={pageShowHeader}
+                      onChange={(e) => setPageShowHeader(e.target.checked)}
+                      className="rounded text-brand-primary focus:ring-brand-primary"
+                    />
+                    <span>Show link in Top Navbar</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 cursor-pointer text-brand-text">
+                    <input
+                      type="checkbox"
+                      checked={pageShowFooter}
+                      onChange={(e) => setPageShowFooter(e.target.checked)}
+                      className="rounded text-brand-primary focus:ring-brand-primary"
+                    />
+                    <span>Show link in Footer</span>
+                  </label>
+                </div>
+
+                <div className="flex items-center gap-3 pt-3 border-t border-brand-border">
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white font-bold cursor-pointer transition-all shadow-sm"
+                  >
+                    {editingPageId ? 'Save Changes' : 'Create & Publish Page'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowPageModal(false)}
+                    className="px-4 py-2.5 rounded-xl bg-brand-surface hover:bg-brand-cardHover border border-brand-border text-brand-muted hover:text-brand-text text-xs cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* Pages Table */}
+          <div className="rounded-3xl glass-panel border border-brand-border overflow-hidden shadow-card">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-brand-surface border-b border-brand-border text-xs uppercase text-brand-muted tracking-wider">
+                  <tr>
+                    <th className="py-4 px-5">Page Title</th>
+                    <th className="py-4 px-5">Public Path</th>
+                    <th className="py-4 px-5">Placement</th>
+                    <th className="py-4 px-5">Status</th>
+                    <th className="py-4 px-5">Last Updated</th>
+                    <th className="py-4 px-5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-brand-border/40 text-brand-text">
+                  {(data.customPages || []).map((page) => (
+                    <tr key={page.id} className="hover:bg-brand-surface/70 transition-colors">
+                      <td className="py-4 px-5">
+                        <div className="font-bold text-brand-text">{page.title}</div>
+                        {page.summary && (
+                          <div className="text-xs text-brand-muted line-clamp-1">{page.summary}</div>
+                        )}
+                      </td>
+                      <td className="py-4 px-5">
+                        <a
+                          href={`/p/${page.slug}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 font-mono text-xs text-brand-primary hover:underline"
+                        >
+                          <span>/p/{page.slug}</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </td>
+                      <td className="py-4 px-5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {page.showInHeader && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-600 border border-blue-500/20">
+                              Header
+                            </span>
+                          )}
+                          {page.showInFooter && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500/10 text-purple-600 border border-purple-500/20">
+                              Footer
+                            </span>
+                          )}
+                          {!page.showInHeader && !page.showInFooter && (
+                            <span className="text-[10px] text-brand-muted">Direct Link Only</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-4 px-5">
+                        <button
+                          onClick={() => handleTogglePage(page.id)}
+                          className={`text-xs font-bold px-2.5 py-1 rounded-full border cursor-pointer transition-all ${
+                            page.published
+                              ? 'bg-brand-successGlow text-brand-success border-brand-success/40'
+                              : 'bg-amber-500/15 text-amber-500 border-amber-500/30'
+                          }`}
+                        >
+                          {page.published ? 'Published' : 'Draft'}
+                        </button>
+                      </td>
+                      <td className="py-4 px-5 text-xs text-brand-muted">
+                        {new Date(page.updatedAt).toLocaleDateString()}
+                      </td>
+                      <td className="py-4 px-5 text-right whitespace-nowrap space-x-1.5">
+                        <button
+                          onClick={() => handleEditPage(page)}
+                          className="px-2.5 py-1 rounded-lg bg-brand-surface hover:bg-brand-cardHover border border-brand-border text-brand-text text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1"
+                        >
+                          <Edit2 className="w-3 h-3" />
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          onClick={() => handleDeletePage(page.id)}
+                          className="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-500 text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          <span>Delete</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* TAB: SUB-ACCOUNTS & STAFF (RBAC) */}
+      {/* ======================================================== */}
+      {activeTab === 'staff' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-blue-500/10 border border-blue-500/30 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase mb-1">
+                <Users className="w-3.5 h-3.5" />
+                <span>Multi-Operator & Role-Based Access Control</span>
+              </div>
+              <h3 className="text-lg font-bold text-brand-text">Staff Sub-Accounts & Desk Operators</h3>
+              <p className="text-xs text-brand-muted">
+                Create team accounts for card verification, finance settlement, and customer support. Assign customer trades to specific team operators.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowStaffModal(true)}
+              className="px-4 py-2 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Sub-Account</span>
+            </button>
+          </div>
+
+          {/* Add Staff Modal */}
+          {showStaffModal && (
+            <div className="p-6 rounded-3xl glass-panel border border-brand-primary/40 shadow-xl space-y-4">
+              <div className="flex items-center justify-between border-b border-brand-border pb-3">
+                <span className="font-bold text-sm text-brand-text">Create Team Member / Sub-Account</span>
+                <button
+                  onClick={() => setShowStaffModal(false)}
+                  className="text-xs text-brand-muted hover:text-brand-text cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateStaff} className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                <div>
+                  <label className="block text-brand-muted mb-1 font-semibold">Staff Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Sarah Connor"
+                    value={staffName}
+                    onChange={(e) => setStaffName(e.target.value)}
+                    className="w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-brand-text focus:outline-none focus:border-brand-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-brand-muted mb-1 font-semibold">Staff Work Email</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="e.g. sarah@cardbyte.io"
+                    value={staffEmail}
+                    onChange={(e) => setStaffEmail(e.target.value)}
+                    className="w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-brand-text focus:outline-none focus:border-brand-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-brand-muted mb-1 font-semibold">Assigned Role</label>
+                  <select
+                    value={staffRole}
+                    onChange={(e) => setStaffRole(e.target.value as any)}
+                    className="w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-brand-text focus:outline-none focus:border-brand-primary"
+                  >
+                    <option value="OPERATOR">Desk Operator (Card Verification)</option>
+                    <option value="FINANCE">Finance Officer (Payout Release)</option>
+                    <option value="SUPPORT">Support Agent (Live Dispute Support)</option>
+                    <option value="SUPER_ADMIN">Super Administrator (Full System Access)</option>
+                  </select>
+                </div>
+
+                <div className="col-span-1 sm:col-span-3 flex items-center gap-3 pt-2">
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white font-bold cursor-pointer transition-all shadow-sm"
+                  >
+                    Create Sub-Account
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowStaffModal(false)}
+                    className="px-4 py-2.5 rounded-xl bg-brand-surface border border-brand-border text-brand-muted text-xs cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* Staff Table */}
+          <div className="rounded-3xl glass-panel border border-brand-border overflow-hidden shadow-card">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-brand-surface border-b border-brand-border text-xs uppercase text-brand-muted tracking-wider">
+                  <tr>
+                    <th className="py-4 px-5">Staff Member</th>
+                    <th className="py-4 px-5">Work Email</th>
+                    <th className="py-4 px-5">Role Permission</th>
+                    <th className="py-4 px-5">Active Trades</th>
+                    <th className="py-4 px-5">Account Status</th>
+                    <th className="py-4 px-5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-brand-border/40 text-brand-text">
+                  {(data.staff || []).map((member) => {
+                    const roleBadgeColor = {
+                      SUPER_ADMIN: 'bg-purple-500/10 text-purple-600 border-purple-500/20',
+                      OPERATOR: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+                      FINANCE: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+                      SUPPORT: 'bg-amber-500/10 text-amber-600 border-amber-500/20'
+                    }[member.role] || 'bg-brand-surface text-brand-text';
+
+                    return (
+                      <tr key={member.id} className="hover:bg-brand-surface/70 transition-colors">
+                        <td className="py-4 px-5">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-full bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center font-bold text-brand-primary text-xs">
+                              {member.name.split(' ').map(n => n[0]).join('')}
+                            </div>
+                            <span className="font-bold text-brand-text">{member.name}</span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-5 font-mono text-xs text-brand-muted">
+                          {member.email}
+                        </td>
+                        <td className="py-4 px-5">
+                          <span className={`text-[11px] font-bold px-2.5 py-1 rounded-md border ${roleBadgeColor}`}>
+                            {member.role.replace('_', ' ')}
+                          </span>
+                        </td>
+                        <td className="py-4 px-5 font-mono font-bold text-xs">
+                          {member.assignedOrdersCount || 0} assigned
+                        </td>
+                        <td className="py-4 px-5">
+                          <button
+                            onClick={() => handleToggleStaffStatus(member.id, member.active)}
+                            className={`text-[11px] font-bold px-2.5 py-1 rounded-full border cursor-pointer transition-all ${
+                              member.active
+                                ? 'bg-brand-successGlow text-brand-success border-brand-success/40'
+                                : 'bg-red-500/15 text-red-500 border-red-500/30'
+                            }`}
+                          >
+                            {member.active ? 'Active' : 'Suspended'}
+                          </button>
+                        </td>
+                        <td className="py-4 px-5 text-right">
+                          <button
+                            onClick={() => handleDeleteStaff(member.id)}
+                            className="p-1.5 rounded-lg border border-red-500/30 text-red-500 hover:bg-red-500/15 cursor-pointer"
+                            title="Remove Sub-Account"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

@@ -94,9 +94,34 @@ export interface OrderItem {
   status: 'PENDING' | 'VERIFYING' | 'COMPLETED' | 'REJECTED';
   txHash?: string;
   rejectionReason?: string;
+  assignedToStaffId?: string;
+  assignedToStaffName?: string;
   messages: OrderMessage[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CustomPage {
+  id: string;
+  slug: string;
+  title: string;
+  summary?: string;
+  content: string; // Markdown / HTML text
+  published: boolean;
+  showInHeader: boolean;
+  showInFooter: boolean;
+  order: number;
+  updatedAt: string;
+}
+
+export interface StaffMember {
+  id: string;
+  name: string;
+  email: string;
+  role: 'SUPER_ADMIN' | 'OPERATOR' | 'FINANCE' | 'SUPPORT';
+  active: boolean;
+  assignedOrdersCount: number;
+  createdAt: string;
 }
 
 export interface PlatformNotification {

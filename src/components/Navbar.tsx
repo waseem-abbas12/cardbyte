@@ -23,6 +23,7 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [hasConfiguredWallet, setHasConfiguredWallet] = useState(false);
+  const [headerPages, setHeaderPages] = useState<{ slug: string; title: string }[]>([]);
   
   // Notifications
   const [notifications, setNotifications] = useState<PlatformNotification[]>([]);
@@ -48,12 +49,18 @@ export default function Navbar() {
       }
     } catch {}
 
-    // Fetch live notifications
-    fetch('/api/admin')
+    // Fetch live notifications and site settings
+    fetch('/api/content')
       .then(res => res.json())
       .then(json => {
         if (json?.data?.notifications) {
           setNotifications(json.data.notifications.slice(0, 5));
+        }
+        if (json?.data?.customPages) {
+          const hPages = json.data.customPages
+            .filter((p: any) => p.published && p.showInHeader)
+            .map((p: any) => ({ slug: p.slug, title: p.title }));
+          setHeaderPages(hPages);
         }
       })
       .catch(() => {});
@@ -113,6 +120,15 @@ export default function Navbar() {
               <Search className="w-3.5 h-3.5" />
               Track Order
             </Link>
+            {headerPages.map(p => (
+              <Link
+                key={p.slug}
+                href={`/p/${p.slug}`}
+                className="text-sm font-semibold text-brand-muted hover:text-brand-text transition-colors"
+              >
+                {p.title}
+              </Link>
+            ))}
             <Link href="/admin" className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-brand-surface border border-brand-border text-brand-muted hover:text-brand-text transition-colors flex items-center gap-1.5">
               <Settings className="w-3 h-3 text-brand-primary" />
               Client Admin
@@ -257,6 +273,16 @@ export default function Navbar() {
           >
             Track Order
           </Link>
+          {headerPages.map(p => (
+            <Link
+              key={p.slug}
+              href={`/p/${p.slug}`}
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-xl text-base font-semibold text-brand-text hover:bg-brand-surface"
+            >
+              {p.title}
+            </Link>
+          ))}
           <Link
             href="/admin"
             onClick={() => setMobileMenuOpen(false)}

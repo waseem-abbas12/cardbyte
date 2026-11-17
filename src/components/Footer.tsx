@@ -83,29 +83,37 @@ export default function Footer() {
 
           {/* Legal & Support */}
           <div>
-            <h4 className="text-xs font-bold text-brand-text uppercase tracking-wider mb-4">Security & Help</h4>
+            <h4 className="text-xs font-bold text-brand-text uppercase tracking-wider mb-4">Security & Guides</h4>
             <ul className="space-y-2.5 text-xs">
               <li>
-                <span className="text-brand-muted hover:text-brand-primary transition-colors cursor-pointer">AML & KYC Policy</span>
+                <Link href="/p/aml-policy" className="text-brand-muted hover:text-brand-primary transition-colors">
+                  AML & Compliance Policy
+                </Link>
               </li>
               <li>
-                <span className="text-brand-muted hover:text-brand-primary transition-colors cursor-pointer">Terms of Service</span>
+                <Link href="/p/terms" className="text-brand-muted hover:text-brand-primary transition-colors">
+                  Terms of Service & Settlement
+                </Link>
               </li>
               <li>
-                <span className="text-brand-muted hover:text-brand-primary transition-colors cursor-pointer">Privacy Policy</span>
+                <Link href="/p/how-it-works" className="text-brand-muted hover:text-brand-primary transition-colors">
+                  How It Works (Seller Guide)
+                </Link>
               </li>
               <li>
-                <span className="text-brand-muted hover:text-brand-primary transition-colors cursor-pointer">Anti-Fraud FAQ</span>
+                <Link href="/p/about-us" className="text-brand-muted hover:text-brand-primary transition-colors">
+                  About Cardbyte Pro
+                </Link>
               </li>
               <li className="pt-2">
                 <a
-                  href="https://t.me/"
+                  href="https://t.me/cardbyte_support"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-primary hover:text-brand-primaryHover"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>Telegram Support</span>
+                  <span>Telegram Support Desk</span>
                 </a>
               </li>
             </ul>

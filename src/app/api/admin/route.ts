@@ -16,7 +16,15 @@ import {
   updateSiteSettings,
   updateOrderStatusInDb,
   addOrderMessageInDb,
-  addAuditNotification
+  addAuditNotification,
+  reorderBrand,
+  createCustomPage,
+  updateCustomPage,
+  deleteCustomPage,
+  createStaffMember,
+  updateStaffMember,
+  deleteStaffMember,
+  assignOrderToStaff
 } from '@/lib/db';
 import { isExplicitAdminRequest, checkRateLimit } from '@/lib/security';
 
@@ -42,7 +50,9 @@ export async function GET(req: NextRequest) {
         faqs: db.faqs,
         layoutSections: db.layoutSections,
         siteSettings: db.siteSettings,
-        notifications: db.notifications
+        notifications: db.notifications,
+        customPages: db.customPages || [],
+        staff: db.staff || []
       }
     });
   } catch (error: any) {
@@ -65,6 +75,70 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { action } = body;
     const db = getDatabase();
+
+    // 0. Card Positions / Reordering Engine
+    if (action === 'reorder_brand') {
+      const { brandId, direction } = body;
+      const brands = reorderBrand(brandId, direction);
+      return NextResponse.json({ ok: 1, data: { brands } });
+    }
+
+    // 0. Order Assignment to Sub-Account
+    if (action === 'assign_order') {
+      const { orderId, staffId } = body;
+      const updated = assignOrderToStaff(orderId, staffId);
+      if (!updated) return NextResponse.json({ ok: 0, error: 'Order or Staff member not found' }, { status: 404 });
+      return NextResponse.json({ ok: 1, data: { order: updated } });
+    }
+
+    // 0. Custom Pages CMS (WordPress / Shopify style)
+    if (action === 'create_page') {
+      const page = createCustomPage(body.page);
+      return NextResponse.json({ ok: 1, data: { page } });
+    }
+
+    if (action === 'update_page') {
+      const { pageId, updates } = body;
+      const updated = updateCustomPage(pageId, updates);
+      if (!updated) return NextResponse.json({ ok: 0, error: 'Page not found' }, { status: 404 });
+      return NextResponse.json({ ok: 1, data: { page: updated } });
+    }
+
+    if (action === 'delete_page') {
+      const { pageId } = body;
+      const deleted = deleteCustomPage(pageId);
+      return NextResponse.json({ ok: 1, deleted });
+    }
+
+    if (action === 'toggle_page') {
+      const { pageId } = body;
+      const page = db.customPages.find(p => p.id === pageId || p.slug === pageId);
+      if (!page) return NextResponse.json({ ok: 0, error: 'Page not found' }, { status: 404 });
+      page.published = !page.published;
+      page.updatedAt = new Date().toISOString();
+      saveDatabase(db);
+      return NextResponse.json({ ok: 1, data: { page } });
+    }
+
+    // 0. Sub-Accounts & Staff Management
+    if (action === 'create_staff') {
+      const staff = createStaffMember(body.staff);
+      return NextResponse.json({ ok: 1, data: { staff } });
+    }
+
+    if (action === 'update_staff') {
+      const { staffId, updates } = body;
+      const updated = updateStaffMember(staffId, updates);
+      if (!updated) return NextResponse.json({ ok: 0, error: 'Staff member not found' }, { status: 404 });
+      return NextResponse.json({ ok: 1, data: { staff: updated } });
+    }
+
+    if (action === 'delete_staff') {
+      const { staffId } = body;
+      const deleted = deleteStaffMember(staffId);
+      return NextResponse.json({ ok: 1, deleted });
+    }
+
 
     // 1. Orders
     if (action === 'update_status') {

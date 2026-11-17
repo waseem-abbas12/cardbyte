@@ -11,7 +11,8 @@ export async function GET() {
         layoutSections: db.layoutSections.sort((a, b) => a.order - b.order),
         brands: db.brands.filter(b => b.enabled !== false).sort((a, b) => (a.order || 0) - (b.order || 0)),
         payoutRails: db.payoutRails.filter(p => p.enabled !== false).sort((a, b) => (a.order || 0) - (b.order || 0)),
-        faqs: db.faqs.filter(f => f.enabled !== false).sort((a, b) => a.order - b.order)
+        faqs: db.faqs.filter(f => f.enabled !== false).sort((a, b) => a.order - b.order),
+        customPages: (db.customPages || []).filter(p => p.published).sort((a, b) => a.order - b.order)
       }
     });
   } catch (err: any) {

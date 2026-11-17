@@ -15,7 +15,8 @@ export default function RatesPage() {
       .then(res => res.json())
       .then(json => {
         if (json?.data?.brands && Array.isArray(json.data.brands)) {
-          setBrands(json.data.brands);
+          const sorted = [...json.data.brands].sort((a, b) => (a.order || 0) - (b.order || 0));
+          setBrands(sorted);
         }
       })
       .catch(() => {})
