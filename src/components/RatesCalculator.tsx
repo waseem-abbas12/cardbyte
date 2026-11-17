@@ -84,19 +84,19 @@ export default function RatesCalculator({ initialBrandId = 'apple', onProceed }:
 
   const handleStartTrade = () => {
     const tradeData = {
-      brandId: selectedBrand.id,
-      brandName: selectedBrand.name,
-      countryCode: currentCountry.code,
-      currency: currentCountry.currency,
-      nominal: activeNominal,
-      quantity,
+      brandId: selectedBrand?.id || 'apple',
+      brandName: selectedBrand?.name || 'Apple & iTunes',
+      countryCode: currentCountry?.code || 'US',
+      currency: currentCountry?.currency || 'USD',
+      nominal: activeNominal || 100,
+      quantity: quantity || 1,
       cardType,
-      ratePercent: activeRatePercent,
-      totalFaceValue,
-      totalPayoutUsd,
-      verificationTime: selectedBrand.verificationTime || '5-15 mins',
-      payoutId: selectedPayout.id,
-      payoutName: `${selectedPayout.name} (${selectedPayout.network || selectedPayout.symbol})`
+      ratePercent: activeRatePercent || 70,
+      totalFaceValue: totalFaceValue || 100,
+      totalPayoutUsd: totalPayoutUsd || 70,
+      verificationTime: selectedBrand?.verificationTime || '5-15 mins',
+      payoutId: selectedPayout?.id || 'usdt_trc20',
+      payoutName: selectedPayout ? `${selectedPayout.name} (${selectedPayout.network || selectedPayout.symbol})` : 'USDT (TRC20)'
     };
 
     if (onProceed) {

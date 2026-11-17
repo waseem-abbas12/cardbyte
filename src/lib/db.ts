@@ -24,8 +24,10 @@ export interface DatabaseSchema {
   notifications: PlatformNotification[];
 }
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const DB_FILE = path.join(DATA_DIR, 'db.json');
+const IS_SERVERLESS = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const BUNDLED_DB_FILE = path.join(process.cwd(), 'data', 'db.json');
+const DATA_DIR = IS_SERVERLESS ? '/tmp/cardbyte_data' : path.join(process.cwd(), 'data');
+const DB_FILE = IS_SERVERLESS ? path.join(DATA_DIR, 'db.json') : BUNDLED_DB_FILE;
 
 const DEFAULT_FAQS: FaqItem[] = [
   {
@@ -92,8 +94,12 @@ const DEFAULT_SETTINGS: SiteSettings = {
 };
 
 function initDatabase(): DatabaseSchema {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+  } catch (e) {
+    // Non-blocking in serverless environments
   }
 
   const initialBrands = INITIAL_BRANDS.map((b, i) => ({
@@ -189,7 +195,11 @@ function initDatabase(): DatabaseSchema {
     notifications: initialNotifs
   };
 
-  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf-8');
+  try {
+    fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf-8');
+  } catch (e) {
+    console.warn('Initial DB write suppressed in serverless:', e);
+  }
   return db;
 }
 
@@ -199,13 +209,18 @@ let memDb: DatabaseSchema | null = null;
 export function getDatabase(): DatabaseSchema {
   if (memDb) return memDb;
 
-  if (!fs.existsSync(DB_FILE)) {
+  let filePath = DB_FILE;
+  if (!fs.existsSync(filePath) && fs.existsSync(BUNDLED_DB_FILE)) {
+    filePath = BUNDLED_DB_FILE;
+  }
+
+  if (!fs.existsSync(filePath)) {
     memDb = initDatabase();
     return memDb;
   }
 
   try {
-    const raw = fs.readFileSync(DB_FILE, 'utf-8');
+    const raw = fs.readFileSync(filePath, 'utf-8');
     const parsed = JSON.parse(raw);
     
     // Ensure all collections exist

@@ -99,7 +99,7 @@ function TrackPageContent() {
           Track Your Transaction
         </h1>
         <p className="text-sm text-brand-muted mt-2">
-          Enter your 7-character Cardbyte tracking code (e.g. <code className="text-brand-primary font-bold">CB-94821</code>) to monitor live status and chat with the verification desk.
+          Enter your Cardbyte tracking code (e.g. <code className="text-brand-primary font-bold">CB-2993-F1A1</code>) to monitor live status and chat with the verification desk.
         </p>
 
         {/* Input Box */}
@@ -113,7 +113,7 @@ function TrackPageContent() {
           <input
             type="text"
             required
-            placeholder="e.g. CB-94821"
+            placeholder="e.g. CB-2993-F1A1"
             value={code}
             onChange={(e) => setCode(e.target.value)}
             className="flex-1 bg-brand-surface border border-brand-border text-brand-text text-sm font-mono rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary placeholder:text-brand-muted/40 uppercase"

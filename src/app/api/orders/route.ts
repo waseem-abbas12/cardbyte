@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createOrderInDb, getDatabase, addOrderMessageInDb, addAuditNotification } from '@/lib/db';
 import { 
   checkRateLimit, 
-  verifyAdminAuthorization, 
+  isExplicitAdminRequest, 
   maskAddress, 
   sanitizeString 
 } from '@/lib/security';
@@ -168,8 +168,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Check if caller is authenticated admin
-    const authHeader = req.headers.get('authorization');
-    const isAdmin = verifyAdminAuthorization(authHeader);
+    const isAdmin = isExplicitAdminRequest(req);
 
     if (isAdmin) {
       // Full order details for authorized admin
