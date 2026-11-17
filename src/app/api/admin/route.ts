@@ -26,7 +26,7 @@ import {
   deleteStaffMember,
   assignOrderToStaff
 } from '@/lib/db';
-import { isExplicitAdminRequest, checkRateLimit } from '@/lib/security';
+import { isExplicitAdminRequest, checkRateLimit, verifyAdminPin } from '@/lib/security';
 
 export async function GET(req: NextRequest) {
   try {
@@ -140,11 +140,49 @@ export async function POST(req: NextRequest) {
     }
 
 
-    // 1. Orders
+    // 1. Orders (Strict Multi-Stage Verification)
     if (action === 'update_status') {
-      const { orderId, status, rejectionReason, txHash } = body;
+      const { orderId, status, rejectionReason, txHash, adminPin } = body;
+      const order = db.orders.find(o => o.id === orderId);
+      if (!order) return NextResponse.json({ ok: 0, error: 'Order not found' }, { status: 404 });
+
+      // Security Stage Validation
+      if (status === 'COMPLETED') {
+        // Enforce Stage 1: Order must be in VERIFYING before COMPLETED
+        if (order.status !== 'VERIFYING') {
+          return NextResponse.json({
+            ok: 0,
+            error: 'Security Guard Violation: Order must complete Stage 1 Card & Balance Verification before Stage 2 Payout can be authorized.'
+          }, { status: 400 });
+        }
+
+        // Enforce Stage 2: Dual PIN Authorization
+        if (!adminPin || !verifyAdminPin(adminPin)) {
+          return NextResponse.json({
+            ok: 0,
+            error: 'Security Guard Violation: 6-Digit Admin Security PIN confirmation failed. Payout blocked.'
+          }, { status: 403 });
+        }
+
+        // Enforce Settlement Proof / Hash
+        if (!txHash || !txHash.trim()) {
+          return NextResponse.json({
+            ok: 0,
+            error: 'Security Guard Violation: Valid Transaction Hash or Settlement Reference is required to close payout.'
+          }, { status: 400 });
+        }
+      }
+
+      if (status === 'REJECTED') {
+        if (!rejectionReason || !rejectionReason.trim()) {
+          return NextResponse.json({
+            ok: 0,
+            error: 'Security Guard Violation: An explicit rejection reason is required for audit logs.'
+          }, { status: 400 });
+        }
+      }
+
       const updated = updateOrderStatusInDb(orderId, status, rejectionReason, txHash);
-      if (!updated) return NextResponse.json({ ok: 0, error: 'Order not found' }, { status: 404 });
       return NextResponse.json({ ok: 1, data: { order: updated } });
     }
 

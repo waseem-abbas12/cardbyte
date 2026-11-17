@@ -73,11 +73,54 @@ export function generateSecureTrackingCode(): string {
 }
 
 // Constant-Time String Comparison
-function safeEqual(a: string, b: string): boolean {
+export function safeEqual(a: string, b: string): boolean {
   const bufA = Buffer.from(a);
   const bufB = Buffer.from(b);
   if (bufA.length !== bufB.length) return false;
   return crypto.timingSafeEqual(bufA, bufB);
+}
+
+// Stage 1: Verify Master Secret Key
+export function verifyMasterKey(key?: string): boolean {
+  if (!key) return false;
+  return safeEqual(key.trim(), DEFAULT_ADMIN_KEY);
+}
+
+// Stage 2: Verify Operator Security PIN
+export function verifyAdminPin(pin?: string): boolean {
+  if (!pin) return false;
+  return safeEqual(pin.trim(), DEFAULT_ADMIN_PIN);
+}
+
+// Short-lived Challenge Token for Stage 1 -> Stage 2 handoff (90s lifetime)
+export function generateChallengeToken(): string {
+  const timestamp = Date.now().toString();
+  const nonce = crypto.randomBytes(16).toString('hex');
+  const hmac = crypto.createHmac('sha256', DEFAULT_ADMIN_KEY)
+    .update(`challenge:${timestamp}:${nonce}`)
+    .digest('hex');
+  return `cb_chal_${timestamp}_${nonce}_${hmac}`;
+}
+
+export function verifyChallengeToken(token?: string, maxAgeMs: number = 90000): boolean {
+  if (!token || !token.startsWith('cb_chal_')) return false;
+  const parts = token.split('_');
+  if (parts.length !== 5) return false;
+  
+  const timestamp = parts[2];
+  const nonce = parts[3];
+  const signature = parts[4];
+
+  const age = Date.now() - Number(timestamp);
+  if (isNaN(age) || age > maxAgeMs || age < 0) {
+    return false;
+  }
+
+  const expectedHmac = crypto.createHmac('sha256', DEFAULT_ADMIN_KEY)
+    .update(`challenge:${timestamp}:${nonce}`)
+    .digest('hex');
+
+  return safeEqual(signature, expectedHmac);
 }
 
 // Double-Check Credential Verification (Layer 1: Master Key, Layer 2: 6-Digit PIN)

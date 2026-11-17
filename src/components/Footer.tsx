@@ -54,7 +54,7 @@ export default function Footer() {
                 <Link href="/#calculator" className="hover:text-brand-primary transition-colors">Valuation Calculator</Link>
               </li>
               <li>
-                <Link href="/admin" className="text-brand-primary hover:underline font-semibold">Client Admin Panel</Link>
+                <Link href="/#faqs" className="hover:text-brand-primary transition-colors">Frequently Asked Questions</Link>
               </li>
             </ul>
           </div>

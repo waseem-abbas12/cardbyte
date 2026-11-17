@@ -43,7 +43,8 @@ import {
   Edit2,
   FileText,
   Users,
-  ExternalLink
+  ExternalLink,
+  Key
 } from 'lucide-react';
 
 export default function AdminPage() {
@@ -142,6 +143,32 @@ export default function AdminPage() {
   const [pinInput, setPinInput] = useState<string>('');
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
 
+  // Progressive Two-Stage Authentication State
+  const [authStage, setAuthStage] = useState<1 | 2>(1);
+  const [challengeToken, setChallengeToken] = useState<string>('');
+  const [countdown, setCountdown] = useState<number>(90);
+  const [certifySession, setCertifySession] = useState<boolean>(false);
+
+  // Stage 2 Expiration Timer (90s window)
+  useEffect(() => {
+    let timer: any;
+    if (authStage === 2 && countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            setAuthStage(1);
+            setChallengeToken('');
+            setPinInput('');
+            setAuthErrorMessage('Security challenge expired (90s window). Please re-verify Master Key.');
+            return 90;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [authStage, countdown]);
+
   const adminFetch = async (url: string = '/api/admin', options: RequestInit = {}) => {
     const token = typeof window !== 'undefined' ? (sessionStorage.getItem('cb_vault_session') || sessionToken) : sessionToken;
     const headers = {
@@ -160,12 +187,12 @@ export default function AdminPage() {
     return res;
   };
 
-  const handleDoubleCheckLogin = async (overrideKey?: string, overridePin?: string) => {
-    const mKey = overrideKey || keyInput.trim();
-    const sPin = overridePin || pinInput.trim();
-
-    if (!mKey || !sPin) {
-      setAuthErrorMessage('Both Master Access Key and 6-Digit PIN are strictly required.');
+  // Stage 1: Verify Master Secret Key
+  const handleStage1 = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const mKey = keyInput.trim();
+    if (!mKey) {
+      setAuthErrorMessage('Stage 1 Failure: Master Access Key is strictly required.');
       return;
     }
 
@@ -176,12 +203,55 @@ export default function AdminPage() {
       const res = await fetch('/api/admin/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ masterKey: mKey, securityPin: sPin })
+        body: JSON.stringify({ stage: 1, masterKey: mKey })
       });
       const json = await res.json();
 
       if (!res.ok || !json.ok) {
-        throw new Error(json.error || 'Double-check verification failed.');
+        throw new Error(json.error || 'Stage 1 Verification Failed.');
+      }
+
+      setChallengeToken(json.challengeToken);
+      setAuthStage(2);
+      setCountdown(90);
+      setPinInput('');
+    } catch (err: any) {
+      setAuthErrorMessage(err.message || 'Stage 1 authentication error.');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  // Stage 2: Verify Operator PIN & Issue Cryptographic Session Token
+  const handleStage2 = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const sPin = pinInput.trim();
+    if (!sPin) {
+      setAuthErrorMessage('Stage 2 Failure: 6-Digit PIN is required.');
+      return;
+    }
+    if (!certifySession) {
+      setAuthErrorMessage('Please confirm the authorized session audit acknowledgment.');
+      return;
+    }
+
+    setIsVerifying(true);
+    setAuthErrorMessage('');
+
+    try {
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          stage: 2,
+          challengeToken,
+          securityPin: sPin
+        })
+      });
+      const json = await res.json();
+
+      if (!res.ok || !json.ok) {
+        throw new Error(json.error || 'Stage 2 Verification Failed.');
       }
 
       if (typeof window !== 'undefined') {
@@ -192,11 +262,13 @@ export default function AdminPage() {
       setAuthError(false);
       setKeyInput('');
       setPinInput('');
+      setChallengeToken('');
+      setAuthStage(1);
       setTimeout(() => {
         fetchData();
       }, 100);
     } catch (err: any) {
-      setAuthErrorMessage(err.message || 'Authentication error.');
+      setAuthErrorMessage(err.message || 'Stage 2 authentication error.');
     } finally {
       setIsVerifying(false);
     }
@@ -210,6 +282,8 @@ export default function AdminPage() {
     setIsAuthenticated(false);
     setAuthError(true);
     setData(null);
+    setAuthStage(1);
+    setChallengeToken('');
   };
 
   const fetchData = async () => {
@@ -234,18 +308,40 @@ export default function AdminPage() {
     fetchData();
   }, []);
 
-  // 1. Order Actions
+  // 1. Order Actions with Strict Multi-Stage Protection
   const handleUpdateStatus = async (orderId: string, status: OrderItem['status']) => {
     let rejectionReason: string | undefined = undefined;
     let txHash: string | undefined = undefined;
+    let adminPin: string | undefined = undefined;
 
-    if (status === 'REJECTED') {
-      const reason = prompt('Enter rejection reason (e.g. Card already redeemed):', 'Card invalid or zero balance');
-      if (!reason) return;
-      rejectionReason = reason;
-    } else if (status === 'COMPLETED') {
-      const hash = prompt('Enter Payout Transaction Hash or Bank Transfer Reference ID (Optional):', '0x' + Math.random().toString(16).substring(2, 18));
-      if (hash) txHash = hash;
+    const targetOrder = data?.orders.find(o => o.id === orderId);
+
+    if (status === 'COMPLETED') {
+      if (targetOrder && targetOrder.status !== 'VERIFYING') {
+        alert('SECURITY VIOLATION: You must complete Stage 1 (Card & Balance Inspection) before releasing Stage 2 payout settlement.');
+        return;
+      }
+
+      const pin = prompt('SECURITY STAGE 2 DUAL-CONFIRMATION:\nEnter your 6-Digit Admin Security PIN to authorize this financial payout:');
+      if (!pin?.trim()) {
+        alert('Payout authorization cancelled: 6-Digit Admin PIN is strictly required.');
+        return;
+      }
+      adminPin = pin.trim();
+
+      const hash = prompt('Enter Blockchain Payout TxHash / Settlement Reference (Mandatory):');
+      if (!hash?.trim()) {
+        alert('Payout authorization cancelled: Settlement reference / TxHash is mandatory.');
+        return;
+      }
+      txHash = hash.trim();
+    } else if (status === 'REJECTED') {
+      const reason = prompt('Enter official rejection reason for platform audit log:', 'Card invalid, already redeemed, or incorrect country');
+      if (!reason?.trim()) {
+        alert('Rejection cancelled: Audit reason is strictly required.');
+        return;
+      }
+      rejectionReason = reason.trim();
     }
 
     try {
@@ -257,13 +353,17 @@ export default function AdminPage() {
           orderId,
           status,
           rejectionReason,
-          txHash
+          txHash,
+          adminPin
         })
       });
       const json = await res.json();
-      if (json.ok) fetchData();
-    } catch {
-      alert('Failed to update status');
+      if (!res.ok || !json.ok) {
+        throw new Error(json.error || 'Failed to update order status');
+      }
+      fetchData();
+    } catch (err: any) {
+      alert(err.message || 'Failed to update status');
     }
   };
 
@@ -735,72 +835,123 @@ export default function AdminPage() {
           </div>
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/30 text-brand-primary text-xs font-bold uppercase tracking-wider mb-3">
-            Shield Layer 4: Dual-Factor Verification
+            Defensive Security: Two-Stage Verification Vault
           </div>
 
-          <h2 className="text-2xl font-black text-brand-text tracking-tight mb-2">Operator Security Vault</h2>
-          <p className="text-xs text-brand-muted leading-relaxed mb-6">
-            Access to Cardbyte Headquarters requires two-layer cryptographic credentials (Master Secret Key + 6-Digit PIN).
-          </p>
+          {authStage === 1 ? (
+            <>
+              <h2 className="text-2xl font-black text-brand-text tracking-tight mb-2">Stage 1: Master Key Clearance</h2>
+              <p className="text-xs text-brand-muted leading-relaxed mb-6">
+                Step 1 of 2. Enter Operator Master Passphrase. Hardened rate-limiting & lockout protocols active.
+              </p>
 
-          {authErrorMessage && (
-            <div className="p-3 mb-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-xs font-medium text-left">
-              ⚠️ {authErrorMessage}
-            </div>
+              {authErrorMessage && (
+                <div className="p-3 mb-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-xs font-medium text-left">
+                  ⚠️ {authErrorMessage}
+                </div>
+              )}
+
+              <form onSubmit={handleStage1} className="space-y-4 text-left">
+                <div>
+                  <label className="text-[11px] font-bold text-brand-muted uppercase tracking-wider block mb-1.5">
+                    Operator Master Secret Key
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="Enter Master Secret Passphrase..."
+                    value={keyInput}
+                    onChange={(e) => setKeyInput(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-brand-surface border border-brand-border text-brand-text text-sm font-mono focus:border-brand-primary outline-none transition-all"
+                    required
+                    autoFocus
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isVerifying}
+                  className="w-full py-3.5 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Key className="w-4 h-4" />
+                  <span>{isVerifying ? 'Verifying Stage 1...' : 'Proceed to Stage 2 Challenge →'}</span>
+                </button>
+              </form>
+            </>
+          ) : (
+            <>
+              <h2 className="text-2xl font-black text-brand-text tracking-tight mb-2">Stage 2: Secondary PIN Challenge</h2>
+              <div className="flex items-center justify-center gap-1.5 text-xs text-amber-500 font-mono font-bold mb-4 bg-amber-500/10 py-1 px-3 rounded-full border border-amber-500/20 w-fit mx-auto">
+                <Clock className="w-3.5 h-3.5 animate-spin" />
+                <span>Challenge Active (Expires in {countdown}s)</span>
+              </div>
+              <p className="text-xs text-brand-muted leading-relaxed mb-6">
+                Step 2 of 2. Stage 1 passed. Enter your 6-Digit Operator Security PIN to release cryptographic session key.
+              </p>
+
+              {authErrorMessage && (
+                <div className="p-3 mb-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-xs font-medium text-left">
+                  ⚠️ {authErrorMessage}
+                </div>
+              )}
+
+              <form onSubmit={handleStage2} className="space-y-4 text-left">
+                <div>
+                  <label className="text-[11px] font-bold text-brand-muted uppercase tracking-wider block mb-1.5">
+                    6-Digit Security PIN
+                  </label>
+                  <input
+                    type="password"
+                    maxLength={6}
+                    placeholder="••••••"
+                    value={pinInput}
+                    onChange={(e) => setPinInput(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-brand-surface border border-brand-border text-brand-text text-sm font-mono tracking-widest focus:border-brand-primary outline-none transition-all text-center"
+                    required
+                    autoFocus
+                  />
+                </div>
+
+                <label className="flex items-start gap-2.5 cursor-pointer pt-1">
+                  <input
+                    type="checkbox"
+                    checked={certifySession}
+                    onChange={(e) => setCertifySession(e.target.checked)}
+                    className="mt-0.5 rounded text-brand-primary focus:ring-brand-primary"
+                    required
+                  />
+                  <span className="text-[11px] text-brand-muted leading-tight">
+                    I verify authorized administrative access under system audit logging rules.
+                  </span>
+                </label>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthStage(1);
+                      setChallengeToken('');
+                      setAuthErrorMessage('');
+                    }}
+                    className="px-4 py-3.5 rounded-xl bg-brand-surface hover:bg-brand-cardHover border border-brand-border text-brand-muted text-xs font-bold transition-all cursor-pointer"
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isVerifying}
+                    className="flex-1 py-3.5 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>{isVerifying ? 'Finalizing Clearance...' : 'Verify PIN & Unlock Desk'}</span>
+                  </button>
+                </div>
+              </form>
+            </>
           )}
 
-          <form onSubmit={(e) => { e.preventDefault(); handleDoubleCheckLogin(); }} className="space-y-4 text-left">
-            <div>
-              <label className="text-[11px] font-bold text-brand-muted uppercase tracking-wider block mb-1.5">
-                Check 1: Operator Master Key
-              </label>
-              <input
-                type="password"
-                placeholder="Enter Master Secret Passphrase..."
-                value={keyInput}
-                onChange={(e) => setKeyInput(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-brand-surface border border-brand-border text-brand-text text-sm font-mono focus:border-brand-primary outline-none transition-all"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="text-[11px] font-bold text-brand-muted uppercase tracking-wider block mb-1.5">
-                Check 2: 6-Digit Security PIN
-              </label>
-              <input
-                type="password"
-                maxLength={6}
-                placeholder="e.g. 849201"
-                value={pinInput}
-                onChange={(e) => setPinInput(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-brand-surface border border-brand-border text-brand-text text-sm font-mono tracking-widest focus:border-brand-primary outline-none transition-all text-center"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={isVerifying}
-              className="w-full py-3.5 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
-            >
-              <ShieldCheck className="w-4 h-4" />
-              <span>{isVerifying ? 'Verifying Credentials...' : 'Verify & Unlock Control Center'}</span>
-            </button>
-          </form>
-
-          <div className="mt-6 pt-6 border-t border-brand-border/60 flex flex-col gap-2.5 text-xs text-brand-muted">
-            <span className="text-[11px]">Authorized Headquarters Quick Fill:</span>
-            <button
-              type="button"
-              onClick={() => handleDoubleCheckLogin('cardbyte-master-key-2026', '849201')}
-              className="px-3.5 py-2 rounded-xl bg-brand-surface hover:bg-brand-cardHover border border-brand-border text-brand-text font-mono text-[11px] font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
-            >
-              ⚡ Auto-Fill Authorized Operator Keys
-            </button>
-            <span className="text-[10px] text-brand-muted/70">
-              Credentials: Key: <code>cardbyte-master-key-2026</code> • PIN: <code>849201</code>
-            </span>
+          <div className="mt-6 pt-5 border-t border-brand-border/60 text-[10px] text-brand-muted flex items-center justify-center gap-1.5">
+            <ShieldCheck className="w-3.5 h-3.5 text-brand-success" />
+            <span>2-Stage Zero-Trust Vault • 5 Strikes = 15m IP Quarantine</span>
           </div>
         </div>
       </div>
@@ -1079,30 +1230,50 @@ export default function AdminPage() {
                           </td>
 
                           <td className="py-4 px-5 text-right whitespace-nowrap space-x-1.5">
-                            {o.status !== 'COMPLETED' && (
-                              <button
-                                onClick={() => handleUpdateStatus(o.id, 'COMPLETED')}
-                                className="px-2.5 py-1 rounded-lg bg-brand-success/15 hover:bg-brand-success text-brand-success hover:text-white text-xs font-bold transition-all cursor-pointer"
-                                title="Mark as paid with TxHash"
-                              >
-                                Approve & Pay
-                              </button>
-                            )}
                             {o.status === 'PENDING' && (
                               <button
                                 onClick={() => handleUpdateStatus(o.id, 'VERIFYING')}
-                                className="px-2.5 py-1 rounded-lg bg-brand-primary/15 hover:bg-brand-primary text-brand-primary hover:text-white text-xs font-bold transition-all cursor-pointer"
+                                className="px-3 py-1.5 rounded-xl bg-blue-500/15 hover:bg-blue-600 text-blue-600 hover:text-white text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1 shadow-sm"
+                                title="Stage 1: Verify Card Codes & Balance Legitimacy"
                               >
-                                Verify
+                                <Eye className="w-3.5 h-3.5" />
+                                <span>Stage 1: Check Card</span>
                               </button>
                             )}
-                            {o.status !== 'REJECTED' && (
+
+                            {o.status === 'VERIFYING' && (
+                              <button
+                                onClick={() => handleUpdateStatus(o.id, 'COMPLETED')}
+                                className="px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-600 text-emerald-600 hover:text-white text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1 shadow-sm"
+                                title="Stage 2: Dual PIN Authorization Required to Release Payout"
+                              >
+                                <Lock className="w-3.5 h-3.5" />
+                                <span>Stage 2: Authorize Payout</span>
+                              </button>
+                            )}
+
+                            {o.status === 'COMPLETED' && (
+                              <span className="text-xs font-bold text-emerald-600 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 inline-flex items-center gap-1">
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                Paid & Settled
+                              </span>
+                            )}
+
+                            {o.status !== 'REJECTED' && o.status !== 'COMPLETED' && (
                               <button
                                 onClick={() => handleUpdateStatus(o.id, 'REJECTED')}
-                                className="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500 text-red-500 hover:text-white text-xs font-bold transition-all cursor-pointer"
+                                className="px-2.5 py-1.5 rounded-xl bg-red-500/15 hover:bg-red-500 text-red-500 hover:text-white text-xs font-bold transition-all cursor-pointer"
+                                title="Reject Trade with Mandatory Audit Reason"
                               >
                                 Reject
                               </button>
+                            )}
+
+                            {o.status === 'REJECTED' && (
+                              <span className="text-xs font-bold text-red-500 px-3 py-1 rounded-xl bg-red-500/10 border border-red-500/20 inline-flex items-center gap-1">
+                                <XCircle className="w-3.5 h-3.5" />
+                                Rejected
+                              </span>
                             )}
                           </td>
                         </tr>
