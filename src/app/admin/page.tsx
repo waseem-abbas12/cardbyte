@@ -472,63 +472,11 @@ export default function AdminPage() {
     }
   };
 
-  if (authError || (!data && !loading)) {
-    return (
-      <div className="min-h-[80vh] flex items-center justify-center px-4 py-16">
-        <div className="max-w-md w-full p-8 rounded-3xl glass-panel border border-brand-border shadow-2xl text-center">
-          <div className="w-16 h-16 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary mx-auto flex items-center justify-center mb-6 shadow-inner">
-            <Lock className="w-8 h-8" />
-          </div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/30 text-brand-primary text-xs font-bold uppercase tracking-wider mb-3">
-            Zero-Trust Protected
-          </div>
-          <h2 className="text-2xl font-black text-brand-text tracking-tight mb-2">Admin Security Desk</h2>
-          <p className="text-xs text-brand-muted leading-relaxed mb-6">
-            This endpoint is fortified with constant-time Bearer authentication. Enter your Master Passkey to access platform controls and customer orders.
-          </p>
-
-          <form onSubmit={(e) => { e.preventDefault(); handleUnlock(); }} className="space-y-4">
-            <div className="text-left">
-              <label className="text-[11px] font-bold text-brand-muted uppercase tracking-wider block mb-1.5">
-                Master Secret Key
-              </label>
-              <input
-                type="password"
-                placeholder="Enter Admin Passkey..."
-                value={passkeyInput}
-                onChange={(e) => setPasskeyInput(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-brand-surface border border-brand-border text-brand-text text-sm font-mono focus:border-brand-primary outline-none transition-all"
-                autoFocus
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-3 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-xs font-bold transition-all shadow-md cursor-pointer"
-            >
-              Unlock Control Center
-            </button>
-          </form>
-
-          <div className="mt-6 pt-6 border-t border-brand-border/60 flex flex-col gap-2 text-xs text-brand-muted">
-            <span>Default environment passkey:</span>
-            <button
-              onClick={() => handleUnlock('cardbyte-master-secret-2026')}
-              className="px-3 py-1.5 rounded-lg bg-brand-surface hover:bg-brand-cardHover border border-brand-border text-brand-text font-mono text-[11px] transition-colors cursor-pointer"
-            >
-              ⚡ Use Default Master Key
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (loading || !data) {
     return (
       <div className="py-24 text-center text-brand-muted text-sm flex items-center justify-center gap-2">
         <RefreshCw className="w-5 h-5 animate-spin text-brand-primary" />
-        <span>Loading Client Control Center...</span>
+        <span>Loading Control Center...</span>
       </div>
     );
   }

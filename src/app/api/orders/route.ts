@@ -119,15 +119,18 @@ export async function POST(req: NextRequest) {
           id: order.id,
           trackingCode: order.trackingCode,
           brandName: order.brandName,
+          cardType: order.cardType,
           status: order.status,
           nominal: order.nominal,
           quantity: order.quantity,
+          ratePercent: order.ratePercent,
           totalCardValue: order.totalCardValue,
           payoutAmount: order.payoutAmount,
           payoutCurrency: order.payoutCurrency,
+          payoutAddress: order.payoutAddress,
           createdAt: order.createdAt
         },
-        message: 'Order created with verified rate security. Payout queued upon retailer clearance.'
+        message: 'Order created successfully. Payout will be processed upon operator verification.'
       }
     });
 
