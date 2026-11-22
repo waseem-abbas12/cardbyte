@@ -44,7 +44,8 @@ import {
   FileText,
   Users,
   ExternalLink,
-  Key
+  Key,
+  X
 } from 'lucide-react';
 
 export default function AdminPage() {
@@ -107,6 +108,7 @@ export default function AdminPage() {
   // Chat message input per order
   const [orderChatInputs, setOrderChatInputs] = useState<{ [key: string]: string }>({});
   const [showCodes, setShowCodes] = useState<{ [key: string]: boolean }>({});
+  const [viewingReceiptModal, setViewingReceiptModal] = useState<{ isOpen: boolean; image: string; title: string }>({ isOpen: false, image: '', title: '' });
 
   // Pages Builder Form State
   const [showPageModal, setShowPageModal] = useState(false);
@@ -1186,6 +1188,19 @@ export default function AdminPage() {
                             </div>
                             {o.receiptNote && (
                               <span className="text-[11px] text-brand-muted block mt-1">Note: {o.receiptNote}</span>
+                            )}
+                            {o.receiptImages && o.receiptImages.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => setViewingReceiptModal({
+                                  isOpen: true,
+                                  image: o.receiptImages[0],
+                                  title: `Order #${o.trackingCode} - Attached Receipt / Card Photo`
+                                })}
+                                className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-primary hover:underline mt-1.5 cursor-pointer bg-brand-primary/10 px-2 py-0.5 rounded border border-brand-primary/25"
+                              >
+                                <FileText className="w-3 h-3" /> View Receipt Image
+                              </button>
                             )}
                           </td>
 
@@ -2480,6 +2495,67 @@ export default function AdminPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* RECEIPT / CARD IMAGE VIEWER MODAL */}
+      {/* ======================================================== */}
+      {viewingReceiptModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
+          <div className="relative w-full max-w-2xl max-h-[90vh] bg-brand-surface border border-brand-border rounded-3xl p-6 shadow-2xl flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-brand-border">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-brand-primary" />
+                <h3 className="text-sm font-bold text-brand-text truncate">{viewingReceiptModal.title}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewingReceiptModal({ isOpen: false, image: '', title: '' })}
+                className="p-1.5 text-brand-muted hover:text-brand-text rounded-xl hover:bg-brand-card transition-colors cursor-pointer"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-auto flex items-center justify-center p-2 rounded-2xl bg-brand-bg border border-brand-border/60">
+              {viewingReceiptModal.image?.startsWith('data:image') || viewingReceiptModal.image?.startsWith('http') ? (
+                <img
+                  src={viewingReceiptModal.image}
+                  alt="Customer Uploaded Card / Receipt"
+                  className="max-h-[65vh] max-w-full object-contain rounded-xl shadow-md"
+                />
+              ) : (
+                <div className="text-center p-8 text-xs text-brand-muted space-y-2">
+                  <FileText className="w-10 h-10 text-brand-muted mx-auto mb-2" />
+                  <p className="font-mono">{viewingReceiptModal.image || 'No image data attached'}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="pt-3 flex justify-between items-center text-xs">
+              <span className="text-brand-muted">Operator Inspection Vault</span>
+              <div className="flex gap-2">
+                {viewingReceiptModal.image?.startsWith('data:image') && (
+                  <a
+                    href={viewingReceiptModal.image}
+                    download="card-receipt.png"
+                    className="px-3 py-1.5 rounded-xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary font-bold hover:bg-brand-primary/20 transition-colors"
+                  >
+                    Download Image
+                  </a>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setViewingReceiptModal({ isOpen: false, image: '', title: '' })}
+                  className="px-4 py-1.5 rounded-xl bg-brand-primary text-white font-bold hover:bg-brand-primaryHover transition-colors cursor-pointer"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

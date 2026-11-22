@@ -116,6 +116,15 @@ export default function Footer() {
                   <span>Telegram Support Desk</span>
                 </a>
               </li>
+              <li>
+                <a
+                  href="mailto:support@cardbyte.io"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-muted hover:text-brand-primary transition-colors"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>support@cardbyte.io</span>
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -125,8 +134,8 @@ export default function Footer() {
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-brand-muted gap-4">
           <p>© 2026 Cardbyte. Built for maximum security & global liquidity. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <span>Server Status: <b className="text-brand-success">Operational</b></span>
-            <span>Latency: <b className="font-mono text-white">24ms</b></span>
+            <span>Server Status: <b className="text-brand-success font-semibold">Operational</b></span>
+            <span>Latency: <b className="font-mono text-brand-text font-bold">24ms</b></span>
           </div>
         </div>
 

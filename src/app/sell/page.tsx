@@ -14,7 +14,8 @@ import {
   FileText, 
   AlertCircle,
   Wallet,
-  ExternalLink
+  ExternalLink,
+  X
 } from 'lucide-react';
 import { UserWalletConfig } from '@/lib/ratesData';
 
@@ -34,6 +35,31 @@ function SellPageContent() {
   const [cardPin, setCardPin] = useState<string>('');
   const [receiptNote, setReceiptNote] = useState<string>('');
   const [receiptFileName, setReceiptFileName] = useState<string>('');
+  const [receiptBase64, setReceiptBase64] = useState<string>('');
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 8 * 1024 * 1024) {
+        alert('File size exceeds 8MB limit. Please choose a smaller image.');
+        return;
+      }
+      setReceiptFileName(file.name);
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          setReceiptBase64(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveReceipt = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setReceiptFileName('');
+    setReceiptBase64('');
+  };
 
   // Step 3 Form State
   const [payoutAddress, setPayoutAddress] = useState<string>('');
@@ -108,7 +134,7 @@ function SellPageContent() {
         cardCodes: codeList,
         cardPin: cardPin.trim(),
         receiptNote: receiptNote.trim(),
-        receiptImages: receiptFileName ? [receiptFileName] : []
+        receiptImages: receiptBase64 ? [receiptBase64] : (receiptFileName ? [receiptFileName] : [])
       };
 
       const res = await fetch('/api/orders', {
@@ -307,23 +333,48 @@ function SellPageContent() {
             <label className="block text-xs font-bold text-brand-muted uppercase tracking-wider mb-2">
               Upload Card Photo or Purchase Receipt ({tradeData.cardType === 'PCARD' ? 'Required for Physical' : 'Optional'})
             </label>
-            <div className="border-2 border-dashed border-brand-border hover:border-brand-primary/60 rounded-2xl p-6 text-center bg-brand-surface transition-colors cursor-pointer relative">
-              <input
-                type="file"
-                accept="image/*,.pdf"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files[0]) {
-                    setReceiptFileName(e.target.files[0].name);
-                  }
-                }}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-              />
-              <Upload className="w-8 h-8 text-brand-muted mx-auto mb-2" />
-              <p className="text-xs font-bold text-brand-text">
-                {receiptFileName ? `Selected: ${receiptFileName}` : 'Click to upload card back photo or receipt'}
-              </p>
-              <p className="text-[11px] text-brand-muted mt-1">PNG, JPG, WEBP up to 10MB</p>
-            </div>
+            {receiptBase64 ? (
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-brand-surface border border-brand-primary/40 shadow-sm">
+                <div className="flex items-center gap-3.5">
+                  {receiptBase64.startsWith('data:image') ? (
+                    <img src={receiptBase64} alt="Receipt preview" className="w-14 h-14 object-cover rounded-xl border border-brand-border shadow-sm" />
+                  ) : (
+                    <div className="w-14 h-14 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary">
+                      <FileText className="w-7 h-7" />
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-xs font-bold text-brand-text truncate max-w-[200px] sm:max-w-xs">{receiptFileName}</p>
+                    <span className="text-[11px] text-brand-success font-semibold flex items-center gap-1 mt-0.5">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Image attached securely
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemoveReceipt}
+                  className="p-2 text-brand-muted hover:text-red-500 rounded-xl hover:bg-red-500/10 transition-colors cursor-pointer"
+                  title="Remove file"
+                  aria-label="Remove uploaded file"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            ) : (
+              <div className="border-2 border-dashed border-brand-border hover:border-brand-primary/60 rounded-2xl p-6 text-center bg-brand-surface transition-colors cursor-pointer relative">
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={handleFileChange}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+                <Upload className="w-8 h-8 text-brand-muted mx-auto mb-2" />
+                <p className="text-xs font-bold text-brand-text">
+                  Click to upload card back photo or receipt
+                </p>
+                <p className="text-[11px] text-brand-muted mt-1">PNG, JPG, WEBP up to 8MB</p>
+              </div>
+            )}
           </div>
 
           <button
