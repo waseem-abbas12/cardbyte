@@ -30,14 +30,14 @@ export default function Navbar() {
   const [showNotifs, setShowNotifs] = useState(false);
 
   useEffect(() => {
-    // Check initial theme from localStorage
+    // Check initial theme from localStorage (Default to Dark Theme)
     const saved = localStorage.getItem('cardbyte_theme');
-    if (saved === 'dark') {
-      setIsDark(true);
-      document.documentElement.classList.add('dark');
-    } else {
+    if (saved === 'light') {
       setIsDark(false);
       document.documentElement.classList.remove('dark');
+    } else {
+      setIsDark(true);
+      document.documentElement.classList.add('dark');
     }
 
     // Check wallet status
@@ -76,6 +76,14 @@ export default function Navbar() {
       localStorage.setItem('cardbyte_theme', 'dark');
       setIsDark(true);
     }
+  };
+
+  const formatNavTitle = (title: string, slug?: string) => {
+    if (slug === 'how-it-works') return 'How It Works';
+    if (slug === 'about-us') return 'About';
+    if (title.includes(':')) return title.split(':')[0].trim();
+    if (title.length > 18) return title.slice(0, 16) + '...';
+    return title;
   };
 
   return (
@@ -124,9 +132,9 @@ export default function Navbar() {
               <Link
                 key={p.slug}
                 href={`/p/${p.slug}`}
-                className="text-sm font-semibold text-brand-muted hover:text-brand-text transition-colors"
+                className="text-sm font-semibold text-brand-muted hover:text-brand-text transition-colors whitespace-nowrap"
               >
-                {p.title}
+                {formatNavTitle(p.title, p.slug)}
               </Link>
             ))}
           </nav>
@@ -276,7 +284,7 @@ export default function Navbar() {
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-xl text-base font-semibold text-brand-text hover:bg-brand-surface"
             >
-              {p.title}
+              {formatNavTitle(p.title, p.slug)}
             </Link>
           ))}
 

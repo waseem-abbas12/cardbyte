@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body className="min-h-screen bg-brand-bg text-brand-text flex flex-col antialiased selection:bg-brand-primary selection:text-white">
         <Navbar />
         <main className="flex-1">
