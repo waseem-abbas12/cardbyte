@@ -3,40 +3,40 @@
 @tailwind utilities;
 
 :root {
-  /* Modern High-Trust Fintech Light Theme (Cardtonic & Stripe Inspired) */
+  /* Emerald Luxe & Cash App Theme (Light Mode: Clean High-Trust Wealth) */
   --brand-bg: #ffffff;
-  --brand-surface: #f8fafc;
+  --brand-surface: #f5f9f7;
   --brand-card: #ffffff;
-  --brand-card-hover: #f1f5f9;
-  --brand-border: #e2e8f0;
-  --brand-text: #0b1528;
-  --brand-muted: #64748b;
-  --brand-subtle: #94a3b8;
-  --brand-primary: #0062FF;
-  --brand-primary-hover: #004ecc;
-  --brand-primary-glow: rgba(0, 98, 255, 0.12);
-  --brand-accent: #00D2D3;
-  --brand-accent-hover: #00b4b5;
-  --brand-success-glow: rgba(16, 185, 129, 0.12);
+  --brand-card-hover: #edf5f1;
+  --brand-border: #e0ece6;
+  --brand-text: #071a14;
+  --brand-muted: #506961;
+  --brand-subtle: #89a39a;
+  --brand-primary: #059669;
+  --brand-primary-hover: #047857;
+  --brand-primary-glow: rgba(5, 150, 105, 0.16);
+  --brand-accent: #00D664;
+  --brand-accent-hover: #00bf59;
+  --brand-success-glow: rgba(0, 214, 100, 0.16);
   color-scheme: light;
 }
 
 .dark {
-  /* High-End Dark Obsidian Prussian Navy Theme */
-  --brand-bg: #070d1e;
-  --brand-surface: #0c1630;
-  --brand-card: #101c3d;
-  --brand-card-hover: #16244d;
-  --brand-border: #1e3061;
-  --brand-text: #f8fafc;
-  --brand-muted: #94a3b8;
-  --brand-subtle: #64748b;
-  --brand-primary: #2563eb;
-  --brand-primary-hover: #1d4ed8;
-  --brand-primary-glow: rgba(37, 99, 235, 0.25);
-  --brand-accent: #00D2D3;
-  --brand-accent-hover: #00b4b5;
-  --brand-success-glow: rgba(16, 185, 129, 0.2);
+  /* Emerald Luxe & Cash App Theme (Dark Mode: Deep Obsidian Carbon & Neon Mint) */
+  --brand-bg: #050B0E;
+  --brand-surface: #0B151C;
+  --brand-card: #0E1B24;
+  --brand-card-hover: #142533;
+  --brand-border: #182F3E;
+  --brand-text: #F1FDF8;
+  --brand-muted: #7B96A6;
+  --brand-subtle: #4D6473;
+  --brand-primary: #059669;
+  --brand-primary-hover: #047857;
+  --brand-primary-glow: rgba(0, 229, 117, 0.28);
+  --brand-accent: #00E575;
+  --brand-accent-hover: #00bf59;
+  --brand-success-glow: rgba(0, 229, 117, 0.24);
   color-scheme: dark;
 }
 
@@ -83,13 +83,13 @@ body {
 }
 
 .glass-panel:hover {
-  border-color: rgba(0, 98, 255, 0.4);
+  border-color: rgba(0, 214, 100, 0.4);
 }
 
 .glow-blue {
-  box-shadow: 0 10px 30px -10px rgba(0, 98, 255, 0.2);
+  box-shadow: 0 10px 30px -10px rgba(5, 150, 105, 0.25);
 }
 
 .glow-green {
-  box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.18);
+  box-shadow: 0 10px 30px -10px rgba(0, 214, 100, 0.25);
 }

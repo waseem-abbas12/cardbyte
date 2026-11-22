@@ -13,7 +13,7 @@ export default function Footer() {
           {/* Brand Info (2 cols) */}
           <div className="md:col-span-2 space-y-4">
             <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-blue-400 flex items-center justify-center text-white shadow-md shadow-brand-primary/20">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-emerald-400 flex items-center justify-center text-white shadow-md shadow-brand-primary/20">
                 <Coins className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-extrabold tracking-tight text-brand-text">
