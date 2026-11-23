@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, ShieldCheck, CheckCircle2, MessageSquarePlus, X, ThumbsUp, Send } from 'lucide-react';
 import { ReviewItem } from '@/lib/types';
-import { DEFAULT_REVIEWS } from '@/lib/db';
+import { DEFAULT_REVIEWS } from '@/lib/ratesData';
 
 export default function ReviewsSection() {
   const [reviews, setReviews] = useState<ReviewItem[]>(DEFAULT_REVIEWS);

@@ -15,7 +15,7 @@ import {
   ReviewItem,
   ReferralRecord
 } from './types';
-import { INITIAL_BRANDS, SUPPORTED_PAYOUTS } from './ratesData';
+import { INITIAL_BRANDS, SUPPORTED_PAYOUTS, DEFAULT_REVIEWS } from './ratesData';
 import { generateSecureTrackingCode, sanitizeString } from './security';
 
 export interface DatabaseSchema {
@@ -218,93 +218,6 @@ const DEFAULT_SETTINGS: SiteSettings = {
   heroTitle: 'Sell Gift Cards at the Best Rates: Fast, Easy, Reliable.',
   heroSubtitle: 'Turn your unused gift cards into USDT, Bitcoin, or instant local cash. Live algorithmic valuations, zero surprise deductions, and direct settlement.'
 };
-
-export const DEFAULT_REVIEWS: ReviewItem[] = [
-  {
-    id: 'rev-1',
-    authorName: 'Marcus V.',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces',
-    rating: 5,
-    cardBrand: 'Steam Wallet $100',
-    payoutMethod: 'USDT (TRC20)',
-    amountUsd: 80.0,
-    comment: 'Sold my $100 Steam Physical card. Moderator verified my Walmart receipt within a few minutes and USDT arrived directly in my Binance account. Best rate on the market!',
-    date: '2026-11-20T14:22:00Z',
-    status: 'APPROVED',
-    isVerifiedBuyer: true,
-    featured: true
-  },
-  {
-    id: 'rev-2',
-    authorName: 'Liam Chen',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces',
-    rating: 5,
-    cardBrand: 'Apple & iTunes $500',
-    payoutMethod: 'Bitcoin (BTC)',
-    amountUsd: 365.0,
-    comment: 'Had 5x $100 Apple digital codes from office gifts. Uploaded all codes together and received BTC payout with zero fee deductions. Very clean UI and transparent valuation.',
-    date: '2026-11-19T18:45:00Z',
-    status: 'APPROVED',
-    isVerifiedBuyer: true,
-    featured: true
-  },
-  {
-    id: 'rev-3',
-    authorName: 'Elena Rostova',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces',
-    rating: 5,
-    cardBrand: 'Razer Gold 100 GBP',
-    payoutMethod: 'USDT (TRC20)',
-    amountUsd: 104.5,
-    comment: 'Exchanged UK Razer Gold PINs. Escrow locked immediately, moderator confirmed code within 10m. The 0% withdrawal fee makes a huge difference compared to Paxful or Noones.',
-    date: '2026-11-18T11:15:00Z',
-    status: 'APPROVED',
-    isVerifiedBuyer: true,
-    featured: true
-  },
-  {
-    id: 'rev-4',
-    authorName: 'David K.',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces',
-    rating: 5,
-    cardBrand: 'EA Sports FC 25 Key',
-    payoutMethod: 'USDT (BEP20)',
-    amountUsd: 48.0,
-    comment: 'Sold an unused EA FC game key from a bundle. Instant trade and smooth settlement. Great support from the moderator on Telegram when I asked a question about region lock.',
-    date: '2026-11-17T09:30:00Z',
-    status: 'APPROVED',
-    isVerifiedBuyer: true,
-    featured: false
-  },
-  {
-    id: 'rev-5',
-    authorName: 'Chidi Okafor',
-    avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100&h=100&fit=crop&crop=faces',
-    rating: 5,
-    cardBrand: 'PlayStation $100',
-    payoutMethod: 'Bank Transfer (NGN)',
-    amountUsd: 71.0,
-    comment: 'Bank payout in Naira was credited straight to my Kuda account. Solid rate and no hidden charges. Definitely my new go-to platform.',
-    date: '2026-11-16T16:50:00Z',
-    status: 'APPROVED',
-    isVerifiedBuyer: true,
-    featured: true
-  },
-  {
-    id: 'rev-6',
-    authorName: 'Sofia Martinez',
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces',
-    rating: 5,
-    cardBrand: 'Xbox Game Pass 3M',
-    payoutMethod: 'Solana (SOL)',
-    amountUsd: 24.5,
-    comment: 'Traded multiple Xbox Game Pass codes for Solana. Super convenient wallet setup and track order link kept me updated on status.',
-    date: '2026-11-15T20:10:00Z',
-    status: 'APPROVED',
-    isVerifiedBuyer: true,
-    featured: false
-  }
-];
 
 function initDatabase(): DatabaseSchema {
   try {
