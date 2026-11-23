@@ -15,7 +15,8 @@ import {
   AlertCircle,
   Wallet,
   ExternalLink,
-  X
+  X,
+  Send
 } from 'lucide-react';
 import { UserWalletConfig } from '@/lib/ratesData';
 
@@ -67,9 +68,21 @@ function SellPageContent() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string>('');
   const [confirmedOrder, setConfirmedOrder] = useState<any>(null);
+  const [referralCode, setReferralCode] = useState<string>('');
 
-  // Load user wallet from localStorage
+  // Load user wallet and referral cookie from URL / localStorage
   useEffect(() => {
+    // Capture referral code from URL if present
+    const refFromUrl = searchParams.get('r') || searchParams.get('ref');
+    if (refFromUrl) {
+      const cleanRef = refFromUrl.toUpperCase().trim();
+      setReferralCode(cleanRef);
+      localStorage.setItem('cardbyte_ref_code', cleanRef);
+    } else {
+      const cached = localStorage.getItem('cardbyte_ref_code');
+      if (cached) setReferralCode(cached);
+    }
+
     try {
       const stored = localStorage.getItem('cardbyte_user_wallet');
       if (stored) {
@@ -85,7 +98,7 @@ function SellPageContent() {
     } catch (err) {
       console.error(err);
     }
-  }, []);
+  }, [searchParams]);
 
   const handleProceedFromCalc = (data: any) => {
     setTradeData(data);
@@ -134,7 +147,8 @@ function SellPageContent() {
         cardCodes: codeList,
         cardPin: cardPin.trim(),
         receiptNote: receiptNote.trim(),
-        receiptImages: receiptBase64 ? [receiptBase64] : (receiptFileName ? [receiptFileName] : [])
+        receiptImages: receiptBase64 ? [receiptBase64] : (receiptFileName ? [receiptFileName] : []),
+        referralCode: referralCode.trim() || undefined
       };
 
       const res = await fetch('/api/orders', {
@@ -222,6 +236,16 @@ function SellPageContent() {
               Sell Another Card
             </button>
           </div>
+
+          <a
+            href={`https://t.me/cardbyte_support?text=${encodeURIComponent(`Hello Moderator, I just placed order #${confirmedOrder.trackingCode} for ${confirmedOrder.brandName}. Please verify.`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-3 rounded-xl bg-[#0088cc]/15 hover:bg-[#0088cc]/25 text-[#0088cc] border border-[#0088cc]/30 font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+          >
+            <Send className="w-4 h-4" />
+            <span>Chat with Moderator on Telegram About Order #{confirmedOrder.trackingCode}</span>
+          </a>
         </div>
       </div>
     );
@@ -472,6 +496,25 @@ function SellPageContent() {
             />
           </div>
 
+          {/* Referral Code (Optional) */}
+          <div>
+            <label className="block text-xs font-bold text-brand-muted uppercase tracking-wider mb-2">
+              Referral Code / Affiliate Tag (Optional)
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. CB-REF-7997"
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+              className="w-full bg-brand-surface border border-brand-border text-brand-text text-sm font-mono rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary placeholder:text-brand-muted/40 uppercase"
+            />
+            {referralCode && (
+              <span className="text-[11px] text-brand-success mt-1 block font-medium">
+                ✓ 0.25% commission credited to referrer {referralCode} upon completion
+              </span>
+            )}
+          </div>
+
           {/* Final Summary Card */}
           <div className="p-5 rounded-2xl bg-brand-surface border border-brand-primary/30 space-y-2.5 text-xs sm:text-sm">
             <div className="flex justify-between">
@@ -487,9 +530,10 @@ function SellPageContent() {
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-brand-muted">Estimated Settlement Speed:</span>
-              <span className="text-brand-primary font-bold">
-                {tradeData.verificationTime || '5-15 mins'}
+              <span className="text-brand-muted">Settlement Status:</span>
+              <span className="text-brand-success font-bold flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-brand-success" />
+                Verified by Moderator
               </span>
             </div>
             <div className="flex justify-between border-t border-brand-border/60 pt-2 text-base">

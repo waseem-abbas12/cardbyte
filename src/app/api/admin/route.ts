@@ -24,7 +24,13 @@ import {
   createStaffMember,
   updateStaffMember,
   deleteStaffMember,
-  assignOrderToStaff
+  assignOrderToStaff,
+  getReviews,
+  createReview,
+  updateReview,
+  deleteReview,
+  approveReview,
+  seedReviews
 } from '@/lib/db';
 import { isExplicitAdminRequest, checkRateLimit, verifyAdminPin } from '@/lib/security';
 
@@ -52,7 +58,9 @@ export async function GET(req: NextRequest) {
         siteSettings: db.siteSettings,
         notifications: db.notifications,
         customPages: db.customPages || [],
-        staff: db.staff || []
+        staff: db.staff || [],
+        reviews: db.reviews || [],
+        referrals: Object.values(db.referrals || {})
       }
     });
   } catch (error: any) {
@@ -320,6 +328,37 @@ export async function POST(req: NextRequest) {
       db.notifications = [];
       saveDatabase(db);
       return NextResponse.json({ ok: 1 });
+    }
+
+    // 7. Reviews Management
+    if (action === 'approve_review') {
+      const updated = approveReview(body.reviewId);
+      return NextResponse.json({ ok: 1, data: { review: updated } });
+    }
+
+    if (action === 'reject_review') {
+      const updated = updateReview(body.reviewId, { status: 'REJECTED' });
+      return NextResponse.json({ ok: 1, data: { review: updated } });
+    }
+
+    if (action === 'delete_review') {
+      deleteReview(body.reviewId);
+      return NextResponse.json({ ok: 1 });
+    }
+
+    if (action === 'create_review') {
+      const review = createReview(body.review);
+      return NextResponse.json({ ok: 1, data: { review } });
+    }
+
+    if (action === 'update_review') {
+      const updated = updateReview(body.reviewId, body.updates);
+      return NextResponse.json({ ok: 1, data: { review: updated } });
+    }
+
+    if (action === 'seed_reviews') {
+      const reviews = seedReviews();
+      return NextResponse.json({ ok: 1, data: { reviews } });
     }
 
     return NextResponse.json({ ok: 0, error: 'Invalid admin action' }, { status: 400 });

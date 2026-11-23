@@ -57,10 +57,10 @@ export default function TrustSection({ settings }: TrustSectionProps) {
     }
   ];
 
-  const activeTraders = settings?.activeTradersCount || '18,500+';
-  const volumeTraded = settings?.volumeTraded || '$14.2M+';
-  const avgPayoutTime = settings?.avgPayoutTime || '5 - 15m';
-  const customerSatisfaction = settings?.customerSatisfaction || '99.8%';
+  const catalogCount = '850+';
+  const supportedBrands = '19+';
+  const payoutMethods = '30+';
+  const trustScore = settings?.customerSatisfaction || '4.98 ★';
 
   return (
     <section className="py-20 bg-brand-bg relative overflow-hidden">
@@ -73,20 +73,20 @@ export default function TrustSection({ settings }: TrustSectionProps) {
         {/* Live Performance Stats Banner */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 sm:p-8 rounded-3xl glass-panel border border-brand-border mb-20 shadow-card">
           <div className="text-center p-3">
-            <div className="text-3xl sm:text-4xl font-extrabold text-brand-text font-mono">{activeTraders}</div>
-            <div className="text-xs sm:text-sm text-brand-muted mt-1 font-medium">Active Traders</div>
+            <div className="text-3xl sm:text-4xl font-extrabold text-brand-text font-mono">{catalogCount}</div>
+            <div className="text-xs sm:text-sm text-brand-muted mt-1 font-medium">Cards & Keys Catalog</div>
           </div>
           <div className="text-center p-3 border-l border-brand-border/60">
-            <div className="text-3xl sm:text-4xl font-extrabold text-brand-success font-mono">{volumeTraded}</div>
-            <div className="text-xs sm:text-sm text-brand-muted mt-1 font-medium">Total Volume Traded</div>
+            <div className="text-3xl sm:text-4xl font-extrabold text-brand-success font-mono">{supportedBrands}</div>
+            <div className="text-xs sm:text-sm text-brand-muted mt-1 font-medium">Supported Brands</div>
           </div>
           <div className="text-center p-3 border-l border-brand-border/60">
-            <div className="text-3xl sm:text-4xl font-extrabold text-brand-primary font-mono">{avgPayoutTime}</div>
-            <div className="text-xs sm:text-sm text-brand-muted mt-1 font-medium">Avg Payout Time</div>
+            <div className="text-3xl sm:text-4xl font-extrabold text-brand-primary font-mono">{payoutMethods}</div>
+            <div className="text-xs sm:text-sm text-brand-muted mt-1 font-medium">Payout Methods</div>
           </div>
           <div className="text-center p-3 border-l border-brand-border/60">
-            <div className="text-3xl sm:text-4xl font-extrabold text-brand-text font-mono">{customerSatisfaction}</div>
-            <div className="text-xs sm:text-sm text-brand-muted mt-1 font-medium">Customer Satisfaction</div>
+            <div className="text-3xl sm:text-4xl font-extrabold text-brand-text font-mono">{trustScore}</div>
+            <div className="text-xs sm:text-sm text-brand-muted mt-1 font-medium">Verified Trust Score</div>
           </div>
         </div>
 

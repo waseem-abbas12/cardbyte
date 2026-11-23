@@ -6,7 +6,7 @@
       "category": "Shopping",
       "icon": "🍎",
       "badge": "Popular",
-      "verificationTime": "5-15 mins",
+      "verificationTime": "Verified by Moderator",
       "enabled": true,
       "countries": [
         {
@@ -76,7 +76,7 @@
       "category": "Gaming",
       "icon": "🎮",
       "badge": "Instant",
-      "verificationTime": "2-5 mins",
+      "verificationTime": "Verified by Moderator",
       "enabled": true,
       "countries": [
         {
@@ -144,7 +144,7 @@
       "category": "Gaming",
       "icon": "⚡",
       "badge": "High Rate",
-      "verificationTime": "5-10 mins",
+      "verificationTime": "Verified by Moderator",
       "enabled": true,
       "countries": [
         {
@@ -198,7 +198,7 @@
       "category": "Shopping",
       "icon": "📦",
       "badge": "Hot",
-      "verificationTime": "Up to 24h",
+      "verificationTime": "Verified by Moderator",
       "enabled": true,
       "countries": [
         {
@@ -253,7 +253,7 @@
       "category": "Gaming",
       "icon": "🎯",
       "badge": "Fast",
-      "verificationTime": "5-15 mins",
+      "verificationTime": "Verified by Moderator",
       "enabled": true,
       "countries": [
         {
@@ -309,7 +309,7 @@
       "category": "Gaming",
       "icon": "🟢",
       "badge": "Fast",
-      "verificationTime": "5-15 mins",
+      "verificationTime": "Verified by Moderator",
       "enabled": true,
       "countries": [
         {
@@ -349,7 +349,7 @@
       "category": "Shopping",
       "icon": "▶️",
       "badge": "Up to 72h",
-      "verificationTime": "Up to 72h",
+      "verificationTime": "Verified by Moderator",
       "enabled": true,
       "countries": [
         {
@@ -390,7 +390,7 @@
       "category": "Shopping",
       "icon": "🛒",
       "badge": "Physical",
-      "verificationTime": "15-45 mins",
+      "verificationTime": "Verified by Moderator",
       "enabled": true,
       "countries": [
         {
@@ -417,7 +417,7 @@
       "category": "Streaming",
       "icon": "🎬",
       "badge": "Instant",
-      "verificationTime": "5 mins",
+      "verificationTime": "Verified by Moderator",
       "enabled": true,
       "countries": [
         {
@@ -456,7 +456,7 @@
       "category": "Gaming",
       "icon": "🟥",
       "badge": "Fast",
-      "verificationTime": "5 mins",
+      "verificationTime": "Verified by Moderator",
       "enabled": true,
       "countries": [
         {
@@ -593,7 +593,7 @@
       "order": 1,
       "enabled": true,
       "question": "How fast do I get paid after submitting my gift card?",
-      "answer": "Most digital e-codes (such as Steam, Apple, Razer Gold, and Xbox) are verified within 5 to 15 minutes. Once verified, crypto or bank payouts are dispatched automatically."
+      "answer": "Our automated verification desk and moderators audit card validity swiftly. Once verified by our moderator, crypto or bank payouts are dispatched automatically."
     },
     {
       "id": "faq-2",
@@ -627,8 +627,8 @@
   "layoutSections": [
     {
       "id": "ticker",
-      "name": "Live Rates Ticker Bar",
-      "description": "Top animated ticker showing real-time market rate movements",
+      "name": "Live Withdrawals Ticker Bar",
+      "description": "Top animated ticker showing real-time market movements",
       "order": 1,
       "enabled": true
     },
@@ -640,16 +640,16 @@
       "enabled": true
     },
     {
-      "id": "calculator",
-      "name": "Instant Valuation Calculator",
-      "description": "Interactive quoting engine for E-codes and Physical cards",
+      "id": "brands",
+      "name": "Supported Brands Grid",
+      "description": "Visual showcase of all active gift cards with buy rates",
       "order": 3,
       "enabled": true
     },
     {
-      "id": "brands",
-      "name": "Supported Brands Grid",
-      "description": "Visual showcase of all active gift cards with buy rates",
+      "id": "gamekeys",
+      "name": "Sell Game Keys Section",
+      "description": "Showcase Steam, Xbox, PlayStation, EA game activation keys",
       "order": 4,
       "enabled": true
     },
@@ -661,17 +661,24 @@
       "enabled": true
     },
     {
+      "id": "reviews",
+      "name": "Seller Reviews & Ratings",
+      "description": "Authentic customer feedback and trust ratings",
+      "order": 6,
+      "enabled": true
+    },
+    {
       "id": "faqs",
       "name": "Frequently Asked Questions",
       "description": "Collapsible accordion answering common seller questions",
-      "order": 6,
+      "order": 7,
       "enabled": true
     },
     {
       "id": "cta",
       "name": "Bottom Action Banner",
       "description": "Final conversion banner leading to sell portal",
-      "order": 7,
+      "order": 8,
       "enabled": true
     }
   ],
@@ -682,10 +689,10 @@
     "telegramSupport": "https://t.me/cardbyte_support",
     "whatsappSupport": "+1 (234) 567-8900",
     "supportEmail": "support@cardbyte.io",
-    "activeTradersCount": "18,500+",
-    "volumeTraded": "$14.2M+",
-    "customerSatisfaction": "99.8%",
-    "avgPayoutTime": "5 - 15m",
+    "activeTradersCount": "850+",
+    "volumeTraded": "19+",
+    "customerSatisfaction": "4.98 ★",
+    "avgPayoutTime": "Verified by Moderator",
     "autoVerification": false,
     "heroTitle": "Sell Gift Cards at the Best Rates: Fast, Easy, Reliable.",
     "heroSubtitle": "Turn your unused gift cards into USDT, Bitcoin, or instant local cash. Live algorithmic valuations, zero surprise deductions, and direct settlement."
@@ -779,6 +786,131 @@
       "title": "Steam Rates Configured",
       "message": "Physical Steam Cards (US) set to 80.0% buyback yield.",
       "timestamp": "2026-11-17T15:30:25.138Z"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "rev-1",
+      "authorName": "Marcus V.",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces",
+      "rating": 5,
+      "cardBrand": "Steam Wallet ",
+      "payoutMethod": "USDT (TRC20)",
+      "amountUsd": 80,
+      "comment": "Sold my  Steam Physical card. Moderator verified my Walmart receipt within a few minutes and USDT arrived directly in my Binance account. Best rate on the market!",
+      "date": "2026-11-20T14:22:00Z",
+      "status": "APPROVED",
+      "isVerifiedBuyer": true,
+      "featured": true
+    },
+    {
+      "id": "rev-2",
+      "authorName": "Liam Chen",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces",
+      "rating": 5,
+      "cardBrand": "Apple & iTunes ",
+      "payoutMethod": "Bitcoin (BTC)",
+      "amountUsd": 365,
+      "comment": "Had 5x  Apple digital codes from office gifts. Uploaded all codes together and received BTC payout with zero fee deductions. Very clean UI and transparent valuation.",
+      "date": "2026-11-19T18:45:00Z",
+      "status": "APPROVED",
+      "isVerifiedBuyer": true,
+      "featured": true
+    },
+    {
+      "id": "rev-3",
+      "authorName": "Elena Rostova",
+      "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces",
+      "rating": 5,
+      "cardBrand": "Razer Gold 100 GBP",
+      "payoutMethod": "USDT (TRC20)",
+      "amountUsd": 104.5,
+      "comment": "Exchanged UK Razer Gold PINs. Escrow locked immediately, moderator confirmed code within 10m. The 0% withdrawal fee makes a huge difference compared to Paxful or Noones.",
+      "date": "2026-11-18T11:15:00Z",
+      "status": "APPROVED",
+      "isVerifiedBuyer": true,
+      "featured": true
+    },
+    {
+      "id": "rev-4",
+      "authorName": "David K.",
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces",
+      "rating": 5,
+      "cardBrand": "EA Sports FC 25 Key",
+      "payoutMethod": "USDT (BEP20)",
+      "amountUsd": 48,
+      "comment": "Sold an unused EA FC game key from a bundle. Instant trade and smooth settlement. Great support from the moderator on Telegram when I asked a question about region lock.",
+      "date": "2026-11-17T09:30:00Z",
+      "status": "APPROVED",
+      "isVerifiedBuyer": true,
+      "featured": false
+    },
+    {
+      "id": "rev-5",
+      "authorName": "Chidi Okafor",
+      "avatar": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100&h=100&fit=crop&crop=faces",
+      "rating": 5,
+      "cardBrand": "PlayStation ",
+      "payoutMethod": "Bank Transfer (NGN)",
+      "amountUsd": 71,
+      "comment": "Bank payout in Naira was credited straight to my Kuda account. Solid rate and no hidden charges. Definitely my new go-to platform.",
+      "date": "2026-11-16T16:50:00Z",
+      "status": "APPROVED",
+      "isVerifiedBuyer": true,
+      "featured": true
+    },
+    {
+      "id": "rev-6",
+      "authorName": "Sofia Martinez",
+      "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces",
+      "rating": 5,
+      "cardBrand": "Xbox Game Pass 3M",
+      "payoutMethod": "Solana (SOL)",
+      "amountUsd": 24.5,
+      "comment": "Traded multiple Xbox Game Pass codes for Solana. Super convenient wallet setup and track order link kept me updated on status.",
+      "date": "2026-11-15T20:10:00Z",
+      "status": "APPROVED",
+      "isVerifiedBuyer": true,
+      "featured": false
+    }
+  ],
+  "referrals": {},
+  "customPages": [
+    {
+      "id": "page-about",
+      "slug": "about-us",
+      "title": "About",
+      "summary": "The world premier digital gift card exchange and OTC liquidity provider.",
+      "content": "## Institutional Grade Gift Card Exchange\n\nFounded with a mission to eliminate friction, fraud, and excessive fees from the secondary gift voucher economy, **Cardbyte Pro** provides instant liquidity settlement across global digital vouchers and cryptocurrencies.\n\n### Why Global Sellers Choose Us\n- **Live Algorithmic Valuation**: No surprise fee deductions at checkout.\n- **Direct OTC Settlement**: Receive USDT (TRC20 & BEP20), Bitcoin, Solana, or bank wires in minutes.\n- **Zero-Knowledge Privacy**: Bank-grade end-to-end encryption for all voucher PINs and sensitive financial details.",
+      "published": true,
+      "showInHeader": true,
+      "showInFooter": true,
+      "order": 1,
+      "updatedAt": "2026-11-23T16:59:58.223Z"
+    },
+    {
+      "id": "page-aml",
+      "slug": "aml-policy",
+      "title": "AML Policy",
+      "summary": "Comprehensive compliance, anti-fraud, and KYC protocols protecting all exchange counterparties.",
+      "content": "## Compliance & Anti-Fraud Standards\n\nCardbyte maintains stringent Anti-Money Laundering (AML) and Counter-Terrorist Financing (CTF) protocols compliant with FATF Travel Rule recommendations.",
+      "published": true,
+      "showInHeader": false,
+      "showInFooter": true,
+      "order": 2,
+      "updatedAt": "2026-11-23T16:59:58.232Z"
+    },
+    {
+      "id": "page-how",
+      "slug": "how-it-works",
+      "title": "How It Works",
+      "summary": "Clear step-by-step walkthrough to turn unused gift cards into USDT, BTC, or local fiat cash.",
+      "content": "## How to Sell Your Gift Card in 4 Simple Steps\n\nTrading unused cards on Cardbyte is effortless, automated, and secure.\n\n1. **Select Card & Country**: Pick your voucher brand.\n2. **Get Instant Valuation**: Our pricing engine quotes live wholesale buy rates.\n3. **Enter Card Codes**: Submit the scratch-off code, PIN, and store receipt.\n4. **Receive Fast Payout**: Receive USDT, BTC, SOL or bank wire.",
+      "published": true,
+      "showInHeader": true,
+      "showInFooter": true,
+      "order": 3,
+      "updatedAt": "2026-11-23T16:59:58.232Z"
     }
   ]
 }

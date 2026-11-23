@@ -35,6 +35,17 @@ export default function Footer() {
                 256-Bit SSL
               </span>
             </div>
+
+            {/* Trustpilot / Rating Badge */}
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-brand-card/80 border border-brand-border mt-3 max-w-xs">
+              <div className="flex text-amber-400 text-sm">
+                ★ ★ ★ ★ ★
+              </div>
+              <div className="border-l border-brand-border/60 pl-3">
+                <div className="text-xs font-black text-brand-text">4.98 / 5 Rating</div>
+                <div className="text-[10px] text-brand-muted">Verified by 1,400+ sellers</div>
+              </div>
+            </div>
           </div>
 
           {/* Quick Links */}
@@ -45,6 +56,12 @@ export default function Footer() {
                 <Link href="/sell" className="hover:text-brand-primary transition-colors">Sell Gift Cards</Link>
               </li>
               <li>
+                <Link href="/#gamekeys" className="hover:text-brand-primary transition-colors">Sell Game Keys</Link>
+              </li>
+              <li>
+                <Link href="/account/referrals" className="hover:text-brand-primary transition-colors text-brand-success font-semibold">Affiliate Program (0.25%)</Link>
+              </li>
+              <li>
                 <Link href="/rates" className="hover:text-brand-primary transition-colors">Rates & Limits</Link>
               </li>
               <li>
@@ -52,6 +69,9 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/#calculator" className="hover:text-brand-primary transition-colors">Valuation Calculator</Link>
+              </li>
+              <li>
+                <Link href="/#reviews" className="hover:text-brand-primary transition-colors">Seller Reviews</Link>
               </li>
               <li>
                 <Link href="/#faqs" className="hover:text-brand-primary transition-colors">Frequently Asked Questions</Link>

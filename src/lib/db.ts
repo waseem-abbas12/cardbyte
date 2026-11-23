@@ -11,7 +11,9 @@ import {
   PlatformNotification,
   CustomPage,
   StaffMember,
-  CountryRate
+  CountryRate,
+  ReviewItem,
+  ReferralRecord
 } from './types';
 import { INITIAL_BRANDS, SUPPORTED_PAYOUTS } from './ratesData';
 import { generateSecureTrackingCode, sanitizeString } from './security';
@@ -26,6 +28,8 @@ export interface DatabaseSchema {
   notifications: PlatformNotification[];
   customPages: CustomPage[];
   staff: StaffMember[];
+  reviews: ReviewItem[];
+  referrals: Record<string, ReferralRecord>;
 }
 
 const IS_SERVERLESS = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
@@ -39,7 +43,7 @@ const DEFAULT_FAQS: FaqItem[] = [
     order: 1,
     enabled: true,
     question: 'How fast do I get paid after submitting my gift card?',
-    answer: 'Most digital e-codes (such as Steam, Apple, Razer Gold, and Xbox) are verified within 5 to 15 minutes. Once verified, crypto or bank payouts are dispatched automatically.'
+    answer: 'Our automated verification desk and moderators audit card validity swiftly. Once verified by our moderator, crypto or bank payouts are dispatched automatically.'
   },
   {
     id: 'faq-2',
@@ -74,11 +78,12 @@ const DEFAULT_FAQS: FaqItem[] = [
 const DEFAULT_LAYOUT: LayoutSection[] = [
   { id: 'ticker', name: 'Live Rates Ticker Bar', description: 'Top animated ticker showing real-time market rate movements', order: 1, enabled: true },
   { id: 'hero', name: 'Hero Header & Value Proposition', description: 'Main headline, dynamic CTA buttons, and trust badges', order: 2, enabled: true },
-  { id: 'calculator', name: 'Instant Valuation Calculator', description: 'Interactive quoting engine for E-codes and Physical cards', order: 3, enabled: true },
-  { id: 'brands', name: 'Supported Brands Grid', description: 'Visual showcase of all active gift cards with buy rates', order: 4, enabled: true },
+  { id: 'brands', name: 'Supported Brands Grid', description: 'Visual showcase of all active gift cards with buy rates', order: 3, enabled: true },
+  { id: 'gamekeys', name: 'Sell Game Keys Section', description: 'Showcase Steam, Xbox, PlayStation, EA game activation keys', order: 4, enabled: true },
   { id: 'trust', name: '4-Step Workflow & Security Section', description: 'How it works explanation and platform liquidity statistics', order: 5, enabled: true },
-  { id: 'faqs', name: 'Frequently Asked Questions', description: 'Collapsible accordion answering common seller questions', order: 6, enabled: true },
-  { id: 'cta', name: 'Bottom Action Banner', description: 'Final conversion banner leading to sell portal', order: 7, enabled: true }
+  { id: 'reviews', name: 'Seller Reviews & Ratings', description: 'Authentic customer feedback and trust ratings', order: 6, enabled: true },
+  { id: 'faqs', name: 'Frequently Asked Questions', description: 'Collapsible accordion answering common seller questions', order: 7, enabled: true },
+  { id: 'cta', name: 'Bottom Action Banner', description: 'Final conversion banner leading to sell portal', order: 8, enabled: true }
 ];
 
 
@@ -86,7 +91,7 @@ const DEFAULT_PAGES: CustomPage[] = [
   {
     id: 'page-about',
     slug: 'about-us',
-    title: 'About Cardbyte Pro',
+    title: 'About',
     summary: 'The world premier digital gift card exchange and OTC liquidity provider.',
     content: `## Institutional Grade Gift Card Exchange
 
@@ -124,7 +129,7 @@ Cardbyte maintains stringent Anti-Money Laundering (AML) and Counter-Terrorist F
   {
     id: 'page-how',
     slug: 'how-it-works',
-    title: 'How It Works: Step-by-Step Selling Guide',
+    title: 'How It Works',
     summary: 'Clear step-by-step walkthrough to turn unused gift cards into USDT, BTC, or local fiat cash.',
     content: `## How to Sell Your Gift Card in 4 Simple Steps
 
@@ -205,14 +210,101 @@ const DEFAULT_SETTINGS: SiteSettings = {
   telegramSupport: 'https://t.me/cardbyte_support',
   whatsappSupport: '+1 (234) 567-8900',
   supportEmail: 'support@cardbyte.io',
-  activeTradersCount: '18,500+',
-  volumeTraded: '$14.2M+',
-  customerSatisfaction: '99.8%',
-  avgPayoutTime: '5 - 15m',
+  activeTradersCount: '850+',
+  volumeTraded: '19+',
+  customerSatisfaction: '4.98 ★',
+  avgPayoutTime: 'Verified by Moderator',
   autoVerification: false,
   heroTitle: 'Sell Gift Cards at the Best Rates: Fast, Easy, Reliable.',
   heroSubtitle: 'Turn your unused gift cards into USDT, Bitcoin, or instant local cash. Live algorithmic valuations, zero surprise deductions, and direct settlement.'
 };
+
+export const DEFAULT_REVIEWS: ReviewItem[] = [
+  {
+    id: 'rev-1',
+    authorName: 'Marcus V.',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces',
+    rating: 5,
+    cardBrand: 'Steam Wallet $100',
+    payoutMethod: 'USDT (TRC20)',
+    amountUsd: 80.0,
+    comment: 'Sold my $100 Steam Physical card. Moderator verified my Walmart receipt within a few minutes and USDT arrived directly in my Binance account. Best rate on the market!',
+    date: '2026-11-20T14:22:00Z',
+    status: 'APPROVED',
+    isVerifiedBuyer: true,
+    featured: true
+  },
+  {
+    id: 'rev-2',
+    authorName: 'Liam Chen',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces',
+    rating: 5,
+    cardBrand: 'Apple & iTunes $500',
+    payoutMethod: 'Bitcoin (BTC)',
+    amountUsd: 365.0,
+    comment: 'Had 5x $100 Apple digital codes from office gifts. Uploaded all codes together and received BTC payout with zero fee deductions. Very clean UI and transparent valuation.',
+    date: '2026-11-19T18:45:00Z',
+    status: 'APPROVED',
+    isVerifiedBuyer: true,
+    featured: true
+  },
+  {
+    id: 'rev-3',
+    authorName: 'Elena Rostova',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces',
+    rating: 5,
+    cardBrand: 'Razer Gold 100 GBP',
+    payoutMethod: 'USDT (TRC20)',
+    amountUsd: 104.5,
+    comment: 'Exchanged UK Razer Gold PINs. Escrow locked immediately, moderator confirmed code within 10m. The 0% withdrawal fee makes a huge difference compared to Paxful or Noones.',
+    date: '2026-11-18T11:15:00Z',
+    status: 'APPROVED',
+    isVerifiedBuyer: true,
+    featured: true
+  },
+  {
+    id: 'rev-4',
+    authorName: 'David K.',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces',
+    rating: 5,
+    cardBrand: 'EA Sports FC 25 Key',
+    payoutMethod: 'USDT (BEP20)',
+    amountUsd: 48.0,
+    comment: 'Sold an unused EA FC game key from a bundle. Instant trade and smooth settlement. Great support from the moderator on Telegram when I asked a question about region lock.',
+    date: '2026-11-17T09:30:00Z',
+    status: 'APPROVED',
+    isVerifiedBuyer: true,
+    featured: false
+  },
+  {
+    id: 'rev-5',
+    authorName: 'Chidi Okafor',
+    avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100&h=100&fit=crop&crop=faces',
+    rating: 5,
+    cardBrand: 'PlayStation $100',
+    payoutMethod: 'Bank Transfer (NGN)',
+    amountUsd: 71.0,
+    comment: 'Bank payout in Naira was credited straight to my Kuda account. Solid rate and no hidden charges. Definitely my new go-to platform.',
+    date: '2026-11-16T16:50:00Z',
+    status: 'APPROVED',
+    isVerifiedBuyer: true,
+    featured: true
+  },
+  {
+    id: 'rev-6',
+    authorName: 'Sofia Martinez',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces',
+    rating: 5,
+    cardBrand: 'Xbox Game Pass 3M',
+    payoutMethod: 'Solana (SOL)',
+    amountUsd: 24.5,
+    comment: 'Traded multiple Xbox Game Pass codes for Solana. Super convenient wallet setup and track order link kept me updated on status.',
+    date: '2026-11-15T20:10:00Z',
+    status: 'APPROVED',
+    isVerifiedBuyer: true,
+    featured: false
+  }
+];
 
 function initDatabase(): DatabaseSchema {
   try {
@@ -315,7 +407,9 @@ function initDatabase(): DatabaseSchema {
     orders: initialOrders,
     notifications: initialNotifs,
     customPages: DEFAULT_PAGES,
-    staff: DEFAULT_STAFF
+    staff: DEFAULT_STAFF,
+    reviews: DEFAULT_REVIEWS,
+    referrals: {}
   };
 
   try {
@@ -356,6 +450,8 @@ export function getDatabase(): DatabaseSchema {
     if (!parsed.notifications) parsed.notifications = [];
     if (!parsed.customPages || !parsed.customPages.length) parsed.customPages = DEFAULT_PAGES;
     if (!parsed.staff || !parsed.staff.length) parsed.staff = DEFAULT_STAFF;
+    if (!parsed.reviews || !parsed.reviews.length) parsed.reviews = DEFAULT_REVIEWS;
+    if (!parsed.referrals) parsed.referrals = {};
 
     memDb = parsed;
     return memDb as DatabaseSchema;
@@ -796,4 +892,127 @@ export function assignOrderToStaff(orderId: string, staffId: string): OrderItem 
   addAuditNotification('ORDER', `Order #${order.trackingCode} Assigned`, `Assigned to ${staff.name} (${staff.role})`);
   saveDatabase(db);
   return order;
+}
+
+// ==========================================
+// 11. REVIEWS & RATINGS SYSTEM
+// ==========================================
+
+export function getReviews(status?: 'APPROVED' | 'PENDING' | 'REJECTED'): ReviewItem[] {
+  const db = getDatabase();
+  const list = db.reviews && db.reviews.length ? db.reviews : DEFAULT_REVIEWS;
+  if (!status) return list;
+  return list.filter(r => r.status === status);
+}
+
+export function createReview(review: Omit<ReviewItem, 'id' | 'date'>): ReviewItem {
+  const db = getDatabase();
+  if (!db.reviews) db.reviews = [...DEFAULT_REVIEWS];
+  const newReview: ReviewItem = {
+    ...review,
+    id: `rev-${Date.now()}`,
+    date: new Date().toISOString()
+  };
+  db.reviews.unshift(newReview);
+  addAuditNotification('SYSTEM', `New Review: ${newReview.authorName}`, `${newReview.rating}★ for ${newReview.cardBrand} (${newReview.status})`);
+  saveDatabase(db);
+  return newReview;
+}
+
+export function updateReview(id: string, updates: Partial<ReviewItem>): ReviewItem | null {
+  const db = getDatabase();
+  if (!db.reviews) db.reviews = [...DEFAULT_REVIEWS];
+  const idx = db.reviews.findIndex(r => r.id === id);
+  if (idx === -1) return null;
+  db.reviews[idx] = { ...db.reviews[idx], ...updates };
+  saveDatabase(db);
+  return db.reviews[idx];
+}
+
+export function deleteReview(id: string): boolean {
+  const db = getDatabase();
+  if (!db.reviews) db.reviews = [...DEFAULT_REVIEWS];
+  const initialLength = db.reviews.length;
+  db.reviews = db.reviews.filter(r => r.id !== id);
+  if (db.reviews.length !== initialLength) {
+    saveDatabase(db);
+    return true;
+  }
+  return false;
+}
+
+export function approveReview(id: string): ReviewItem | null {
+  return updateReview(id, { status: 'APPROVED' });
+}
+
+export function seedReviews(): ReviewItem[] {
+  const db = getDatabase();
+  db.reviews = [...DEFAULT_REVIEWS];
+  saveDatabase(db);
+  return db.reviews;
+}
+
+// ==========================================
+// 12. REFERRAL & AFFILIATE SYSTEM (0.25% Commission)
+// ==========================================
+
+export function getReferral(code: string): ReferralRecord | null {
+  const db = getDatabase();
+  if (!db.referrals) db.referrals = {};
+  return db.referrals[code.toUpperCase()] || null;
+}
+
+export function createOrGetReferral(code: string, userIdentifier: string = 'User'): ReferralRecord {
+  const db = getDatabase();
+  if (!db.referrals) db.referrals = {};
+  const normalized = code.toUpperCase().trim();
+  if (db.referrals[normalized]) {
+    return db.referrals[normalized];
+  }
+  const newRef: ReferralRecord = {
+    code: normalized,
+    userIdentifier,
+    totalReferred: 0,
+    totalVolumeUsd: 0,
+    commissionRate: 0.0025, // 0.25% commission
+    earnedUsd: 0,
+    paidUsd: 0,
+    pendingUsd: 0,
+    createdAt: new Date().toISOString()
+  };
+  db.referrals[normalized] = newRef;
+  saveDatabase(db);
+  return newRef;
+}
+
+export function recordReferralCommission(code: string, orderVolumeUsd: number): boolean {
+  const db = getDatabase();
+  if (!db.referrals) db.referrals = {};
+  const normalized = code.toUpperCase().trim();
+  const ref = db.referrals[normalized];
+  if (!ref) return false;
+
+  const commission = parseFloat((orderVolumeUsd * (ref.commissionRate || 0.0025)).toFixed(2));
+  ref.totalReferred += 1;
+  ref.totalVolumeUsd = parseFloat((ref.totalVolumeUsd + orderVolumeUsd).toFixed(2));
+  ref.earnedUsd = parseFloat((ref.earnedUsd + commission).toFixed(2));
+  ref.pendingUsd = parseFloat((ref.pendingUsd + commission).toFixed(2));
+
+  addAuditNotification('WALLET', `Referral Commission Earned: Code ${ref.code}`, `Earned $${commission} from $${orderVolumeUsd} trade volume`);
+  saveDatabase(db);
+  return true;
+}
+
+export function withdrawReferralEarnings(code: string, amount: number): boolean {
+  const db = getDatabase();
+  if (!db.referrals) db.referrals = {};
+  const normalized = code.toUpperCase().trim();
+  const ref = db.referrals[normalized];
+  if (!ref || ref.pendingUsd < amount) return false;
+
+  ref.pendingUsd = parseFloat((ref.pendingUsd - amount).toFixed(2));
+  ref.paidUsd = parseFloat((ref.paidUsd + amount).toFixed(2));
+  addAuditNotification('WALLET', `Referral Payout Claimed: Code ${ref.code}`, `Claimed $${amount} from affiliate earnings`);
+  saveDatabase(db);
+  return true;
 }

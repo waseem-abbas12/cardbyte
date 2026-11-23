@@ -67,7 +67,7 @@ export default function RatesPage() {
                 <th className="py-4 px-6">Available Values</th>
                 <th className="py-4 px-6">E-Code Rate</th>
                 <th className="py-4 px-6">Physical Rate</th>
-                <th className="py-4 px-6">Settlement Speed</th>
+                <th className="py-4 px-6">Verification Status</th>
                 <th className="py-4 px-6 text-right">Action</th>
               </tr>
             </thead>
@@ -126,9 +126,9 @@ export default function RatesPage() {
                         </td>
 
                         <td className="py-4 px-6 whitespace-nowrap text-xs text-brand-muted">
-                          <span className="flex items-center gap-1.5 font-medium text-brand-text/90">
-                            <Clock className="w-3.5 h-3.5 text-brand-primary" />
-                            {b.verificationTime || '5-15 mins'}
+                          <span className="flex items-center gap-1.5 font-medium text-brand-success">
+                            <ShieldCheck className="w-3.5 h-3.5 text-brand-success" />
+                            {b.verificationTime || 'Verified by Moderator'}
                           </span>
                         </td>
 

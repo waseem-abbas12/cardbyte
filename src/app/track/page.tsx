@@ -304,6 +304,22 @@ function TrackPageContent() {
             </form>
           </div>
 
+          {/* Telegram Direct Support Banner for Order */}
+          <div className="p-4 rounded-2xl bg-brand-surface border border-[#0088cc]/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <Send className="w-4 h-4 text-[#0088cc]" />
+              <span className="text-brand-text">Need urgent assistance with order <strong>#{order.trackingCode}</strong>?</span>
+            </div>
+            <a
+              href={`https://t.me/cardbyte_support?text=${encodeURIComponent(`Hello Moderator, I am inquiring about order #${order.trackingCode} (${order.brandName} $${order.payoutAmount}).`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3.5 py-1.5 rounded-xl bg-[#0088cc] hover:bg-[#0088cc]/90 text-white font-bold text-xs whitespace-nowrap shadow-sm transition-colors"
+            >
+              Telegram Moderator
+            </a>
+          </div>
+
         </div>
       )}
 

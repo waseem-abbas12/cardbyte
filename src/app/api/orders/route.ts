@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createOrderInDb, getDatabase, addOrderMessageInDb, addAuditNotification } from '@/lib/db';
+import { createOrderInDb, getDatabase, addOrderMessageInDb, addAuditNotification, recordReferralCommission } from '@/lib/db';
 import { 
   checkRateLimit, 
   isExplicitAdminRequest, 
@@ -47,7 +47,8 @@ export async function POST(req: NextRequest) {
       cardCodes,
       cardPin,
       receiptNote,
-      receiptImages
+      receiptImages,
+      referralCode
     } = body;
 
     // 3. Strict Validation & Anti-Tampering Engine
@@ -92,6 +93,15 @@ export async function POST(req: NextRequest) {
     const safePin = cardPin ? sanitizeString(String(cardPin).trim(), 30) : '';
     const safeNote = receiptNote ? sanitizeString(String(receiptNote).trim(), 200) : '';
     const safeAddress = sanitizeString(String(payoutAddress).trim(), 120);
+    const safeReferral = referralCode ? sanitizeString(String(referralCode).trim().toUpperCase(), 30) : undefined;
+
+    if (safeReferral) {
+      try {
+        recordReferralCommission(safeReferral, calculatedTotalCardValue);
+      } catch (e) {
+        console.warn('Referral attribution failed:', e);
+      }
+    }
 
     // 4. Create Order with Server-Calculated Valuation
     const order = createOrderInDb({
@@ -109,7 +119,8 @@ export async function POST(req: NextRequest) {
       cardCodes: safeCodes,
       cardPin: safePin,
       receiptNote: safeNote,
-      receiptImages: Array.isArray(receiptImages) ? receiptImages.slice(0, 5) : []
+      receiptImages: Array.isArray(receiptImages) ? receiptImages.slice(0, 5) : [],
+      referralCode: safeReferral
     });
 
     return NextResponse.json({

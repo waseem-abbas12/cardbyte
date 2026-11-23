@@ -10,7 +10,9 @@ import {
   LayoutSection, 
   SiteSettings,
   CustomPage,
-  StaffMember
+  StaffMember,
+  ReviewItem,
+  ReferralRecord
 } from '@/lib/types';
 import { 
   Settings, 
@@ -59,10 +61,12 @@ export default function AdminPage() {
     notifications: PlatformNotification[]; 
     customPages?: CustomPage[];
     staff?: StaffMember[];
+    reviews?: ReviewItem[];
+    referrals?: ReferralRecord[];
   } | null>(null);
 
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'orders' | 'brands' | 'layout' | 'pages' | 'staff' | 'payouts' | 'faqs' | 'settings' | 'alerts'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'brands' | 'layout' | 'pages' | 'staff' | 'payouts' | 'faqs' | 'settings' | 'alerts' | 'reviews'>('orders');
   
   // Rate edit state
   const [editingBrandId, setEditingBrandId] = useState<string>('');
@@ -126,6 +130,16 @@ export default function AdminPage() {
   const [staffName, setStaffName] = useState('');
   const [staffEmail, setStaffEmail] = useState('');
   const [staffRole, setStaffRole] = useState<'SUPER_ADMIN' | 'OPERATOR' | 'FINANCE' | 'SUPPORT'>('OPERATOR');
+
+  // Reviews Moderation Form State
+  const [showAddReviewModal, setShowAddReviewModal] = useState(false);
+  const [reviewAuthor, setReviewAuthor] = useState('');
+  const [reviewRating, setReviewRating] = useState('5');
+  const [reviewBrand, setReviewBrand] = useState('Steam Wallet $100');
+  const [reviewPayout, setReviewPayout] = useState('USDT (TRC20)');
+  const [reviewAmount, setReviewAmount] = useState('80');
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewStatus, setReviewStatus] = useState<'APPROVED' | 'PENDING'>('APPROVED');
 
   const [sessionToken, setSessionToken] = useState<string>(() => {
     if (typeof window !== 'undefined') {
@@ -577,6 +591,98 @@ export default function AdminPage() {
       fetchData();
     } catch {
       alert('Failed to update staff status');
+    }
+  };
+
+  // Reviews Handlers
+  const handleApproveReview = async (reviewId: string) => {
+    try {
+      await adminFetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'approve_review', reviewId })
+      });
+      fetchData();
+    } catch {
+      alert('Failed to approve review');
+    }
+  };
+
+  const handleRejectReview = async (reviewId: string) => {
+    try {
+      await adminFetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reject_review', reviewId })
+      });
+      fetchData();
+    } catch {
+      alert('Failed to reject review');
+    }
+  };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!confirm('Are you sure you want to permanently delete this review?')) return;
+    try {
+      await adminFetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete_review', reviewId })
+      });
+      fetchData();
+    } catch {
+      alert('Failed to delete review');
+    }
+  };
+
+  const handleSeedReviews = async () => {
+    try {
+      await adminFetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'seed_reviews' })
+      });
+      fetchData();
+      alert('Default verified reviews restored!');
+    } catch {
+      alert('Failed to seed reviews');
+    }
+  };
+
+  const handleCreateCustomReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewAuthor.trim() || !reviewComment.trim()) {
+      alert('Author name and comment are required.');
+      return;
+    }
+    try {
+      const res = await adminFetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create_review',
+          review: {
+            authorName: reviewAuthor.trim(),
+            rating: parseInt(reviewRating) || 5,
+            cardBrand: reviewBrand.trim(),
+            payoutMethod: reviewPayout.trim(),
+            amountUsd: parseFloat(reviewAmount) || 50,
+            comment: reviewComment.trim(),
+            status: reviewStatus,
+            isVerifiedBuyer: true,
+            featured: true
+          }
+        })
+      });
+      const json = await res.json();
+      if (json.ok) {
+        setShowAddReviewModal(false);
+        setReviewAuthor('');
+        setReviewComment('');
+        fetchData();
+      }
+    } catch {
+      alert('Failed to create review');
     }
   };
 
@@ -1122,6 +1228,20 @@ export default function AdminPage() {
         >
           <Bell className="w-3.5 h-3.5 text-brand-primary" />
           <span>Audit Log</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('reviews')}
+          className={`py-3 px-5 border-b-2 whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+            activeTab === 'reviews' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-brand-muted hover:text-brand-text'
+          }`}
+        >
+          <span>⭐ Reviews ({data.reviews?.length || 0})</span>
+          {data?.reviews && data.reviews.filter(r => r.status === 'PENDING').length > 0 && (
+            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500 text-white font-bold animate-pulse">
+              {data.reviews.filter(r => r.status === 'PENDING').length} new
+            </span>
+          )}
         </button>
       </div>
 
@@ -2495,6 +2615,277 @@ export default function AdminPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* TAB 8: SELLER REVIEWS MODERATION & SEEDING */}
+      {/* ======================================================== */}
+      {activeTab === 'reviews' && (
+        <div className="space-y-6">
+          
+          {/* Top Actions & Summary */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-3xl glass-panel border border-brand-border">
+            <div>
+              <h3 className="text-base font-extrabold text-brand-text flex items-center gap-2">
+                <span>Customer Reviews Moderation</span>
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
+                  {data.reviews?.length || 0} Total
+                </span>
+              </h3>
+              <p className="text-xs text-brand-muted mt-1">
+                Approve, reject, or seed customer testimonials and seller feedback shown on the homepage.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={handleSeedReviews}
+                className="px-4 py-2.5 rounded-xl bg-brand-surface hover:bg-brand-card border border-brand-border text-xs font-bold text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
+              >
+                Seed Verified Reviews
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAddReviewModal(true)}
+                className="px-4 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center gap-1.5"
+              >
+                <span>+ Add Verified Review</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Reviews Table */}
+          <div className="rounded-3xl glass-panel border border-brand-border overflow-hidden shadow-card">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-brand-surface border-b border-brand-border text-xs uppercase text-brand-muted">
+                  <tr>
+                    <th className="py-4 px-6">Author</th>
+                    <th className="py-4 px-6">Rating</th>
+                    <th className="py-4 px-6">Traded Voucher / Key</th>
+                    <th className="py-4 px-6">Payout</th>
+                    <th className="py-4 px-6">Seller Feedback</th>
+                    <th className="py-4 px-6">Status</th>
+                    <th className="py-4 px-6 text-right">Moderation Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-brand-border/40 text-brand-text">
+                  {(!data.reviews || data.reviews.length === 0) ? (
+                    <tr>
+                      <td colSpan={7} className="py-8 text-center text-xs text-brand-muted">
+                        No reviews found. Click "Seed Verified Reviews" or "+ Add Verified Review".
+                      </td>
+                    </tr>
+                  ) : (
+                    data.reviews.map((rev) => (
+                      <tr key={rev.id} className="hover:bg-brand-surface/70 transition-colors">
+                        <td className="py-4 px-6 whitespace-nowrap">
+                          <div className="font-bold text-brand-text text-sm">{rev.authorName}</div>
+                          <div className="text-[11px] text-brand-muted">
+                            {new Date(rev.date).toLocaleDateString()}
+                          </div>
+                        </td>
+
+                        <td className="py-4 px-6 whitespace-nowrap">
+                          <span className="text-amber-400 font-bold">
+                            {'★'.repeat(rev.rating)}{'☆'.repeat(5 - rev.rating)}
+                          </span>
+                        </td>
+
+                        <td className="py-4 px-6 whitespace-nowrap font-medium text-xs">
+                          {rev.cardBrand}
+                        </td>
+
+                        <td className="py-4 px-6 whitespace-nowrap">
+                          <div className="font-mono font-bold text-brand-success text-xs">
+                            ${rev.amountUsd.toFixed(2)}
+                          </div>
+                          <div className="text-[10px] text-brand-muted">{rev.payoutMethod}</div>
+                        </td>
+
+                        <td className="py-4 px-6 max-w-xs">
+                          <p className="text-xs text-brand-text/90 line-clamp-2 italic">
+                            "{rev.comment}"
+                          </p>
+                        </td>
+
+                        <td className="py-4 px-6 whitespace-nowrap">
+                          <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase ${
+                            rev.status === 'APPROVED'
+                              ? 'bg-emerald-500/15 text-brand-success border border-emerald-500/30'
+                              : rev.status === 'PENDING'
+                              ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30'
+                              : 'bg-red-500/15 text-red-500 border border-red-500/30'
+                          }`}>
+                            {rev.status}
+                          </span>
+                        </td>
+
+                        <td className="py-4 px-6 text-right whitespace-nowrap space-x-2">
+                          {rev.status !== 'APPROVED' && (
+                            <button
+                              type="button"
+                              onClick={() => handleApproveReview(rev.id)}
+                              className="px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500 text-brand-success hover:text-white border border-emerald-500/30 text-xs font-bold transition-all cursor-pointer"
+                              title="Approve Review"
+                            >
+                              Approve ✓
+                            </button>
+                          )}
+                          {rev.status !== 'REJECTED' && (
+                            <button
+                              type="button"
+                              onClick={() => handleRejectReview(rev.id)}
+                              className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500 text-amber-500 hover:text-white border border-amber-500/30 text-xs font-bold transition-all cursor-pointer"
+                              title="Reject Review"
+                            >
+                              Reject ✕
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteReview(rev.id)}
+                            className="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/30 text-xs font-bold transition-all cursor-pointer"
+                            title="Delete Permanently"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* ADD / SEED REVIEW MODAL */}
+      {/* ======================================================== */}
+      {showAddReviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
+          <div className="relative w-full max-w-lg bg-brand-surface border border-brand-border rounded-3xl p-7 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-brand-border">
+              <h3 className="text-base font-extrabold text-brand-text">Create / Seed Verified Review</h3>
+              <button
+                type="button"
+                onClick={() => setShowAddReviewModal(false)}
+                className="p-1.5 text-brand-muted hover:text-brand-text rounded-xl hover:bg-brand-card transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateCustomReview} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-brand-text block mb-1">Author Name / Display Handle</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Jordan M. or CryptoVoucherPro"
+                  value={reviewAuthor}
+                  onChange={e => setReviewAuthor(e.target.value)}
+                  className="w-full bg-brand-bg border border-brand-border rounded-xl px-3.5 py-2.5 text-xs text-brand-text focus:outline-none focus:border-brand-primary"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-brand-text block mb-1">Star Rating</label>
+                  <select
+                    value={reviewRating}
+                    onChange={e => setReviewRating(e.target.value)}
+                    className="w-full bg-brand-bg border border-brand-border rounded-xl px-3 py-2.5 text-xs text-brand-text focus:outline-none focus:border-brand-primary"
+                  >
+                    <option value="5">★★★★★ (5 Stars)</option>
+                    <option value="4">★★★★☆ (4 Stars)</option>
+                    <option value="3">★★★☆☆ (3 Stars)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-brand-text block mb-1">Status</label>
+                  <select
+                    value={reviewStatus}
+                    onChange={e => setReviewStatus(e.target.value as any)}
+                    className="w-full bg-brand-bg border border-brand-border rounded-xl px-3 py-2.5 text-xs text-brand-text focus:outline-none focus:border-brand-primary"
+                  >
+                    <option value="APPROVED">APPROVED (Live)</option>
+                    <option value="PENDING">PENDING (Draft)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-brand-text block mb-1">Traded Card / Game Key</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Steam $100 or EA FC 25"
+                    value={reviewBrand}
+                    onChange={e => setReviewBrand(e.target.value)}
+                    className="w-full bg-brand-bg border border-brand-border rounded-xl px-3.5 py-2.5 text-xs text-brand-text focus:outline-none focus:border-brand-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-brand-text block mb-1">Payout Method</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. USDT (TRC20)"
+                    value={reviewPayout}
+                    onChange={e => setReviewPayout(e.target.value)}
+                    className="w-full bg-brand-bg border border-brand-border rounded-xl px-3.5 py-2.5 text-xs text-brand-text focus:outline-none focus:border-brand-primary"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-brand-text block mb-1">Payout Amount ($ USD)</label>
+                <input
+                  type="number"
+                  placeholder="80"
+                  value={reviewAmount}
+                  onChange={e => setReviewAmount(e.target.value)}
+                  className="w-full bg-brand-bg border border-brand-border rounded-xl px-3.5 py-2.5 text-xs text-brand-text focus:outline-none focus:border-brand-primary"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-brand-text block mb-1">Customer Comment / Review</label>
+                <textarea
+                  required
+                  rows={3}
+                  placeholder="Detailed seller feedback praising rate, verification speed, or payout reliability..."
+                  value={reviewComment}
+                  onChange={e => setReviewComment(e.target.value)}
+                  className="w-full bg-brand-bg border border-brand-border rounded-xl p-3 text-xs text-brand-text focus:outline-none focus:border-brand-primary resize-none"
+                />
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddReviewModal(false)}
+                  className="px-4 py-2 rounded-xl border border-brand-border text-xs font-bold text-brand-muted hover:text-brand-text"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-xs font-bold shadow-md cursor-pointer"
+                >
+                  Save Review
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

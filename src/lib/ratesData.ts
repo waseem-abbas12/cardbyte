@@ -77,7 +77,7 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     category: 'Shopping',
     icon: '🍎',
     badge: 'Popular',
-    verificationTime: '5-15 mins',
+    verificationTime: 'Verified by Moderator',
     enabled: true,
     countries: [
       { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 73.0, rateEcode: 73.0, ratePhysical: 77.5, nominals: [25, 50, 100, 200, 500] },
@@ -92,7 +92,7 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     category: 'Gaming',
     icon: '🎮',
     badge: 'Instant',
-    verificationTime: '2-5 mins',
+    verificationTime: 'Verified by Moderator',
     enabled: true,
     countries: [
       { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 75.0, rateEcode: 75.0, ratePhysical: 80.0, nominals: [20, 50, 100] },
@@ -107,7 +107,7 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     category: 'Gaming',
     icon: '⚡',
     badge: 'High Rate',
-    verificationTime: '5-10 mins',
+    verificationTime: 'Verified by Moderator',
     enabled: true,
     countries: [
       { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 78.5, rateEcode: 78.5, ratePhysical: 83.0, nominals: [10, 20, 50, 100] },
@@ -121,7 +121,7 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     category: 'Shopping',
     icon: '📦',
     badge: 'Hot',
-    verificationTime: 'Up to 24h',
+    verificationTime: 'Safe Settlement',
     enabled: true,
     countries: [
       { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 72.0, rateEcode: 72.0, ratePhysical: 76.5, nominals: [25, 50, 100, 250, 500] },
@@ -135,7 +135,7 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     category: 'Gaming',
     icon: '🎯',
     badge: 'Fast',
-    verificationTime: '5-15 mins',
+    verificationTime: 'Verified by Moderator',
     enabled: true,
     countries: [
       { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 71.0, rateEcode: 71.0, ratePhysical: 75.5, nominals: [25, 50, 75, 100] },
@@ -149,7 +149,7 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     category: 'Gaming',
     icon: '🟢',
     badge: 'Fast',
-    verificationTime: '5-15 mins',
+    verificationTime: 'Verified by Moderator',
     enabled: true,
     countries: [
       { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 69.0, rateEcode: 69.0, ratePhysical: 73.0, nominals: [25, 50, 100] },
@@ -161,8 +161,8 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     name: 'Google Play',
     category: 'Shopping',
     icon: '▶️',
-    badge: 'Up to 72h',
-    verificationTime: 'Up to 72h',
+    badge: 'Standard',
+    verificationTime: 'Safe Settlement',
     enabled: true,
     countries: [
       { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 62.0, rateEcode: 62.0, ratePhysical: 66.0, nominals: [25, 50, 100] },
@@ -175,7 +175,7 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     category: 'Shopping',
     icon: '🛒',
     badge: 'Physical',
-    verificationTime: '15-45 mins',
+    verificationTime: 'Verified by Moderator',
     enabled: true,
     countries: [
       { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 65.0, rateEcode: 65.0, ratePhysical: 70.0, nominals: [50, 100, 200, 500] }
@@ -186,8 +186,8 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     name: 'Netflix Subscription',
     category: 'Streaming',
     icon: '🎬',
-    badge: 'Instant',
-    verificationTime: '5 mins',
+    badge: 'Digital',
+    verificationTime: 'Verified by Moderator',
     enabled: true,
     countries: [
       { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 66.0, rateEcode: 66.0, ratePhysical: 70.0, nominals: [30, 60, 100] },
@@ -200,7 +200,7 @@ export const INITIAL_BRANDS: GiftCardBrand[] = [
     category: 'Gaming',
     icon: '🟥',
     badge: 'Fast',
-    verificationTime: '5 mins',
+    verificationTime: 'Verified by Moderator',
     enabled: true,
     countries: [
       { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', ratePercent: 70.0, rateEcode: 70.0, ratePhysical: 74.0, nominals: [10, 25, 50] }
@@ -217,4 +217,25 @@ export const LIVE_TICKER_ITEMS = [
   { brand: 'Walmart 200 USD (Physical)', price: '140.00 USDT', country: '🇺🇸', change: '+0.5%' },
   { brand: 'Xbox Game Pass 3M', price: '24.50 USDT', country: '🌐', change: '+2.0%' },
   { brand: 'Steam 500 HKD', price: '48.00 USD', country: '🇭🇰', change: '+1.2%' }
+];
+
+export interface LiveWithdrawalItem {
+  user: string;
+  amount: string;
+  method: string;
+  timeAgo: string;
+  country: string;
+}
+
+export const LIVE_WITHDRAWAL_ITEMS: LiveWithdrawalItem[] = [
+  { user: 'User***49', amount: '$250.00', method: 'USDT (TRC20)', timeAgo: '2m ago', country: '🇺🇸' },
+  { user: 'User***12', amount: '$85.00', method: 'Bitcoin (BTC)', timeAgo: '4m ago', country: '🇬🇧' },
+  { user: 'User***88', amount: '$410.00', method: 'Bank Wire', timeAgo: '6m ago', country: '🇳🇬' },
+  { user: 'User***03', amount: '$120.00', method: 'USDT (BEP20)', timeAgo: '9m ago', country: '🇪🇺' },
+  { user: 'User***71', amount: '$650.00', method: 'USDT (TRC20)', timeAgo: '11m ago', country: '🇨🇦' },
+  { user: 'User***35', amount: '$45.00', method: 'Solana (SOL)', timeAgo: '14m ago', country: '🌐' },
+  { user: 'User***92', amount: '$180.00', method: 'SEPA Instant', timeAgo: '17m ago', country: '🇪🇺' },
+  { user: 'User***64', amount: '$315.00', method: 'USDT (TRC20)', timeAgo: '21m ago', country: '🇦🇺' },
+  { user: 'User***19', amount: '$520.00', method: 'Bitcoin (BTC)', timeAgo: '24m ago', country: '🇬🇧' },
+  { user: 'User***82', amount: '$95.00', method: 'USDC (Polygon)', timeAgo: '28m ago', country: '🇺🇸' },
 ];

@@ -335,10 +335,10 @@ export default function RatesCalculator({ initialBrandId = 'apple', onProceed }:
             </div>
 
             <div className="text-right">
-              <span className="text-xs text-brand-muted block">Live Processing Speed:</span>
-              <span className="text-xs font-bold text-brand-text flex items-center gap-1 justify-end mt-0.5">
-                <Clock className="w-3.5 h-3.5 text-brand-primary" />
-                {selectedBrand.verificationTime || '5-15 mins'}
+              <span className="text-xs text-brand-muted block">Settlement Verification:</span>
+              <span className="text-xs font-bold text-brand-success flex items-center gap-1 justify-end mt-0.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-brand-success" />
+                Verified by Moderator
               </span>
             </div>
           </div>

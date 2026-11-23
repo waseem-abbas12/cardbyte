@@ -15,7 +15,8 @@ import {
   Wallet, 
   Bell, 
   Zap, 
-  CheckCircle2 
+  CheckCircle2,
+  Globe 
 } from 'lucide-react';
 import { PlatformNotification } from '@/lib/ratesData';
 
@@ -25,6 +26,10 @@ export default function Navbar() {
   const [hasConfiguredWallet, setHasConfiguredWallet] = useState(false);
   const [headerPages, setHeaderPages] = useState<{ slug: string; title: string }[]>([]);
   
+  // Language selector state
+  const [lang, setLang] = useState<'EN' | 'RU' | 'ES' | 'ZH'>('EN');
+  const [showLangMenu, setShowLangMenu] = useState(false);
+
   // Notifications
   const [notifications, setNotifications] = useState<PlatformNotification[]>([]);
   const [showNotifs, setShowNotifs] = useState(false);
@@ -105,17 +110,25 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-7">
-            <Link href="/" className="text-sm font-semibold text-brand-text hover:text-brand-primary transition-colors">
+          <nav className="hidden lg:flex items-center gap-5 xl:gap-6">
+            <Link href="/" className="text-sm font-semibold text-brand-text hover:text-brand-primary transition-colors whitespace-nowrap shrink-0">
               Home
             </Link>
-            <Link href="/sell" className="text-sm font-semibold text-brand-muted hover:text-brand-text transition-colors">
+            <Link href="/sell" className="text-sm font-semibold text-brand-muted hover:text-brand-text transition-colors whitespace-nowrap shrink-0">
               Sell Cards
             </Link>
-            <Link href="/rates" className="text-sm font-semibold text-brand-muted hover:text-brand-text transition-colors">
+            <Link href="/#gamekeys" className="text-sm font-semibold text-brand-muted hover:text-brand-text transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5">
+              <span>Game Keys</span>
+              <span className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-brand-primary/15 text-brand-primary border border-brand-primary/25">NEW</span>
+            </Link>
+            <Link href="/rates" className="text-sm font-semibold text-brand-muted hover:text-brand-text transition-colors whitespace-nowrap shrink-0">
               Rates & Limits
             </Link>
-            <Link href="/wallet" className="text-sm font-semibold text-brand-muted hover:text-brand-text transition-colors flex items-center gap-1.5">
+            <Link href="/account/referrals" className="text-sm font-semibold text-brand-muted hover:text-brand-text transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5">
+              <span>Affiliate</span>
+              <span className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-brand-success border border-emerald-500/30">0.25%</span>
+            </Link>
+            <Link href="/wallet" className="text-sm font-semibold text-brand-muted hover:text-brand-text transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5">
               <Wallet className="w-3.5 h-3.5" />
               <span>Wallet</span>
               {hasConfiguredWallet ? (
@@ -124,24 +137,62 @@ export default function Navbar() {
                 <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400">Setup</span>
               )}
             </Link>
-            <Link href="/track" className="text-sm font-semibold text-brand-muted hover:text-brand-text transition-colors flex items-center gap-1.5">
+            <Link href="/track" className="text-sm font-semibold text-brand-muted hover:text-brand-text transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5">
               <Search className="w-3.5 h-3.5" />
-              Track Order
+              <span>Track</span>
             </Link>
-            {headerPages.map(p => (
+            {headerPages.slice(0, 2).map(p => (
               <Link
                 key={p.slug}
                 href={`/p/${p.slug}`}
-                className="text-sm font-semibold text-brand-muted hover:text-brand-text transition-colors whitespace-nowrap"
+                className="text-sm font-semibold text-brand-muted hover:text-brand-text transition-colors whitespace-nowrap shrink-0"
               >
                 {formatNavTitle(p.title, p.slug)}
               </Link>
             ))}
+            <span className="text-xs font-semibold text-brand-muted/60 flex items-center gap-1 cursor-default select-none whitespace-nowrap shrink-0" title="Coming Soon">
+              Instant Redeem
+              <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-brand-surface border border-brand-border text-brand-muted">SOON</span>
+            </span>
           </nav>
 
           {/* Header Action Buttons, Alerts & Theme Switcher */}
-          <div className="hidden sm:flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-2.5">
             
+            {/* Language Selector */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowLangMenu(!showLangMenu)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-brand-surface border border-brand-border text-xs font-bold text-brand-text hover:border-brand-primary transition-colors cursor-pointer"
+                title="Select Platform Language"
+              >
+                <Globe className="w-3.5 h-3.5 text-brand-primary" />
+                <span>{lang}</span>
+              </button>
+              {showLangMenu && (
+                <div className="absolute right-0 mt-2 w-36 rounded-2xl glass-panel border border-brand-border shadow-2xl p-1.5 z-50">
+                  {[
+                    { code: 'EN', label: 'English', flag: '🇺🇸' },
+                    { code: 'ES', label: 'Español', flag: '🇪🇸' },
+                    { code: 'RU', label: 'Русский', flag: '🇷🇺' },
+                    { code: 'ZH', label: '中文', flag: '🇨🇳' }
+                  ].map((l) => (
+                    <button
+                      key={l.code}
+                      onClick={() => { setLang(l.code as any); setShowLangMenu(false); }}
+                      className={`w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
+                        lang === l.code ? 'bg-brand-primary/15 text-brand-primary font-bold' : 'text-brand-text hover:bg-brand-surface'
+                      }`}
+                    >
+                      <span>{l.flag} {l.label}</span>
+                      {lang === l.code && <span className="text-[10px] text-brand-primary">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Notifications Dropdown */}
             <div className="relative">
               <button
@@ -195,14 +246,14 @@ export default function Navbar() {
               {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-brand-muted" />}
             </button>
 
-            <div className="flex items-center gap-1.5 text-xs text-brand-muted bg-brand-surface px-3 py-1.5 rounded-xl border border-brand-border">
+            <div className="hidden xl:flex items-center gap-1.5 text-xs text-brand-muted bg-brand-surface px-3 py-1.5 rounded-xl border border-brand-border">
               <ShieldCheck className="w-4 h-4 text-brand-success" />
               <span className="font-medium">DSS Verified</span>
             </div>
 
             <Link
               href="/sell"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-sm font-bold shadow-md shadow-brand-primary/20 transition-all hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-sm font-bold shadow-md shadow-brand-primary/20 transition-all hover:-translate-y-0.5 whitespace-nowrap"
             >
               <span>Sell Now</span>
               <ArrowRight className="w-4 h-4" />
@@ -247,6 +298,22 @@ export default function Navbar() {
             className="block px-3 py-2 rounded-xl text-base font-semibold text-brand-text hover:bg-brand-surface"
           >
             Sell Cards
+          </Link>
+          <Link
+            href="/#gamekeys"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-xl text-base font-semibold text-brand-text hover:bg-brand-surface flex items-center justify-between"
+          >
+            <span>Sell Game Keys</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary">NEW</span>
+          </Link>
+          <Link
+            href="/account/referrals"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-xl text-base font-semibold text-brand-text hover:bg-brand-surface flex items-center justify-between"
+          >
+            <span>Affiliate & Referrals</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-success/15 text-brand-success">0.25%</span>
           </Link>
           <Link
             href="/rates"

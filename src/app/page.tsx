@@ -5,7 +5,10 @@ import Link from 'next/link';
 import LiveTicker from '@/components/LiveTicker';
 import RatesCalculator from '@/components/RatesCalculator';
 import CardGrid from '@/components/CardGrid';
+import GameKeysSection from '@/components/GameKeysSection';
 import TrustSection from '@/components/TrustSection';
+import ReviewsSection from '@/components/ReviewsSection';
+import ReferralBanner from '@/components/ReferralBanner';
 import { ShieldCheck, Zap, ArrowRight, CheckCircle2, HelpCircle } from 'lucide-react';
 import { SiteSettings, FaqItem, LayoutSection } from '@/lib/types';
 
@@ -17,22 +20,25 @@ export default function HomePage() {
     telegramSupport: 'https://t.me/cardbyte_support',
     whatsappSupport: '+1 (234) 567-8900',
     supportEmail: 'support@cardbyte.io',
-    activeTradersCount: '18,500+',
-    volumeTraded: '$14.2M+',
-    customerSatisfaction: '99.8%',
-    avgPayoutTime: '5 - 15m',
+    activeTradersCount: '850+',
+    volumeTraded: '19+',
+    customerSatisfaction: '4.98 ★',
+    avgPayoutTime: 'Verified by Moderator',
     autoVerification: false,
     heroTitle: 'Sell Gift Cards at the Best Rates: Fast, Easy, Reliable.',
     heroSubtitle: 'Turn your unused gift cards into USDT, Bitcoin, or instant local cash. Live algorithmic valuations, zero surprise deductions, and direct settlement.'
   });
 
   const [sections, setSections] = useState<LayoutSection[]>([
-    { id: 'ticker', name: 'Live Rates Ticker Bar', description: '', order: 1, enabled: true },
+    { id: 'ticker', name: 'Live Withdrawals Ticker Bar', description: '', order: 1, enabled: true },
     { id: 'hero', name: 'Hero Header & Value Proposition', description: '', order: 2, enabled: true },
     { id: 'brands', name: 'Supported Brands Grid', description: '', order: 3, enabled: true },
-    { id: 'trust', name: '4-Step Workflow & Security Section', description: '', order: 4, enabled: true },
-    { id: 'faqs', name: 'Frequently Asked Questions', description: '', order: 5, enabled: true },
-    { id: 'cta', name: 'Bottom Action Banner', description: '', order: 6, enabled: true }
+    { id: 'gamekeys', name: 'Sell Game Keys Section', description: '', order: 4, enabled: true },
+    { id: 'trust', name: '4-Step Workflow & Security Section', description: '', order: 5, enabled: true },
+    { id: 'reviews', name: 'Seller Reviews & Ratings', description: '', order: 6, enabled: true },
+    { id: 'referral', name: 'Affiliate Highlight Banner', description: '', order: 7, enabled: true },
+    { id: 'faqs', name: 'Frequently Asked Questions', description: '', order: 8, enabled: true },
+    { id: 'cta', name: 'Bottom Action Banner', description: '', order: 9, enabled: true }
   ]);
 
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
@@ -89,7 +95,7 @@ export default function HomePage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-brand-success shrink-0" />
-                      <span>{settings.avgPayoutTime} Rapid Settlement</span>
+                      <span>Verified by Moderator Guarantee</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-brand-success shrink-0" />
@@ -120,15 +126,15 @@ export default function HomePage() {
                   <div className="pt-6 border-t border-brand-border flex items-center gap-8 text-xs text-brand-muted">
                     <div>
                       <span className="font-extrabold text-brand-text text-sm block">{settings.activeTradersCount}</span>
-                      Active Traders
+                      Cards & Keys
                     </div>
                     <div className="border-l border-brand-border pl-8">
                       <span className="font-extrabold text-brand-success text-sm block">{settings.volumeTraded}</span>
-                      Volume Exchanged
+                      Supported Brands
                     </div>
                     <div className="border-l border-brand-border pl-8">
                       <span className="font-extrabold text-brand-text text-sm block">{settings.customerSatisfaction}</span>
-                      Customer Satisfaction
+                      Trust Rating
                     </div>
                   </div>
                 </div>
@@ -144,18 +150,23 @@ export default function HomePage() {
         );
 
       case 'calculator':
-        // If calculator is placed standalone by layout order
-        return (
-          <section key="calculator-standalone" className="py-12 max-w-2xl mx-auto px-4">
-            <RatesCalculator />
-          </section>
-        );
+        // Duplicate removed permanently - calculator embedded in hero fold
+        return null;
 
       case 'brands':
         return <CardGrid key="brands" />;
 
+      case 'gamekeys':
+        return <GameKeysSection key="gamekeys" />;
+
       case 'trust':
         return <TrustSection key="trust" settings={settings} />;
+
+      case 'reviews':
+        return <ReviewsSection key="reviews" />;
+
+      case 'referral':
+        return <ReferralBanner key="referral" />;
 
       case 'faqs':
         return (

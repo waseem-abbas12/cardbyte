@@ -91,6 +91,8 @@ export interface OrderItem {
   cardPin?: string;
   receiptNote?: string;
   receiptImages: string[];
+  referralCode?: string;
+  orderComment?: string;
   status: 'PENDING' | 'VERIFYING' | 'COMPLETED' | 'REJECTED';
   txHash?: string;
   rejectionReason?: string;
@@ -152,4 +154,31 @@ export interface UserWalletConfig {
   balanceUsd?: number;
   isConfigured: boolean;
   updatedAt?: string;
+}
+
+export interface ReviewItem {
+  id: string;
+  authorName: string;
+  avatar?: string;
+  rating: number; // 1 to 5
+  cardBrand: string;
+  payoutMethod: string;
+  amountUsd: number;
+  comment: string;
+  date: string;
+  status: 'APPROVED' | 'PENDING' | 'REJECTED';
+  isVerifiedBuyer: boolean;
+  featured?: boolean;
+}
+
+export interface ReferralRecord {
+  code: string;
+  userIdentifier: string;
+  totalReferred: number;
+  totalVolumeUsd: number;
+  commissionRate: number; // default 0.0025 (0.25%)
+  earnedUsd: number;
+  paidUsd: number;
+  pendingUsd: number;
+  createdAt: string;
 }
