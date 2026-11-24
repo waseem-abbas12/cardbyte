@@ -4,8 +4,10 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { GiftCardBrand, INITIAL_BRANDS } from '@/lib/ratesData';
 import { ArrowUpRight, ShieldCheck, Zap } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 export default function CardGrid() {
+  const { t } = useLanguage();
   const [brands, setBrands] = useState<GiftCardBrand[]>(INITIAL_BRANDS);
 
   useEffect(() => {
@@ -47,7 +49,7 @@ export default function CardGrid() {
             href="/rates"
             className="mt-4 md:mt-0 inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-brand-primary hover:text-brand-primaryHover transition-colors"
           >
-            <span>View All Rates & Limits</span>
+            <span>{t('viewRatesLimits')}</span>
             <ArrowUpRight className="w-4 h-4" />
           </Link>
         </div>

@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import TelegramFloat from "@/components/TelegramFloat";
+import { LanguageProvider } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "Cardbyte | Trade Gift Cards Instantly with Best Rates & Fast Payouts",
@@ -23,12 +24,14 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="min-h-screen bg-brand-bg text-brand-text flex flex-col antialiased selection:bg-brand-primary selection:text-white">
-        <Navbar />
-        <main className="flex-1">
-          {children}
-        </main>
-        <Footer />
-        <TelegramFloat />
+        <LanguageProvider>
+          <Navbar />
+          <main className="flex-1">
+            {children}
+          </main>
+          <Footer />
+          <TelegramFloat />
+        </LanguageProvider>
       </body>
     </html>
   );

@@ -94,7 +94,7 @@ export default function RatesCalculator({ initialBrandId = 'apple', onProceed }:
       ratePercent: activeRatePercent || 70,
       totalFaceValue: totalFaceValue || 100,
       totalPayoutUsd: totalPayoutUsd || 70,
-      verificationTime: selectedBrand?.verificationTime || '5-15 mins',
+      verificationTime: selectedBrand?.verificationTime || 'Verified by Moderator',
       payoutId: selectedPayout?.id || 'usdt_trc20',
       payoutName: selectedPayout ? `${selectedPayout.name} (${selectedPayout.network || selectedPayout.symbol})` : 'USDT (TRC20)'
     };

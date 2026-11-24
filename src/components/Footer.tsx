@@ -56,6 +56,12 @@ export default function Footer() {
                 <Link href="/sell" className="hover:text-brand-primary transition-colors">Sell Gift Cards</Link>
               </li>
               <li>
+                <Link href="/buy" className="hover:text-brand-primary transition-colors flex items-center gap-1.5">
+                  <span>Buy Gift Cards (Bulk)</span>
+                  <span className="text-[9px] px-1 rounded bg-amber-500/15 text-amber-500 font-bold">B2B</span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/#gamekeys" className="hover:text-brand-primary transition-colors">Sell Game Keys</Link>
               </li>
               <li>

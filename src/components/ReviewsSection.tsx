@@ -4,8 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { Star, ShieldCheck, CheckCircle2, MessageSquarePlus, X, ThumbsUp, Send } from 'lucide-react';
 import { ReviewItem } from '@/lib/types';
 import { DEFAULT_REVIEWS } from '@/lib/ratesData';
+import { useLanguage } from '@/lib/i18n';
 
 export default function ReviewsSection() {
+  const { t } = useLanguage();
   const [reviews, setReviews] = useState<ReviewItem[]>(DEFAULT_REVIEWS);
   const [activeFilter, setActiveFilter] = useState<'ALL' | 'CARDS' | 'KEYS'>('ALL');
   const [showModal, setShowModal] = useState(false);
@@ -75,42 +77,50 @@ export default function ReviewsSection() {
     return true;
   });
 
+  const getInitials = (name: string): string => {
+    const parts = name.trim().split(' ').filter(Boolean);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  };
+
   return (
-    <section className="py-20 bg-brand-surface/40 border-t border-brand-border relative overflow-hidden" id="reviews">
+    <section className="py-16 sm:py-20 bg-brand-surface/40 border-t border-brand-border relative overflow-hidden" id="reviews">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Header & Rating Overview */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 gap-6">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-10 sm:mb-12 gap-6">
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-xs font-bold tracking-wide uppercase mb-3">
               <ShieldCheck className="w-3.5 h-3.5" />
-              Verified Trader Feedback
+              {t('reviewsBadge')}
             </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-brand-text tracking-tight">
-              What Sellers Say About Cardbyte
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-brand-text tracking-tight">
+              {t('reviewsTitle')}
             </h2>
-            <p className="text-sm sm:text-base text-brand-muted mt-2 max-w-xl">
-              Authentic reviews from retail sellers and OTC counterparties who trade gift vouchers and game licenses daily.
+            <p className="text-xs sm:text-base text-brand-muted mt-2 max-w-xl leading-relaxed">
+              {t('reviewsSubtitle')}
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
             {/* Score pill */}
-            <div className="flex items-center gap-3 p-3.5 rounded-2xl glass-panel border border-brand-border">
-              <div className="text-3xl font-black text-brand-text font-mono">4.98</div>
+            <div className="flex items-center gap-3 p-3 sm:p-3.5 rounded-2xl glass-panel border border-brand-border">
+              <div className="text-2xl sm:text-3xl font-black text-brand-text font-mono">4.98</div>
               <div>
-                <div className="flex text-amber-400 text-sm">
+                <div className="flex text-amber-400 text-xs sm:text-sm">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                    <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
-                <div className="text-[11px] text-brand-muted mt-0.5">Based on 1,400+ payouts</div>
+                <div className="text-[10px] sm:text-[11px] text-brand-muted mt-0.5">Based on 1,400+ payouts</div>
               </div>
             </div>
 
             <button
               onClick={() => setShowModal(true)}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-xs sm:text-sm font-bold shadow-md shadow-brand-primary/20 transition-all hover:-translate-y-0.5 cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-xs sm:text-sm font-bold shadow-md shadow-brand-primary/20 transition-all hover:-translate-y-0.5 cursor-pointer"
             >
               <MessageSquarePlus className="w-4 h-4" />
               <span>Write a Review</span>
@@ -128,7 +138,7 @@ export default function ReviewsSection() {
             <button
               key={tab.id}
               onClick={() => setActiveFilter(tab.id as any)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeFilter === tab.id
                   ? 'bg-brand-primary text-white shadow-sm'
                   : 'text-brand-muted hover:text-brand-text hover:bg-brand-surface'
@@ -140,22 +150,18 @@ export default function ReviewsSection() {
         </div>
 
         {/* Reviews Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {filtered.map(r => (
             <div
               key={r.id}
-              className="p-6 rounded-3xl glass-panel border border-brand-border/80 hover:border-brand-primary/40 transition-all flex flex-col justify-between hover:-translate-y-1 hover:shadow-lg"
+              className="p-5 sm:p-6 rounded-3xl glass-panel border border-brand-border/80 hover:border-brand-primary/40 transition-all flex flex-col justify-between hover:-translate-y-1 hover:shadow-lg"
             >
               <div>
-                {/* Reviewer Header */}
+                {/* Reviewer Header with Clean Initials Badge (NO Profile Photos) */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-brand-surface border border-brand-border flex items-center justify-center font-bold text-sm text-brand-primary overflow-hidden">
-                      {r.avatar ? (
-                        <img src={r.avatar} alt={r.authorName} className="w-full h-full object-cover" />
-                      ) : (
-                        r.authorName.slice(0, 2).toUpperCase()
-                      )}
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-primary/20 to-brand-surface border border-brand-primary/30 flex items-center justify-center font-bold text-xs font-mono text-brand-primary tracking-wider shadow-sm shrink-0">
+                      {getInitials(r.authorName)}
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5">
@@ -163,7 +169,7 @@ export default function ReviewsSection() {
                         {r.isVerifiedBuyer && (
                           <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-brand-success border border-emerald-500/25">
                             <CheckCircle2 className="w-2.5 h-2.5" />
-                            Verified
+                            {t('verifiedSeller')}
                           </span>
                         )}
                       </div>
@@ -189,7 +195,7 @@ export default function ReviewsSection() {
                     ${r.amountUsd.toFixed(2)} USD
                   </span>
                   <span className="text-[10px] text-brand-muted">
-                    via {r.payoutMethod}
+                    {t('settledVia')} {r.payoutMethod}
                   </span>
                 </div>
 
@@ -230,103 +236,104 @@ export default function ReviewsSection() {
               Submit Seller Review
             </h3>
             <p className="text-xs text-brand-muted mb-6">
-              Share your trade experience with the Cardbyte seller community.
+              Share your exchange experience. Verified reviews appear publicly after moderation.
             </p>
 
             {submitSuccess ? (
-              <div className="p-6 rounded-2xl bg-brand-successGlow border border-brand-success/30 text-center space-y-2">
+              <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-2">
                 <CheckCircle2 className="w-10 h-10 text-brand-success mx-auto" />
-                <h4 className="text-base font-bold text-brand-text">Review Received!</h4>
+                <h4 className="text-base font-bold text-brand-text">Review Submitted!</h4>
                 <p className="text-xs text-brand-muted">
-                  Thank you! Your feedback will appear publicly once verified by our moderation team.
+                  Thank you! Your feedback has been queued for moderator review.
                 </p>
               </div>
             ) : (
               <form onSubmit={handleSubmitReview} className="space-y-4">
                 <div>
-                  <label className="text-xs font-bold text-brand-text block mb-1.5">
-                    Your Name or Trader Handle
+                  <label className="block text-xs font-bold text-brand-text mb-1">
+                    Your Name or Trader Alias
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Alex K. or TraderPro"
                     value={authorName}
                     onChange={e => setAuthorName(e.target.value)}
-                    className="w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-brand-text focus:outline-none focus:border-brand-primary"
+                    placeholder="e.g. Alex M. or @trader99"
+                    className="w-full px-4 py-2.5 rounded-xl bg-brand-surface border border-brand-border text-sm text-brand-text focus:border-brand-primary outline-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-bold text-brand-text block mb-1.5">
+                    <label className="block text-xs font-bold text-brand-text mb-1">
                       Rating
                     </label>
                     <select
                       value={rating}
                       onChange={e => setRating(parseInt(e.target.value))}
-                      className="w-full bg-brand-surface border border-brand-border rounded-xl px-3 py-2.5 text-sm text-brand-text focus:outline-none focus:border-brand-primary"
+                      className="w-full px-3 py-2.5 rounded-xl bg-brand-surface border border-brand-border text-sm text-brand-text focus:border-brand-primary outline-none"
                     >
-                      <option value={5}>★★★★★ (5/5 Excellent)</option>
-                      <option value={4}>★★★★☆ (4/5 Great)</option>
-                      <option value={3}>★★★☆☆ (3/5 Average)</option>
+                      <option value={5}>5 Stars (Excellent)</option>
+                      <option value={4}>4 Stars (Good)</option>
+                      <option value={3}>3 Stars (Average)</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-brand-text block mb-1.5">
-                      Traded Card / Key
+                    <label className="block text-xs font-bold text-brand-text mb-1">
+                      Amount ($ USD)
                     </label>
                     <input
-                      type="text"
+                      type="number"
                       required
-                      placeholder="e.g. Steam $100 or EA FC 25"
-                      value={cardBrand}
-                      onChange={e => setCardBrand(e.target.value)}
-                      className="w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-brand-text focus:outline-none focus:border-brand-primary"
-                    />
+                      value={amountUsd}
+                      onChange={e => setAmountUsd(e.target.value)}
+                      placeholder="80"
+                      className="w-full px-4 py-2.5 rounded-xl bg-brand-surface border border-brand-border text-sm text-brand-text focus:border-brand-primary outline-none"
+                    >
+                    </input>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-bold text-brand-text block mb-1.5">
-                      Payout Rail
+                    <label className="block text-xs font-bold text-brand-text mb-1">
+                      Card / Item Traded
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. USDT (TRC20)"
-                      value={payoutMethod}
-                      onChange={e => setPayoutMethod(e.target.value)}
-                      className="w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-brand-text focus:outline-none focus:border-brand-primary"
+                      value={cardBrand}
+                      onChange={e => setCardBrand(e.target.value)}
+                      placeholder="Steam $100"
+                      className="w-full px-4 py-2.5 rounded-xl bg-brand-surface border border-brand-border text-sm text-brand-text focus:border-brand-primary outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-brand-text block mb-1.5">
-                      Payout Amount ($ USD)
+                    <label className="block text-xs font-bold text-brand-text mb-1">
+                      Payout Received
                     </label>
                     <input
-                      type="number"
-                      placeholder="80"
-                      value={amountUsd}
-                      onChange={e => setAmountUsd(e.target.value)}
-                      className="w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-brand-text focus:outline-none focus:border-brand-primary"
+                      type="text"
+                      value={payoutMethod}
+                      onChange={e => setPayoutMethod(e.target.value)}
+                      placeholder="USDT (TRC20)"
+                      className="w-full px-4 py-2.5 rounded-xl bg-brand-surface border border-brand-border text-sm text-brand-text focus:border-brand-primary outline-none"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-brand-text block mb-1.5">
-                    Your Review & Experience
+                  <label className="block text-xs font-bold text-brand-text mb-1">
+                    Your Review / Comments
                   </label>
                   <textarea
-                    required
                     rows={3}
-                    placeholder="Tell other sellers how smooth the verification and payout was..."
+                    required
                     value={comment}
                     onChange={e => setComment(e.target.value)}
-                    className="w-full bg-brand-surface border border-brand-border rounded-xl p-3 text-sm text-brand-text focus:outline-none focus:border-brand-primary resize-none"
+                    placeholder="Tell other traders about the payout speed, moderator support, and overall experience..."
+                    className="w-full px-4 py-2.5 rounded-xl bg-brand-surface border border-brand-border text-sm text-brand-text focus:border-brand-primary outline-none resize-none"
                   />
                 </div>
 
@@ -334,10 +341,10 @@ export default function ReviewsSection() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full py-3 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    className="w-full py-3 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white font-bold text-sm shadow-lg shadow-brand-primary/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
                     <Send className="w-4 h-4" />
-                    <span>{submitting ? 'Submitting...' : 'Post Review for Moderation'}</span>
+                    <span>{submitting ? 'Submitting...' : 'Submit Review for Verification'}</span>
                   </button>
                 </div>
               </form>

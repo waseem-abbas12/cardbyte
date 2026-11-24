@@ -1,11 +1,15 @@
+'use client';
+
 import React from 'react';
 import { LIVE_WITHDRAWAL_ITEMS } from '@/lib/ratesData';
+import { useLanguage } from '@/lib/i18n';
 
 interface LiveTickerProps {
   announcement?: string;
 }
 
 export default function LiveTicker({ announcement }: LiveTickerProps) {
+  const { t } = useLanguage();
   const tickerItems = [...LIVE_WITHDRAWAL_ITEMS, ...LIVE_WITHDRAWAL_ITEMS];
 
   return (
@@ -17,7 +21,9 @@ export default function LiveTicker({ announcement }: LiveTickerProps) {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-success opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-success"></span>
           </span>
-          <span className="text-xs font-bold tracking-wider uppercase text-brand-success">LIVE WITHDRAWALS</span>
+          <span className="text-xs font-bold tracking-wider uppercase text-brand-success">
+            {t('liveWithdrawals')}
+          </span>
         </div>
 
         {/* Scrolling Ticker Track */}

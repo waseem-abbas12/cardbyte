@@ -246,7 +246,6 @@ export const DEFAULT_REVIEWS: ReviewItem[] = [
   {
     id: 'rev-1',
     authorName: 'Marcus V.',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces',
     rating: 5,
     cardBrand: 'Steam Wallet $100',
     payoutMethod: 'USDT (TRC20)',
@@ -260,7 +259,6 @@ export const DEFAULT_REVIEWS: ReviewItem[] = [
   {
     id: 'rev-2',
     authorName: 'Liam Chen',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces',
     rating: 5,
     cardBrand: 'Apple & iTunes $500',
     payoutMethod: 'Bitcoin (BTC)',
@@ -274,7 +272,6 @@ export const DEFAULT_REVIEWS: ReviewItem[] = [
   {
     id: 'rev-3',
     authorName: 'Elena Rostova',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces',
     rating: 5,
     cardBrand: 'Razer Gold 100 GBP',
     payoutMethod: 'USDT (TRC20)',
@@ -288,7 +285,6 @@ export const DEFAULT_REVIEWS: ReviewItem[] = [
   {
     id: 'rev-4',
     authorName: 'David K.',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces',
     rating: 5,
     cardBrand: 'EA Sports FC 25 Key',
     payoutMethod: 'USDT (BEP20)',
@@ -302,7 +298,6 @@ export const DEFAULT_REVIEWS: ReviewItem[] = [
   {
     id: 'rev-5',
     authorName: 'Chidi Okafor',
-    avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100&h=100&fit=crop&crop=faces',
     rating: 5,
     cardBrand: 'PlayStation $100',
     payoutMethod: 'Bank Transfer (NGN)',
@@ -316,7 +311,6 @@ export const DEFAULT_REVIEWS: ReviewItem[] = [
   {
     id: 'rev-6',
     authorName: 'Sofia Martinez',
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces',
     rating: 5,
     cardBrand: 'Xbox Game Pass 3M',
     payoutMethod: 'Solana (SOL)',

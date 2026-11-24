@@ -11,8 +11,11 @@ import ReviewsSection from '@/components/ReviewsSection';
 import ReferralBanner from '@/components/ReferralBanner';
 import { ShieldCheck, Zap, ArrowRight, CheckCircle2, HelpCircle } from 'lucide-react';
 import { SiteSettings, FaqItem, LayoutSection } from '@/lib/types';
+import { useLanguage } from '@/lib/i18n';
 
 export default function HomePage() {
+  const { t } = useLanguage();
+
   const [settings, setSettings] = useState<SiteSettings>({
     siteName: 'Cardbyte Pro',
     tagline: 'Leading Global Gift Card & Crypto Exchange',
@@ -66,74 +69,78 @@ export default function HomePage() {
 
       case 'hero':
         return (
-          <section key="hero" className="relative pt-12 pb-20 md:py-24 overflow-hidden">
+          <section key="hero" className="relative pt-10 pb-16 md:py-20 overflow-hidden">
             <div className="absolute top-1/4 left-1/4 -translate-x-1/2 w-96 h-96 bg-brand-primary/10 blur-[120px] rounded-full pointer-events-none"></div>
             <div className="absolute bottom-10 right-10 w-80 h-80 bg-brand-successGlow blur-[140px] rounded-full pointer-events-none"></div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
                 
                 {/* Left Hero Content */}
                 <div className="lg:col-span-7 space-y-6">
                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-xs font-bold">
                     <ShieldCheck className="w-4 h-4 text-brand-primary" />
-                    <span>#1 Trusted Digital Gift Card Exchange</span>
+                    <span>{t('heroBadge')}</span>
                   </div>
 
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-brand-text tracking-tight leading-[1.12]">
-                    {settings.heroTitle}
+                  <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-brand-text tracking-tight leading-[1.12]">
+                    <span>{t('heroTitlePrefix')} </span>
+                    <span className="text-brand-primary underline decoration-brand-primary/30 decoration-wavy underline-offset-4">
+                      {t('heroTitleHighlight')}
+                    </span>
+                    <span>: {t('heroTitleSuffix')}</span>
                   </h1>
 
-                  <p className="text-base sm:text-lg text-brand-muted max-w-xl leading-relaxed">
-                    {settings.heroSubtitle}
+                  <p className="text-sm sm:text-lg text-brand-muted max-w-xl leading-relaxed">
+                    {t('heroSubtitle')}
                   </p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-sm text-brand-text">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs sm:text-sm text-brand-text">
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-brand-success shrink-0" />
-                      <span>Independent E-Code & Physical Rates</span>
+                      <span>{t('heroBullet1')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-brand-success shrink-0" />
-                      <span>Verified by Moderator Guarantee</span>
+                      <span>{t('heroBullet2')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-brand-success shrink-0" />
-                      <span>Escrow-Protected Guarantee</span>
+                      <span>{t('heroBullet3')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-brand-success shrink-0" />
-                      <span>Zero Withdrawal Deductions</span>
+                      <span>{t('heroBullet4')}</span>
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-4 pt-4">
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-3">
                     <Link
                       href="/sell"
-                      className="px-7 py-3.5 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-base font-extrabold shadow-lg shadow-brand-primary/25 transition-all flex items-center gap-2 hover:-translate-y-0.5"
+                      className="px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-sm sm:text-base font-extrabold shadow-lg shadow-brand-primary/25 transition-all flex items-center gap-2 hover:-translate-y-0.5"
                     >
-                      <span>Start Selling Now</span>
+                      <span>{t('startSellingNow')}</span>
                       <ArrowRight className="w-4 h-4" />
                     </Link>
                     <Link
                       href="/rates"
-                      className="px-6 py-3.5 rounded-xl bg-brand-surface hover:bg-brand-cardHover border border-brand-border text-brand-text text-base font-bold transition-all shadow-sm"
+                      className="px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-brand-surface hover:bg-brand-cardHover border border-brand-border text-brand-text text-sm sm:text-base font-bold transition-all shadow-sm"
                     >
-                      View All Rates & Limits
+                      {t('viewRatesLimits')}
                     </Link>
                   </div>
 
-                  <div className="pt-6 border-t border-brand-border flex items-center gap-8 text-xs text-brand-muted">
+                  <div className="pt-6 border-t border-brand-border flex items-center gap-6 sm:gap-8 text-xs text-brand-muted">
                     <div>
-                      <span className="font-extrabold text-brand-text text-sm block">{settings.activeTradersCount}</span>
+                      <span className="font-extrabold text-brand-text text-sm sm:text-base block">{settings.activeTradersCount}</span>
                       Cards & Keys
                     </div>
-                    <div className="border-l border-brand-border pl-8">
-                      <span className="font-extrabold text-brand-success text-sm block">{settings.volumeTraded}</span>
+                    <div className="border-l border-brand-border pl-6 sm:pl-8">
+                      <span className="font-extrabold text-brand-success text-sm sm:text-base block">{settings.volumeTraded}</span>
                       Supported Brands
                     </div>
-                    <div className="border-l border-brand-border pl-8">
-                      <span className="font-extrabold text-brand-text text-sm block">{settings.customerSatisfaction}</span>
+                    <div className="border-l border-brand-border pl-6 sm:pl-8">
+                      <span className="font-extrabold text-brand-text text-sm sm:text-base block">{settings.customerSatisfaction}</span>
                       Trust Rating
                     </div>
                   </div>
@@ -170,25 +177,25 @@ export default function HomePage() {
 
       case 'faqs':
         return (
-          <section key="faqs" className="py-20 bg-brand-surface/60 border-t border-brand-border">
+          <section key="faqs" className="py-16 sm:py-20 bg-brand-surface/60 border-t border-brand-border">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="text-center mb-12">
+              <div className="text-center mb-10 sm:mb-12">
                 <span className="text-xs font-bold text-brand-primary tracking-widest uppercase px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20">
                   FREQUENTLY ASKED QUESTIONS
                 </span>
-                <h2 className="text-3xl font-extrabold text-brand-text tracking-tight mt-3">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-brand-text tracking-tight mt-3">
                   Clear Answers to Your Questions
                 </h2>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3.5 sm:space-y-4">
                 {faqs.map((faq) => (
-                  <div key={faq.id} className="p-6 rounded-2xl glass-panel border border-brand-border space-y-2">
-                    <h3 className="text-base font-bold text-brand-text flex items-center gap-2">
+                  <div key={faq.id} className="p-5 sm:p-6 rounded-2xl glass-panel border border-brand-border space-y-2">
+                    <h3 className="text-sm sm:text-base font-bold text-brand-text flex items-center gap-2">
                       <HelpCircle className="w-4 h-4 text-brand-primary shrink-0" />
                       {faq.question}
                     </h3>
-                    <p className="text-sm text-brand-muted leading-relaxed pl-6">
+                    <p className="text-xs sm:text-sm text-brand-muted leading-relaxed pl-6">
                       {faq.answer}
                     </p>
                   </div>
@@ -202,19 +209,19 @@ export default function HomePage() {
         return (
           <section key="cta" className="py-16 bg-brand-surface border-t border-brand-border">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-brand-text tracking-tight">
+              <h2 className="text-2xl sm:text-4xl font-extrabold text-brand-text tracking-tight">
                 Ready to Convert Your Gift Cards into Crypto or Cash?
               </h2>
-              <p className="text-sm sm:text-base text-brand-muted max-w-xl mx-auto">
+              <p className="text-xs sm:text-base text-brand-muted max-w-xl mx-auto">
                 Join over {settings.activeTradersCount} satisfied sellers. Zero sign-up delays, live competitive quotations, and guaranteed fast settlement.
               </p>
               <div className="pt-2">
                 <Link
                   href="/sell"
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white font-extrabold text-base shadow-xl shadow-brand-primary/25 transition-all hover:scale-105"
+                  className="inline-flex items-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white font-extrabold text-sm sm:text-base shadow-xl shadow-brand-primary/25 transition-all hover:scale-105"
                 >
                   <span>Exchange Gift Card Now</span>
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Link>
               </div>
             </div>
